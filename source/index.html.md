@@ -621,7 +621,7 @@ Gets all existing domains under current registrar account.
 
 ### HTTP Request
 
-`GET /repp/v1/registrar/domains`
+`GET /repp/v1/domains`
 
 ### URL Parameters
 
