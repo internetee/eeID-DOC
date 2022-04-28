@@ -571,9 +571,9 @@ curl --location --request GET 'https://testrar.internet.ee/repp/v1/domains' \
                 ],
                 "nameservers": [],
                 "dnssec_keys": [],
-                "statuses": [
-                    "inactive"
-                ],
+                "statuses": {
+                    "inactive": ""
+                },
             "registrar": {
                 "name": "Kreative Digital OÜ",
                 "website": "https://kreative.ee"
@@ -602,9 +602,9 @@ curl --location --request GET 'https://testrar.internet.ee/repp/v1/domains' \
                 ],
                 "nameservers": [],
                 "dnssec_keys": [],
-                "statuses": [
-                    "inactive"
-                ],
+                "statuses": {
+                    "inactive": ""
+                },
             "registrar": {
                 "name": "Kreative Digital OÜ",
                 "website": "https://kreative.ee"
@@ -667,9 +667,9 @@ curl --location --request GET 'https://testrar.internet.ee/repp/v1/domains/biz.e
             ],
             "nameservers": [],
             "dnssec_keys": [],
-            "statuses": [
-                "inactive"
-            ],
+            "statuses": {
+                "inactive": ""
+            },
             "registrar": {
                 "name": "Kreative Digital OÜ",
                 "website": "https://kreative.ee"
