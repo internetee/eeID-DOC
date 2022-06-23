@@ -25,9 +25,9 @@ This production API project is only available for our active registrars. You can
 
 # Environments
 
-Production endpoint: https://registrar.internet.ee/repp/v1/
+Production endpoint: https://repp.internet.ee/
 
-Sandbox endpoint: https://testrar.internet.ee/repp/v1/
+Sandbox endpoint: https://testrepp.internet.ee/
 
 Production environment is only available for our active registrars.
 
