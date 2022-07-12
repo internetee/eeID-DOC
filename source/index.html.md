@@ -270,12 +270,16 @@ curl --location --request GET 'https://testrar.internet.ee/repp/v1/contacts' \
 
 ```json
 {
-    "contacts": [
-        "ATSAA:15554596",
-        "ATSAA:5767A313",
-        "ATSAA:634CF14B",
-    ],
-    "total_number_of_records": 3
+    "code": 1000,
+    "message": "Command completed successfully",
+    "data": {
+        "contacts": [
+            "ATSAA:15554596",
+            "ATSAA:5767A313",
+            "ATSAA:634CF14B",
+        ],
+        "count": 3
+    }
 }
 ```
 
@@ -284,6 +288,14 @@ Get all contacts
 ### HTTP Request
 
 `GET /repp/v1/contacts`
+
+### URL Parameters
+
+Parameter | Required | Default | Description
+--------- | -------- | ------- | -----------
+limit | No | 200 | How many objects to return
+offset | No | 0 | Object query offset
+details | No | false | Show full object for each contact
 
 ## Get a specific contact
 
@@ -300,21 +312,29 @@ curl --location --request GET 'https://testrar.internet.ee/repp/v1/contacts/ATSA
     "code": 1000,
     "message": "Command completed successfully",
     "data": {
-        "id": "ATSAA:KARL",
-        "name": "John Doe",
-        "ident": {
-            "code": "12345678901",
-            "type": "priv",
-            "country_code": "EE"
-        },
-        "email": "xxx@xxx.ee",
-        "phone": "+xxx",
-        "auth_info": "ed33c67bedb32b1567b131",
-        "statuses": [
-            "ok",
-            "linked"
-        ],
-        "disclosed_attributes": []
+        "contact": {
+            "code": "1111111:8E561326",
+            "name": "John Doe",
+            "ident": {
+                "code": "12345678901",
+                "type": "priv",
+                "country_code": "EE"
+            },
+            "email": "xxx@xxx.ee",
+            "phone": "+xxx",
+            "auth_info": "ed33c67bedb32b1567b131",
+            "statuses": {
+                "ok": "ok status description",
+                "linked": null
+            },
+            "disclosed_attributes": [],
+            "registrar": {
+                "name": "Registrar",
+                "website": "https://registrar"
+            },
+            "domains": [],
+            "domains_count": 0
+        }
     }
 }
 ```
@@ -327,9 +347,10 @@ Get a specific contact
 
 ### URL Parameters
 
-Parameter | Required | Description
---------- | ------- | -----------
-contact_id | Yes | Contact ID
+Parameter | Required | Default | Description
+--------- | -------- | ------- | -----------
+contact_id | Yes | | Contact ID
+simple | No | false | Show simple object for contact
 
 ## Delete a specific contact
 
@@ -399,7 +420,7 @@ curl --location --request POST 'https://testrar.internet.ee/repp/v1/contacts' \
     "message": "Command completed successfully",
     "data": {
         "contact": {
-            "id": "ATSAA:84F23FD1"
+            "code": "ATSAA:84F23FD1"
         }
     }
 }
@@ -450,7 +471,7 @@ curl --location --request PUT 'https://testrar.internet.ee/repp/v1/contacts/ATSA
     "message": "Command completed successfully",
     "data": {
         "contact": {
-            "id": "ATSAA:84F23FD1"
+            "code": "ATSAA:84F23FD1"
         }
     }
 }
@@ -496,7 +517,7 @@ curl --location --request GET 'https://testrar.internet.ee/repp/v1/contacts/chec
     "message": "Command completed successfully",
     "data": {
         "contact": {
-            "id": "PUDERJAKAPSAS",
+            "code": "PUDERJAKAPSAS",
             "available": true
         }
     }
@@ -532,11 +553,14 @@ curl --location --request GET 'https://testrar.internet.ee/repp/v1/domains' \
     "code": 1000,
     "message": "Command completed successfully",
     "data": {
+        "new_domain": [
+            "www.ee"
+        ],
         "domains": [
             "kass.ee",
             "koer.ee",
         ],
-        "total_number_of_records": 69
+        "count": 69
     }
 }
 ```
@@ -548,10 +572,82 @@ curl --location --request GET 'https://testrar.internet.ee/repp/v1/domains' \
     "code": 1000,
     "message": "Command completed successfully",
     "data": {
+        "new_domain": [
+            {
+                "name": "wwww.ee",
+                "registrant": {
+                    "name": "Mary Änn O’Connež-Šuslik",
+                    "code": "1111111:0FEEDC3C"
+                },
+                "created_at": "2022-06-15T16:04:07.042+03:00",
+                "updated_at": "2022-06-20T14:02:10.339+03:00",
+                "expire_time": "2022-12-16T00:00:00.000+02:00",
+                "outzone_at": "2022-06-20T14:02:10.304+03:00",
+                "delete_date": "2022-07-21",
+                "force_delete_date": null,
+                "contacts": [
+                    {
+                        "code": "1111111:65B7EB55",
+                        "type": "AdminDomainContact",
+                        "name": "Mary Änn O’Connež-Šuslik"
+                    },
+                    {
+                        "code": "1111111:8E3736F2",
+                        "type": "TechDomainContact",
+                        "name": "Mary Änn O’Connež-Šuslik"
+                    }
+                ],
+                "nameservers": [
+                    {
+                        "id": 37,
+                        "hostname": "ns1.oberbrunner.net",
+                        "ipv4": [
+                            "219.175.134.244"
+                        ],
+                        "ipv6": [
+                            "647B:275:536E:1C6B:8D51:5E15:D6F5:184A"
+                        ]
+                    },
+                    {
+                        "id": 38,
+                        "hostname": "ns2.kunze.org",
+                        "ipv4": [
+                            "134.156.204.100"
+                        ],
+                        "ipv6": [
+                            "A724:680A:9437:E459:A20D:5C53:DF42:CD5F"
+                        ]
+                    }
+                ],
+                "dnssec_keys": [
+                    {
+                        "id": 8,
+                        "flags": 257,
+                        "protocol": 3,
+                        "alg": 8,
+                        "public_key": "e087a47db0e31dbb162e4bb62da7a34322be3ff66fdcf65268225c4db3b37d79"
+                    }
+                ],
+                "statuses": {
+                    "ok": "",
+                    "pendingDelete": "",
+                    "serverHold": ""
+                },
+                "registrar": {
+                    "name": "Registrar",
+                    "website": "https://regitrar.ee"
+                },
+                "dispute": false,
+                "transfer_code": "a39f33a5c6a5aa3ac44e625c9eaa7476"
+            }
+        ],
         "domains": [
             {
                 "name": "kass.ee",
-                "registrant": "ATSAA:KARL",
+                "registrant": {
+                    "name": "KARL",
+                    "code": "ATSAA:KARL"
+                },
                 "created_at": "2021-01-29T11:15:52.753+02:00",
                 "updated_at": "2021-01-29T11:15:52.753+02:00",
                 "expire_time": "2022-01-30T00:00:00.000+02:00",
@@ -562,11 +658,13 @@ curl --location --request GET 'https://testrar.internet.ee/repp/v1/domains' \
                 "contacts": [
                     {
                         "code": "ATSAA:KARL",
-                        "type": "AdminDomainContact"
+                        "type": "AdminDomainContact",
+                        "name": "KARL"
                     },
                     {
                         "code": "ATSAA:KARL",
-                        "type": "TechDomainContact"
+                        "type": "TechDomainContact",
+                        "name": "KARL"
                     }
                 ],
                 "nameservers": [],
@@ -578,6 +676,7 @@ curl --location --request GET 'https://testrar.internet.ee/repp/v1/domains' \
                 "name": "Kreative Digital OÜ",
                 "website": "https://kreative.ee"
             },
+            "dispute": false,
             "transfer_code": "2f81ec671b69a2aa5d6375631e259ae7",
             },
             {
@@ -609,10 +708,11 @@ curl --location --request GET 'https://testrar.internet.ee/repp/v1/domains' \
                 "name": "Kreative Digital OÜ",
                 "website": "https://kreative.ee"
             },
+            "dispute": false,
             "transfer_code": "asdf564cs89er3dg46d5f3v1df6534g3f2",
             },
         ],
-        "total_number_of_records": 69
+        "count": 69
     }
 }
 ```
@@ -629,7 +729,7 @@ Parameter | Required | Default | Description
 --------- | -------- | ------- | -----------
 limit | No | 200 | How many objects to return
 offset | No | 0 | Object query offset
-details | No | | false | Show full object each domain
+details | No | false | Show full object of each domain
 
 ## Get a specific domain
 
@@ -648,7 +748,10 @@ curl --location --request GET 'https://testrar.internet.ee/repp/v1/domains/biz.e
     "data": {
         "domain": {
             "name": "biz.ee",
-            "registrant": "ATSAA:749AA80F",
+            "registrant": {
+                "name": "KARL",
+                "code": "ATSAA:749AA80F"
+            },
             "created_at": "2021-01-15T12:07:20.079+02:00",
             "updated_at": "2021-01-21T16:41:59.707+02:00",
             "expire_time": "2023-01-16T00:00:00.000+02:00",
@@ -658,11 +761,13 @@ curl --location --request GET 'https://testrar.internet.ee/repp/v1/domains/biz.e
             "contacts": [
                 {
                     "code": "ATSAA:C7A52A30",
-                    "type": "AdminDomainContact"
+                    "type": "AdminDomainContact",
+                    "name": "KARL"
                 },
                 {
                     "code": "ATSAA:CC53EF9C",
-                    "type": "TechDomainContact"
+                    "type": "TechDomainContact",
+                    "name": "KARL"
                 }
             ],
             "nameservers": [],
@@ -674,6 +779,7 @@ curl --location --request GET 'https://testrar.internet.ee/repp/v1/domains/biz.e
                 "name": "Kreative Digital OÜ",
                 "website": "https://kreative.ee"
             },
+            "dispute": false,
             "transfer_code": "2f81ec671b69a2aa5d6375631e259ae7",
         }
     }
@@ -691,7 +797,7 @@ If you aren't sponsoring registrar for the domain, transfer_code is omitted from
 
 Parameter | Required | Description
 --------- | ------- | -----------
-domain_name | No | Domain name
+domain_name | Yes | Domain name
 
 ## Register a new domain
 
@@ -714,6 +820,9 @@ curl --location --request POST 'https://testrar.internet.ee/repp/v1/domains' \
         "nameservers_attributes": [
             {
                 "hostname": "ns1.kreative.ee"
+            },
+            {
+                "hostname": "ns2.kreative.ee"
             }
         ]
     }
@@ -828,7 +937,7 @@ curl --location --request POST 'https://testrar.internet.ee/repp/v1/domains/kass
 --header 'Authorization: Basic dGVzdDp0ZXN0MTIz' \
 --header 'Content-Type: application/json' \
 --data-raw '{
-    "renew": {
+    "renews": {
         "period": 1,
         "period_unit": "y",
         "exp_date": "2021-04-20"
@@ -882,8 +991,10 @@ curl --location --request DELETE 'https://registry.test/repp/v1/domains/kanakotl
 
 --header 'Content-Type: application/json' \
 --data-raw '{
-    "delete": {
-        "verified": false
+    "domain": {
+        "delete": {
+            "verified": false
+        }
     }
 }'
 ```
@@ -1507,17 +1618,8 @@ curl --location --request PATCH 'https://testrar.internet.ee/repp/v1/domains/con
     "code": 1000,
     "message": "Command completed successfully",
     "data": {
-        "success": [
-            {
-                "type": "domain_transfer",
-                "domain_name": "kotlet.ee"
-            },
-            {
-                "type": "domain_transfer",
-                "domain_name": "kanakotlet.ee"
-            }
-        ],
-        "failed": []
+        "affected_domains": [],
+        "skipped_domains": []
     }
 }
 ```
