@@ -930,6 +930,147 @@ transfer_code | No | String | New EPP transfer code for domain
 Note — Wrap your payload attributes into "domain" object, as shown in example.
 </aside>
 
+## Get all contacts of specific domain
+
+```shell
+curl --location --request GET 'https://testrar.internet.ee/repp/v1/domains/kasskoer.ee/contacts' \
+--header 'Authorization: Basic dGVzdDp0ZXN0MTIz' \
+--data-raw ''
+```
+
+> The above command returns JSON structured like this:
+
+```json
+{
+    "code": 1000,
+    "message": "Command completed successfully",
+    "data": {
+        "admin_contacts": [
+            "1111111:65B7EB55"
+        ],
+        "tech_contacts": [
+            "1111111:0FEEDC3C",
+            "1111111:65B7EB55"
+        ]
+    }
+}
+```
+
+Views domain's admin and tech contacts.
+
+### URL Parameters
+
+Parameter | Required | Description
+--------- | ------- | -----------
+domain_name | Yes | Domain name
+
+
+## Link new contact(s) to specific domain
+
+```shell
+curl --location --request POST 'https://testrar.internet.ee/repp/v1/domains/kasskoer.ee/contacts' \
+--header 'Authorization: Basic dGVzdDp0ZXN0MTIz' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "contacts": [
+        {
+            "code": "1111111:65B7EB55",
+            "type": "admin"
+        },
+        {
+            "code": "1111111:8E3736F2",
+            "type": "tech"
+        }
+    ]
+}'
+```
+
+> The above command returns JSON structured like this:
+
+```json
+{
+    "code": 1000,
+    "message": "Command completed successfully",
+    "data": {
+        "domain": {
+            "name": "kasskoer.ee"
+        }
+    }
+}
+```
+
+Adds contact(s) to domain.
+
+### HTTP Request
+
+`POST /repp/v1/domains/:domain_name/contacts`
+
+### URL Parameters
+Parameter | Required | Type | Description
+--------- | ------- | ----- | -----------
+domain_name | Yes | String | Domain name
+
+### Payload Parameters
+
+Parameter | Required | Type | Description
+--------- | ------- | ----- | -----------
+contacts | Yes | Array | Array of contact objects
+contacts[code] | Yes | String | Code of contact
+contacts[type] | Yes | String | Type of contact. Can be 'admin' or 'tech'
+
+## Remove contact(s) from specific domain
+
+```shell
+curl --location --request DELETE 'https://testrar.internet.ee/repp/v1/domains/kasskoer.ee/contacts' \
+--header 'Authorization: Basic dGVzdDp0ZXN0MTIz' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "contacts": [
+        {
+            "code": "1111111:65B7EB55",
+            "type": "admin"
+        },
+        {
+            "code": "1111111:8E3736F2",
+            "type": "tech"
+        }
+    ]
+}'
+```
+
+> The above command returns JSON structured like this:
+
+```json
+{
+    "code": 1000,
+    "message": "Command completed successfully",
+    "data": {
+        "domain": {
+            "name": "kasskoer.ee"
+        }
+    }
+}
+```
+
+Deletes contact(s) from domain.
+
+### HTTP Request
+
+`DELETE /repp/v1/domains/:domain_name/contacts`
+
+### URL Parameters
+Parameter | Required | Type | Description
+--------- | ------- | ----- | -----------
+domain_name | Yes | String | Domain name
+
+### Payload Parameters
+
+Parameter | Required | Type | Description
+--------- | ------- | ----- | -----------
+contacts | Yes | Array | Array of contact objects
+contacts[code] | Yes | String | Code of contact
+contacts[type] | Yes | String | Type of contact. Can be 'admin' or 'tech'
+
 ## Renew a specific domain
 
 ```shell
