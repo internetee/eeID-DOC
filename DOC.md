@@ -137,7 +137,8 @@ The valid access token response is provided in the JSON format. Example:
    "given_name": "MARY ÄNN",
    "id_code": "EE60001019906",
    "auth_time": "2022-10-07T22:01:48.000+03:00",
-   "auth_method": "mID"
+   "auth_method": "mID",
+   "state": "2093077beb6d063ea65e61fa4c9b2814"
 }
 ````
 The claims included in the response are issued based on the identity token.
@@ -150,6 +151,7 @@ The claims included in the response are issued based on the identity token.
 | `given_name` | The first name of the authenticated user. |
 | `family_name` | The surname of the authenticated user. |
 | `auth_method` | The authentication method used for user authentication. Possible values: `mID` - Mobile-ID, `idcard` - Estonian ID card, `smartid` - Smart-ID. |
+| `state` | The authentication request’s state parameter value. |
 
 In case the access token presented to the user information endpoint is missing or is expired, an error code and a brief description 
 about the error are returned:
