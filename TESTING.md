@@ -8,8 +8,8 @@
 A prerequisite for testing the eeID authentication service is registering a service in test environment. After approving your service, it is possible to test the service immediately, using the credentials generated after approving.
 
 Users for successful authentication:
-* Mobile ID phone number: 00000766, personal identification number: 60001019906
-* Smart-ID personal codes according to country: EE - 30303039914, LV - 030303-10012, LT - 30303039914
+* Mobile ID phone and id numbers: EE - 00000766 | 60001019906, LT - 60000666 | 50001018865
+* Smart-ID personal codes: EE - 30303039914, LV - 030303-10012, LT - 30303039914
 * eIDAS country Czech Republic: select Testovací profily from the redirection screen and select a test user for authentication
 
 ### ID card
