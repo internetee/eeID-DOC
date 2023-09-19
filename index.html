@@ -1,0 +1,2879 @@
+
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>Estonian Internet Foundation's REST EPP</title>
+
+    <style media="screen">
+      .highlight table td { padding: 5px; }
+.highlight table pre { margin: 0; }
+.highlight .gh {
+  color: #999999;
+}
+.highlight .sr {
+  color: #f6aa11;
+}
+.highlight .go {
+  color: #888888;
+}
+.highlight .gp {
+  color: #555555;
+}
+.highlight .gs {
+}
+.highlight .gu {
+  color: #aaaaaa;
+}
+.highlight .nb {
+  color: #f6aa11;
+}
+.highlight .cm {
+  color: #75715e;
+}
+.highlight .cp {
+  color: #75715e;
+}
+.highlight .c1 {
+  color: #75715e;
+}
+.highlight .cs {
+  color: #75715e;
+}
+.highlight .c, .highlight .ch, .highlight .cd, .highlight .cpf {
+  color: #75715e;
+}
+.highlight .err {
+  color: #960050;
+}
+.highlight .gr {
+  color: #960050;
+}
+.highlight .gt {
+  color: #960050;
+}
+.highlight .gd {
+  color: #49483e;
+}
+.highlight .gi {
+  color: #49483e;
+}
+.highlight .ge {
+  color: #49483e;
+}
+.highlight .kc {
+  color: #66d9ef;
+}
+.highlight .kd {
+  color: #66d9ef;
+}
+.highlight .kr {
+  color: #66d9ef;
+}
+.highlight .no {
+  color: #66d9ef;
+}
+.highlight .kt {
+  color: #66d9ef;
+}
+.highlight .mf {
+  color: #ae81ff;
+}
+.highlight .mh {
+  color: #ae81ff;
+}
+.highlight .il {
+  color: #ae81ff;
+}
+.highlight .mi {
+  color: #ae81ff;
+}
+.highlight .mo {
+  color: #ae81ff;
+}
+.highlight .m, .highlight .mb, .highlight .mx {
+  color: #ae81ff;
+}
+.highlight .sc {
+  color: #ae81ff;
+}
+.highlight .se {
+  color: #ae81ff;
+}
+.highlight .ss {
+  color: #ae81ff;
+}
+.highlight .sd {
+  color: #e6db74;
+}
+.highlight .s2 {
+  color: #e6db74;
+}
+.highlight .sb {
+  color: #e6db74;
+}
+.highlight .sh {
+  color: #e6db74;
+}
+.highlight .si {
+  color: #e6db74;
+}
+.highlight .sx {
+  color: #e6db74;
+}
+.highlight .s1 {
+  color: #e6db74;
+}
+.highlight .s, .highlight .sa, .highlight .dl {
+  color: #e6db74;
+}
+.highlight .na {
+  color: #a6e22e;
+}
+.highlight .nc {
+  color: #a6e22e;
+}
+.highlight .nd {
+  color: #a6e22e;
+}
+.highlight .ne {
+  color: #a6e22e;
+}
+.highlight .nf, .highlight .fm {
+  color: #a6e22e;
+}
+.highlight .vc {
+  color: #ffffff;
+}
+.highlight .nn {
+  color: #ffffff;
+}
+.highlight .ni {
+  color: #ffffff;
+}
+.highlight .bp {
+  color: #ffffff;
+}
+.highlight .vg {
+  color: #ffffff;
+}
+.highlight .vi {
+  color: #ffffff;
+}
+.highlight .nv, .highlight .vm {
+  color: #ffffff;
+}
+.highlight .w {
+  color: #ffffff;
+}
+.highlight {
+  color: #ffffff;
+}
+.highlight .n, .highlight .py, .highlight .nx {
+  color: #ffffff;
+}
+.highlight .nl {
+  color: #f92672;
+}
+.highlight .ow {
+  color: #f92672;
+}
+.highlight .nt {
+  color: #f92672;
+}
+.highlight .k, .highlight .kv {
+  color: #f92672;
+}
+.highlight .kn {
+  color: #f92672;
+}
+.highlight .kp {
+  color: #f92672;
+}
+.highlight .o {
+  color: #f92672;
+}
+    </style>
+    <style media="print">
+      * {
+        -webkit-transition:none!important;
+        transition:none!important;
+      }
+      .highlight table td { padding: 5px; }
+.highlight table pre { margin: 0; }
+.highlight, .highlight .w {
+  color: #586e75;
+}
+.highlight .err {
+  color: #002b36;
+  background-color: #dc322f;
+}
+.highlight .c, .highlight .ch, .highlight .cd, .highlight .cm, .highlight .cpf, .highlight .c1, .highlight .cs {
+  color: #657b83;
+}
+.highlight .cp {
+  color: #b58900;
+}
+.highlight .nt {
+  color: #b58900;
+}
+.highlight .o, .highlight .ow {
+  color: #93a1a1;
+}
+.highlight .p, .highlight .pi {
+  color: #93a1a1;
+}
+.highlight .gi {
+  color: #859900;
+}
+.highlight .gd {
+  color: #dc322f;
+}
+.highlight .gh {
+  color: #268bd2;
+  background-color: #002b36;
+  font-weight: bold;
+}
+.highlight .k, .highlight .kn, .highlight .kp, .highlight .kr, .highlight .kv {
+  color: #6c71c4;
+}
+.highlight .kc {
+  color: #cb4b16;
+}
+.highlight .kt {
+  color: #cb4b16;
+}
+.highlight .kd {
+  color: #cb4b16;
+}
+.highlight .s, .highlight .sa, .highlight .sb, .highlight .sc, .highlight .dl, .highlight .sd, .highlight .s2, .highlight .sh, .highlight .sx, .highlight .s1 {
+  color: #859900;
+}
+.highlight .sr {
+  color: #2aa198;
+}
+.highlight .si {
+  color: #d33682;
+}
+.highlight .se {
+  color: #d33682;
+}
+.highlight .nn {
+  color: #b58900;
+}
+.highlight .nc {
+  color: #b58900;
+}
+.highlight .no {
+  color: #b58900;
+}
+.highlight .na {
+  color: #268bd2;
+}
+.highlight .m, .highlight .mb, .highlight .mf, .highlight .mh, .highlight .mi, .highlight .il, .highlight .mo, .highlight .mx {
+  color: #859900;
+}
+.highlight .ss {
+  color: #859900;
+}
+    </style>
+    <link href="stylesheets/screen-c9d8fa83.css" rel="stylesheet" media="screen" />
+    <link href="stylesheets/print-953e3353.css" rel="stylesheet" media="print" />
+      <script src="javascripts/all-e033bdd3.js"></script>
+
+    <script>
+      $(function() { setupCodeCopy(); });
+    </script>
+  </head>
+
+  <body class="index" data-languages="[&quot;shell&quot;]">
+    <a href="#" id="nav-button">
+      <span>
+        NAV
+        <img src="images/navbar-cad8cdcb.png" alt="" />
+      </span>
+    </a>
+    <div class="toc-wrapper">
+      <img src="images/logo-beb0176d.png" class="logo" alt="" />
+        <div class="lang-selector">
+              <a href="#" data-language-name="shell">shell</a>
+        </div>
+        <div class="search">
+          <input type="text" class="search" id="input-search" placeholder="Search">
+        </div>
+        <ul class="search-results"></ul>
+      <ul id="toc" class="toc-list-h1">
+          <li>
+            <a href="#introduction" class="toc-h1 toc-link" data-title="Introduction">Introduction</a>
+          </li>
+          <li>
+            <a href="#environments" class="toc-h1 toc-link" data-title="Environments">Environments</a>
+          </li>
+          <li>
+            <a href="#authentication" class="toc-h1 toc-link" data-title="Authentication">Authentication</a>
+          </li>
+          <li>
+            <a href="#billing" class="toc-h1 toc-link" data-title="Billing">Billing</a>
+              <ul class="toc-list-h2">
+                  <li>
+                    <a href="#get-account-balance" class="toc-h2 toc-link" data-title="Get account balance">Get account balance</a>
+                  </li>
+              </ul>
+          </li>
+          <li>
+            <a href="#poll-messages" class="toc-h1 toc-link" data-title="Poll messages">Poll messages</a>
+              <ul class="toc-list-h2">
+                  <li>
+                    <a href="#get-all-messages" class="toc-h2 toc-link" data-title="Get all messages">Get all messages</a>
+                  </li>
+                  <li>
+                    <a href="#get-latest-unread-poll-message" class="toc-h2 toc-link" data-title="Get latest unread poll message">Get latest unread poll message</a>
+                  </li>
+                  <li>
+                    <a href="#mark-poll-message-as-read" class="toc-h2 toc-link" data-title="Mark poll message as read">Mark poll message as read</a>
+                  </li>
+                  <li>
+                    <a href="#get-a-specific-poll-message" class="toc-h2 toc-link" data-title="Get a specific poll message">Get a specific poll message</a>
+                  </li>
+              </ul>
+          </li>
+          <li>
+            <a href="#contacts" class="toc-h1 toc-link" data-title="Contacts">Contacts</a>
+              <ul class="toc-list-h2">
+                  <li>
+                    <a href="#get-all-contacts" class="toc-h2 toc-link" data-title="Get all contacts">Get all contacts</a>
+                  </li>
+                  <li>
+                    <a href="#get-a-specific-contact" class="toc-h2 toc-link" data-title="Get a specific contact">Get a specific contact</a>
+                  </li>
+                  <li>
+                    <a href="#delete-a-specific-contact" class="toc-h2 toc-link" data-title="Delete a specific contact">Delete a specific contact</a>
+                  </li>
+                  <li>
+                    <a href="#create-a-new-contact" class="toc-h2 toc-link" data-title="Create a new contact">Create a new contact</a>
+                  </li>
+                  <li>
+                    <a href="#update-an-existing-contact" class="toc-h2 toc-link" data-title="Update an existing contact">Update an existing contact</a>
+                  </li>
+                  <li>
+                    <a href="#check-contact-code-availability" class="toc-h2 toc-link" data-title="Check contact code availability">Check contact code availability</a>
+                  </li>
+              </ul>
+          </li>
+          <li>
+            <a href="#domains" class="toc-h1 toc-link" data-title="Domains">Domains</a>
+              <ul class="toc-list-h2">
+                  <li>
+                    <a href="#get-all-existing-domains" class="toc-h2 toc-link" data-title="Get all existing domains">Get all existing domains</a>
+                  </li>
+                  <li>
+                    <a href="#get-a-specific-domain" class="toc-h2 toc-link" data-title="Get a specific domain">Get a specific domain</a>
+                  </li>
+                  <li>
+                    <a href="#register-a-new-domain" class="toc-h2 toc-link" data-title="Register a new domain">Register a new domain</a>
+                  </li>
+                  <li>
+                    <a href="#change-domain-registrant-auth-code" class="toc-h2 toc-link" data-title="Change domain registrant / Auth code">Change domain registrant / Auth code</a>
+                  </li>
+                  <li>
+                    <a href="#get-all-contacts-of-specific-domain" class="toc-h2 toc-link" data-title="Get all contacts of specific domain">Get all contacts of specific domain</a>
+                  </li>
+                  <li>
+                    <a href="#link-new-contact-s-to-specific-domain" class="toc-h2 toc-link" data-title="Link new contact(s) to specific domain">Link new contact(s) to specific domain</a>
+                  </li>
+                  <li>
+                    <a href="#remove-contact-s-from-specific-domain" class="toc-h2 toc-link" data-title="Remove contact(s) from specific domain">Remove contact(s) from specific domain</a>
+                  </li>
+                  <li>
+                    <a href="#renew-a-specific-domain" class="toc-h2 toc-link" data-title="Renew a specific domain">Renew a specific domain</a>
+                  </li>
+                  <li>
+                    <a href="#delete-a-specific-domain" class="toc-h2 toc-link" data-title="Delete a specific domain">Delete a specific domain</a>
+                  </li>
+              </ul>
+          </li>
+          <li>
+            <a href="#nameservers" class="toc-h1 toc-link" data-title="Nameservers">Nameservers</a>
+              <ul class="toc-list-h2">
+                  <li>
+                    <a href="#get-domain-39-s-nameservers" class="toc-h2 toc-link" data-title="Get domain's nameservers">Get domain's nameservers</a>
+                  </li>
+                  <li>
+                    <a href="#add-new-nameserver" class="toc-h2 toc-link" data-title="Add new nameserver">Add new nameserver</a>
+                  </li>
+                  <li>
+                    <a href="#delete-existing-nameserver" class="toc-h2 toc-link" data-title="Delete existing nameserver">Delete existing nameserver</a>
+                  </li>
+              </ul>
+          </li>
+          <li>
+            <a href="#dnssec" class="toc-h1 toc-link" data-title="DNSSEC">DNSSEC</a>
+              <ul class="toc-list-h2">
+                  <li>
+                    <a href="#get-domain-39-s-dnssec-keys" class="toc-h2 toc-link" data-title="Get domain's DNSSEC keys">Get domain's DNSSEC keys</a>
+                  </li>
+                  <li>
+                    <a href="#add-new-dnssec-key" class="toc-h2 toc-link" data-title="Add new DNSSEC key">Add new DNSSEC key</a>
+                  </li>
+                  <li>
+                    <a href="#delete-dnssec-key" class="toc-h2 toc-link" data-title="Delete DNSSEC key">Delete DNSSEC key</a>
+                  </li>
+              </ul>
+          </li>
+          <li>
+            <a href="#statuses" class="toc-h1 toc-link" data-title="Statuses">Statuses</a>
+              <ul class="toc-list-h2">
+                  <li>
+                    <a href="#add-clienthold-to-domain" class="toc-h2 toc-link" data-title="Add clientHold to domain">Add clientHold to domain</a>
+                  </li>
+                  <li>
+                    <a href="#remove-clienthold-from-domain" class="toc-h2 toc-link" data-title="Remove clientHold from domain">Remove clientHold from domain</a>
+                  </li>
+              </ul>
+          </li>
+          <li>
+            <a href="#transfers" class="toc-h1 toc-link" data-title="Transfers">Transfers</a>
+              <ul class="toc-list-h2">
+                  <li>
+                    <a href="#get-transfer-info" class="toc-h2 toc-link" data-title="Get transfer info">Get transfer info</a>
+                  </li>
+                  <li>
+                    <a href="#transfer-domain" class="toc-h2 toc-link" data-title="Transfer domain">Transfer domain</a>
+                  </li>
+              </ul>
+          </li>
+          <li>
+            <a href="#bulk-actions" class="toc-h1 toc-link" data-title="Bulk actions">Bulk actions</a>
+              <ul class="toc-list-h2">
+                  <li>
+                    <a href="#bulk-domain-transfer" class="toc-h2 toc-link" data-title="Bulk domain transfer">Bulk domain transfer</a>
+                  </li>
+                  <li>
+                    <a href="#bulk-tech-contact-replace" class="toc-h2 toc-link" data-title="Bulk tech contact replace">Bulk tech contact replace</a>
+                  </li>
+                  <li>
+                    <a href="#bulk-nameserver-change" class="toc-h2 toc-link" data-title="Bulk nameserver change">Bulk nameserver change</a>
+                  </li>
+                  <li>
+                    <a href="#bulk-domain-renew" class="toc-h2 toc-link" data-title="Bulk domain renew">Bulk domain renew</a>
+                  </li>
+              </ul>
+          </li>
+          <li>
+            <a href="#errors" class="toc-h1 toc-link" data-title="Errors">Errors</a>
+          </li>
+      </ul>
+        <ul class="toc-footer">
+            <li><a href='https://internet.ee'>Estonian Internet Foundation</a></li>
+            <li><a href='https://github.com/internetee/registry'>Registry project</a></li>
+        </ul>
+    </div>
+    <div class="page-wrapper">
+      <div class="dark-box"></div>
+      <div class="content">
+        <h1 id='introduction'>Introduction</h1>
+<p>Welcome to the Estonian Internet Foundation&#39;s REST EPP (REPP for short) API documentation! You can use our API endpoints, which can mimic almost the full functionality of our EPP protocol.</p>
+
+<p>We have language bindings in Shell. You can view code examples in the dark area to the right, and you can switch the programming language of the examples with the tabs in the top right.</p>
+
+<p>This production API project is only available for our active registrars. You can find more information about becoming registrar at our <a href="https://www.internet.ee/registrars/terms-and-conditions-for-becoming-a-registrar">wiki page</a>.</p>
+<h1 id='environments'>Environments</h1>
+<p>Production endpoint: https://repp.internet.ee/</p>
+
+<p>Sandbox endpoint: https://testrepp.internet.ee/</p>
+
+<p>Production environment is only available for our active registrars.</p>
+
+<p>Access to our sandbox environment is not publicly available. We can grant access to third parties upon request.</p>
+<h1 id='authentication'>Authentication</h1>
+<p>REPP uses API keys and certificates to allow access to our API. Certificates are the same ones that are used for EPP protocol.</p>
+
+<p>API key, in a nutshell, is a Basic authorization key that consists of ApiUser&#39;s username and password, separated by colon, in Base64 format.</p>
+
+<p>For example if your username is <code>test</code> and password <code>test123</code>, , you have to encode <code>test:test123</code> to Base64 and put it into <code>Authorization</code> header of each request.</p>
+
+<p>For example:</p>
+
+<p><code>Authorization: Basic dGVzdDp0ZXN0MTIz</code></p>
+
+<aside class="notice">
+You must replace <code>dGVzdDp0ZXN0MTIz</code> with your personal API key.
+</aside>
+<h1 id='billing'>Billing</h1><h2 id='get-account-balance'>Get account balance</h2><div class="highlight"><pre class="highlight shell tab-shell"><code>curl <span class="nt">--location</span> <span class="nt">--request</span> GET <span class="s1">'https://testrar.internet.ee/repp/v1/accounts/balance'</span> <span class="se">\</span>
+<span class="nt">--header</span> <span class="s1">'Authorization: Basic dGVzdDp0ZXN0MTIz'</span> <span class="se">\</span>
+<span class="nt">--data-raw</span> <span class="s1">''</span>
+</code></pre></div>
+<blockquote>
+<p>The above command returns JSON structured like this:</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+    </span><span class="nl">"code"</span><span class="p">:</span><span class="w"> </span><span class="mi">1000</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Command completed successfully"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"balance"</span><span class="p">:</span><span class="w"> </span><span class="s2">"420.0"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"currency"</span><span class="p">:</span><span class="w"> </span><span class="s2">"EUR"</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<blockquote>
+<p>Command above with detailed=true flag returns JSON structured like this:</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+    </span><span class="nl">"code"</span><span class="p">:</span><span class="w"> </span><span class="mi">1000</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Command completed successfully"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"balance"</span><span class="p">:</span><span class="w"> </span><span class="s2">"420.0"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"currency"</span><span class="p">:</span><span class="w"> </span><span class="s2">"EUR"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"transactions"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+            </span><span class="p">{</span><span class="w">
+                </span><span class="nl">"created_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2021-02-26T17:12:46.045+02:00"</span><span class="p">,</span><span class="w">
+                </span><span class="nl">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Create abadiitas.ee"</span><span class="p">,</span><span class="w">
+                </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"debit"</span><span class="p">,</span><span class="w">
+                </span><span class="nl">"sum"</span><span class="p">:</span><span class="w"> </span><span class="s2">"-6.0"</span><span class="p">,</span><span class="w">
+                </span><span class="nl">"balance"</span><span class="p">:</span><span class="w"> </span><span class="s2">"420.0"</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="p">{</span><span class="w">
+                </span><span class="nl">"created_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2021-02-11T11:32:49.158+02:00"</span><span class="p">,</span><span class="w">
+                </span><span class="nl">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Invoice no. 131096"</span><span class="p">,</span><span class="w">
+                </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"credit"</span><span class="p">,</span><span class="w">
+                </span><span class="nl">"sum"</span><span class="p">:</span><span class="w"> </span><span class="s2">"100.0"</span><span class="p">,</span><span class="w">
+                </span><span class="nl">"balance"</span><span class="p">:</span><span class="w"> </span><span class="s2">"426.0"</span><span class="w">
+            </span><span class="p">}</span><span class="w">
+        </span><span class="p">]</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<p>Get account balance</p>
+<h3 id='http-request'>HTTP Request</h3>
+<p><code>GET /repp/v1/accounts/balance</code></p>
+<h3 id='url-parameters'>URL Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>detailed</td>
+<td>False</td>
+<td>Set to true to get detailed transaction data</td>
+</tr>
+<tr>
+<td>from</td>
+<td>False</td>
+<td>Show detailed transactions starting from datetime (yyyy-mm-dd)</td>
+</tr>
+<tr>
+<td>until</td>
+<td>False</td>
+<td>Show detailed transactions created before datetime (yyyy-mm-dd)</td>
+</tr>
+</tbody></table>
+<h1 id='poll-messages'>Poll messages</h1><h2 id='get-all-messages'>Get all messages</h2><div class="highlight"><pre class="highlight shell tab-shell"><code>curl <span class="nt">--location</span> <span class="nt">--request</span> GET <span class="s1">'https://testrar.internet.ee/repp/v1/registrar/notifications/all_notifications'</span> <span class="se">\</span>
+<span class="nt">--header</span> <span class="s1">'Authorization: Basic dGVzdDp0ZXN0MTIz'</span> <span class="se">\</span>
+<span class="nt">--data-raw</span> <span class="s1">''</span>
+</code></pre></div><div class="highlight"><pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+    </span><span class="nl">"code"</span><span class="p">:</span><span class="w"> </span><span class="mi">1000</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Command completed successfully. Returning 200 out of 500. Use URL parameters :limit and :offset to list other messages if needed"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">1399</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"text"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Registrant rejected domain update: koer.ee"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"attached_obj_type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Epp::Domain"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"attached_obj_id"</span><span class="p">:</span><span class="w"> </span><span class="mi">34</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<p>Get the list of unread pool messages.</p>
+<h3 id='http-request-2'>HTTP Request</h3>
+<p><code>GET /repp/v1/registrar/notifications/all_notifications</code></p>
+<h3 id='url-parameters-2'>URL Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Required</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>limit</td>
+<td>No</td>
+<td>200</td>
+<td>How many objects to return</td>
+</tr>
+<tr>
+<td>offset</td>
+<td>No</td>
+<td>0</td>
+<td>Object query offset</td>
+</tr>
+</tbody></table>
+<h2 id='get-latest-unread-poll-message'>Get latest unread poll message</h2><div class="highlight"><pre class="highlight shell tab-shell"><code>curl <span class="nt">--location</span> <span class="nt">--request</span> GET <span class="s1">'https://testrar.internet.ee/repp/v1/registrar/notifications'</span> <span class="se">\</span>
+<span class="nt">--header</span> <span class="s1">'Authorization: Basic dGVzdDp0ZXN0MTIz'</span> <span class="se">\</span>
+<span class="nt">--data-raw</span> <span class="s1">''</span>
+</code></pre></div>
+<blockquote>
+<p>The above command returns JSON structured like this:</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+    </span><span class="nl">"code"</span><span class="p">:</span><span class="w"> </span><span class="mi">1000</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Command completed successfully"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">1399</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"text"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Registrant rejected domain update: koer.ee"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"attached_obj_type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Epp::Domain"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"attached_obj_id"</span><span class="p">:</span><span class="w"> </span><span class="mi">34</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<p>Get the latest unread poll message</p>
+<h3 id='http-request-3'>HTTP Request</h3>
+<p><code>GET /repp/v1/registrar/notifications</code></p>
+<h2 id='mark-poll-message-as-read'>Mark poll message as read</h2><div class="highlight"><pre class="highlight shell tab-shell"><code>curl <span class="nt">--location</span> <span class="nt">--request</span> PUT <span class="s1">'https://testrar.internet.ee/repp/v1/registrar/notifications/1398'</span> <span class="se">\</span>
+<span class="nt">--header</span> <span class="s1">'Authorization: Basic dGVzdDp0ZXN0MTIz'</span> <span class="se">\</span>
+<span class="nt">--header</span> <span class="s1">'Content-Type: application/json'</span> <span class="se">\</span>
+<span class="nt">--data-raw</span> <span class="s1">'{
+    "notification": {
+        "read": true
+    }
+}'</span>
+</code></pre></div>
+<blockquote>
+<p>The above command returns JSON structured like this:</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+    </span><span class="nl">"code"</span><span class="p">:</span><span class="w"> </span><span class="mi">1000</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Command completed successfully"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"notification_id"</span><span class="p">:</span><span class="w"> </span><span class="mi">1398</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"read"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<p>Mark poll message as read</p>
+<h3 id='http-request-4'>HTTP Request</h3>
+<p><code>PUT /repp/v1/registrar/notifications/:notification_id</code></p>
+<h3 id='url-parameters-3'>URL Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>notification_id</td>
+<td>Yes</td>
+<td>Notification ID</td>
+</tr>
+</tbody></table>
+<h3 id='payload-parameters'>Payload Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>read</td>
+<td>Yes</td>
+<td>Set to true to mark as read</td>
+</tr>
+</tbody></table>
+<h2 id='get-a-specific-poll-message'>Get a specific poll message</h2><div class="highlight"><pre class="highlight shell tab-shell"><code>curl <span class="nt">--location</span> <span class="nt">--request</span> GET <span class="s1">'https://testrar.internet.ee/repp/v1/registrar/notifications/1398'</span> <span class="se">\</span>
+<span class="nt">--header</span> <span class="s1">'Authorization: Basic dGVzdDp0ZXN0MTIz'</span> <span class="se">\</span>
+<span class="nt">--data-raw</span> <span class="s1">''</span>
+</code></pre></div>
+<blockquote>
+<p>The above command returns JSON structured like this:</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+    </span><span class="nl">"code"</span><span class="p">:</span><span class="w"> </span><span class="mi">1000</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Command completed successfully"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">1398</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"text"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Contact ATSAA:57C8A9CB has been updated by registrant"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"attached_obj_type"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"attached_obj_id"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<p>Get a specific poll message</p>
+<h3 id='http-request-5'>HTTP Request</h3>
+<p><code>GET /repp/v1/registrar/notifications/:notification_id</code></p>
+<h3 id='url-parameters-4'>URL Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>notification_id</td>
+<td>Yes</td>
+<td>Notification ID</td>
+</tr>
+</tbody></table>
+<h1 id='contacts'>Contacts</h1><h2 id='get-all-contacts'>Get all contacts</h2><div class="highlight"><pre class="highlight shell tab-shell"><code>curl <span class="nt">--location</span> <span class="nt">--request</span> GET <span class="s1">'https://testrar.internet.ee/repp/v1/contacts'</span> <span class="se">\</span>
+<span class="nt">--header</span> <span class="s1">'Authorization: Basic dGVzdDp0ZXN0MTIz'</span> <span class="se">\</span>
+<span class="nt">--data-raw</span> <span class="s1">''</span>
+</code></pre></div>
+<blockquote>
+<p>The above command returns JSON structured like this:</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+    </span><span class="nl">"code"</span><span class="p">:</span><span class="w"> </span><span class="mi">1000</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Command completed successfully"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"contacts"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+            </span><span class="s2">"ATSAA:15554596"</span><span class="p">,</span><span class="w">
+            </span><span class="s2">"ATSAA:5767A313"</span><span class="p">,</span><span class="w">
+            </span><span class="s2">"ATSAA:634CF14B"</span><span class="p">,</span><span class="w">
+        </span><span class="p">],</span><span class="w">
+        </span><span class="nl">"count"</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<p>Get all contacts</p>
+<h3 id='http-request-6'>HTTP Request</h3>
+<p><code>GET /repp/v1/contacts</code></p>
+<h3 id='url-parameters-5'>URL Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Required</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>limit</td>
+<td>No</td>
+<td>200</td>
+<td>How many objects to return</td>
+</tr>
+<tr>
+<td>offset</td>
+<td>No</td>
+<td>0</td>
+<td>Object query offset</td>
+</tr>
+<tr>
+<td>details</td>
+<td>No</td>
+<td>false</td>
+<td>Show full object for each contact</td>
+</tr>
+</tbody></table>
+<h2 id='get-a-specific-contact'>Get a specific contact</h2><div class="highlight"><pre class="highlight shell tab-shell"><code>curl <span class="nt">--location</span> <span class="nt">--request</span> GET <span class="s1">'https://testrar.internet.ee/repp/v1/contacts/ATSAA:KARL'</span> <span class="se">\</span>
+<span class="nt">--header</span> <span class="s1">'Authorization: Basic dGVzdDp0ZXN0MTIz'</span> <span class="se">\</span>
+<span class="nt">--data-raw</span> <span class="s1">''</span>
+</code></pre></div>
+<blockquote>
+<p>The above command returns JSON structured like this:</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+    </span><span class="nl">"code"</span><span class="p">:</span><span class="w"> </span><span class="mi">1000</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Command completed successfully"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"contact"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="nl">"code"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1111111:8E561326"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"John Doe"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"ident"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                </span><span class="nl">"code"</span><span class="p">:</span><span class="w"> </span><span class="s2">"12345678901"</span><span class="p">,</span><span class="w">
+                </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"priv"</span><span class="p">,</span><span class="w">
+                </span><span class="nl">"country_code"</span><span class="p">:</span><span class="w"> </span><span class="s2">"EE"</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nl">"email"</span><span class="p">:</span><span class="w"> </span><span class="s2">"xxx@xxx.ee"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"phone"</span><span class="p">:</span><span class="w"> </span><span class="s2">"+xxx"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"auth_info"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ed33c67bedb32b1567b131"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"statuses"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                </span><span class="nl">"ok"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ok status description"</span><span class="p">,</span><span class="w">
+                </span><span class="nl">"linked"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nl">"disclosed_attributes"</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span><span class="w">
+            </span><span class="nl">"registrar"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Registrar"</span><span class="p">,</span><span class="w">
+                </span><span class="nl">"website"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://registrar"</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nl">"domains"</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span><span class="w">
+            </span><span class="nl">"domains_count"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="w">
+        </span><span class="p">}</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<p>Get a specific contact</p>
+<h3 id='http-request-7'>HTTP Request</h3>
+<p><code>GET /repp/v1/contacts/:contact_id</code></p>
+<h3 id='url-parameters-6'>URL Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Required</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>contact_id</td>
+<td>Yes</td>
+<td></td>
+<td>Contact ID</td>
+</tr>
+<tr>
+<td>simple</td>
+<td>No</td>
+<td>false</td>
+<td>Show simple object for contact</td>
+</tr>
+</tbody></table>
+<h2 id='delete-a-specific-contact'>Delete a specific contact</h2><div class="highlight"><pre class="highlight shell tab-shell"><code>curl <span class="nt">--location</span> <span class="nt">--request</span> DELETE <span class="s1">'https://testrar.internet.ee/repp/v1/contacts/ATSAA:KARL'</span> <span class="se">\</span>
+<span class="nt">--header</span> <span class="s1">'Authorization: Basic dGVzdDp0ZXN0MTIz'</span> <span class="se">\</span>
+<span class="nt">--data-raw</span> <span class="s1">''</span>
+</code></pre></div>
+<blockquote>
+<p>The above command returns JSON structured like this:</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+    </span><span class="nl">"code"</span><span class="p">:</span><span class="w"> </span><span class="mi">1000</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Command completed successfully"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<blockquote>
+<p>In case contact can not be destroyed, it returns a JSON structured like this:</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+    </span><span class="nl">"code"</span><span class="p">:</span><span class="w"> </span><span class="mi">2305</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Object association prohibits operation [domains]"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<p>Delete a specific contact</p>
+<h3 id='http-request-8'>HTTP Request</h3>
+<p><code>DELETE /repp/v1/contacts/:contact_id</code></p>
+<h3 id='url-parameters-7'>URL Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>contact_id</td>
+<td>Yes</td>
+<td>Contact ID</td>
+</tr>
+</tbody></table>
+<h2 id='create-a-new-contact'>Create a new contact</h2><div class="highlight"><pre class="highlight shell tab-shell"><code>curl <span class="nt">--location</span> <span class="nt">--request</span> POST <span class="s1">'https://testrar.internet.ee/repp/v1/contacts'</span> <span class="se">\</span>
+<span class="nt">--header</span> <span class="s1">'Authorization: Basic dGVzdDp0ZXN0MTIz'</span> <span class="se">\</span>
+<span class="nt">--header</span> <span class="s1">'Content-Type: application/json'</span> <span class="se">\</span>
+<span class="nt">--data-raw</span> <span class="s1">'{
+    "contact": {
+        "name": "John Doe",
+        "email": "john@doe.com",
+        "phone": "+372.xxx",
+        "ident": {
+            "ident": "xxx",
+            "ident_type": "priv",
+            "ident_country_code": "EE"
+        }
+    }
+}'</span>
+</code></pre></div>
+<blockquote>
+<p>The above command returns JSON structured like this:</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+    </span><span class="nl">"code"</span><span class="p">:</span><span class="w"> </span><span class="mi">1000</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Command completed successfully"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"contact"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="nl">"code"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ATSAA:84F23FD1"</span><span class="w">
+        </span><span class="p">}</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<p>Create a new contact</p>
+<h3 id='http-request-9'>HTTP Request</h3>
+<p><code>POST /repp/v1/contacts</code></p>
+<h3 id='payload-parameters-2'>Payload Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>id</td>
+<td>No</td>
+<td>Custom contact id for contact</td>
+</tr>
+<tr>
+<td>name</td>
+<td>Yes</td>
+<td>Full name of contact</td>
+</tr>
+<tr>
+<td>email</td>
+<td>Yes</td>
+<td>Email address of contact</td>
+</tr>
+<tr>
+<td>phone</td>
+<td>Yes</td>
+<td>phone number of contact, with &#39;.&#39; as CC separator</td>
+</tr>
+<tr>
+<td>ident[ident]</td>
+<td>Yes</td>
+<td>Identity / Registry code of contact</td>
+</tr>
+<tr>
+<td>ident[ident_type]</td>
+<td>Yes</td>
+<td>Type of ident number (priv/org/birthday)</td>
+</tr>
+<tr>
+<td>ident[ident_country_code]</td>
+<td>Yes</td>
+<td>Nationality of contact in alpha-2 format</td>
+</tr>
+</tbody></table>
+
+<aside class="notice">
+Note — Wrap your payload attributes into "contact" object, as shown in example.
+</aside>
+<h2 id='update-an-existing-contact'>Update an existing contact</h2><div class="highlight"><pre class="highlight shell tab-shell"><code>curl <span class="nt">--location</span> <span class="nt">--request</span> PUT <span class="s1">'https://testrar.internet.ee/repp/v1/contacts/ATSAA:84F23FD1'</span> <span class="se">\</span>
+<span class="nt">--header</span> <span class="s1">'Authorization: Basic dGVzdDp0ZXN0MTIz'</span> <span class="se">\</span>
+<span class="nt">--header</span> <span class="s1">'Content-Type: application/json'</span> <span class="se">\</span>
+<span class="nt">--data-raw</span> <span class="s1">'{
+    "contact": {
+        "name": "John Doee",
+        "email": "john@doee.com",
+        "phone": "+372.590146111"
+    }
+}'</span>
+</code></pre></div>
+<blockquote>
+<p>The above command returns JSON structured like this:</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+    </span><span class="nl">"code"</span><span class="p">:</span><span class="w"> </span><span class="mi">1000</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Command completed successfully"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"contact"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="nl">"code"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ATSAA:84F23FD1"</span><span class="w">
+        </span><span class="p">}</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<p>Update an existing contact</p>
+<h3 id='http-request-10'>HTTP Request</h3>
+<p><code>PUT /repp/v1/contacts/:contact_id</code></p>
+<h3 id='url-parameters-8'>URL Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>contact_id</td>
+<td>Yes</td>
+<td>Contact ID</td>
+</tr>
+</tbody></table>
+<h3 id='payload-parameters-3'>Payload Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>name</td>
+<td>No</td>
+<td>Full name of contact</td>
+</tr>
+<tr>
+<td>email</td>
+<td>No</td>
+<td>Email address of contact</td>
+</tr>
+<tr>
+<td>phone</td>
+<td>No</td>
+<td>phone number of contact, with &#39;.&#39; as CC separator</td>
+</tr>
+</tbody></table>
+
+<aside class="notice">
+Note — Wrap your payload attributes into "contact" object, as shown in example.
+</aside>
+<h2 id='check-contact-code-availability'>Check contact code availability</h2><div class="highlight"><pre class="highlight shell tab-shell"><code>curl <span class="nt">--location</span> <span class="nt">--request</span> GET <span class="s1">'https://testrar.internet.ee/repp/v1/contacts/check/PUDERJAKAPSAS'</span> <span class="se">\</span>
+<span class="nt">--header</span> <span class="s1">'Authorization: Basic dGVzdDp0ZXN0MTIz'</span> <span class="se">\</span>
+<span class="nt">--data-raw</span> <span class="s1">''</span>
+</code></pre></div>
+<blockquote>
+<p>The above command returns JSON structured like this:</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+    </span><span class="nl">"code"</span><span class="p">:</span><span class="w"> </span><span class="mi">1000</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Command completed successfully"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"contact"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="nl">"code"</span><span class="p">:</span><span class="w"> </span><span class="s2">"PUDERJAKAPSAS"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"available"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+        </span><span class="p">}</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<p>Checks whether the contact code is available for custom use</p>
+<h3 id='http-request-11'>HTTP Request</h3>
+<p><code>GET /repp/v1/contacts/check/:contact_id</code></p>
+<h3 id='url-parameters-9'>URL Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>contact_id</td>
+<td>Yes</td>
+<td>Contact ID to check</td>
+</tr>
+</tbody></table>
+<h1 id='domains'>Domains</h1><h2 id='get-all-existing-domains'>Get all existing domains</h2><div class="highlight"><pre class="highlight shell tab-shell"><code>curl <span class="nt">--location</span> <span class="nt">--request</span> GET <span class="s1">'https://testrar.internet.ee/repp/v1/domains'</span> <span class="se">\</span>
+<span class="nt">--header</span> <span class="s1">'Authorization: Basic dGVzdDp0ZXN0MTIz'</span> <span class="se">\</span>
+<span class="nt">--data-raw</span> <span class="s1">''</span>
+</code></pre></div>
+<blockquote>
+<p>The above command returns JSON structured like this:</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+    </span><span class="nl">"code"</span><span class="p">:</span><span class="w"> </span><span class="mi">1000</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Command completed successfully"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"new_domain"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+            </span><span class="s2">"www.ee"</span><span class="w">
+        </span><span class="p">],</span><span class="w">
+        </span><span class="nl">"domains"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+            </span><span class="s2">"kass.ee"</span><span class="p">,</span><span class="w">
+            </span><span class="s2">"koer.ee"</span><span class="p">,</span><span class="w">
+        </span><span class="p">],</span><span class="w">
+        </span><span class="nl">"count"</span><span class="p">:</span><span class="w"> </span><span class="mi">69</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<blockquote>
+<p>When ?details=true is appended, it returns JSON structured like this:</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+    </span><span class="nl">"code"</span><span class="p">:</span><span class="w"> </span><span class="mi">1000</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Command completed successfully"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"new_domain"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+            </span><span class="p">{</span><span class="w">
+                </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"wwww.ee"</span><span class="p">,</span><span class="w">
+                </span><span class="nl">"registrant"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                    </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Mary Änn O’Connež-Šuslik"</span><span class="p">,</span><span class="w">
+                    </span><span class="nl">"code"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1111111:0FEEDC3C"</span><span class="w">
+                </span><span class="p">},</span><span class="w">
+                </span><span class="nl">"created_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2022-06-15T16:04:07.042+03:00"</span><span class="p">,</span><span class="w">
+                </span><span class="nl">"updated_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2022-06-20T14:02:10.339+03:00"</span><span class="p">,</span><span class="w">
+                </span><span class="nl">"expire_time"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2022-12-16T00:00:00.000+02:00"</span><span class="p">,</span><span class="w">
+                </span><span class="nl">"outzone_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2022-06-20T14:02:10.304+03:00"</span><span class="p">,</span><span class="w">
+                </span><span class="nl">"delete_date"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2022-07-21"</span><span class="p">,</span><span class="w">
+                </span><span class="nl">"force_delete_date"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+                </span><span class="nl">"contacts"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+                    </span><span class="p">{</span><span class="w">
+                        </span><span class="nl">"code"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1111111:65B7EB55"</span><span class="p">,</span><span class="w">
+                        </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"AdminDomainContact"</span><span class="p">,</span><span class="w">
+                        </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Mary Änn O’Connež-Šuslik"</span><span class="w">
+                    </span><span class="p">},</span><span class="w">
+                    </span><span class="p">{</span><span class="w">
+                        </span><span class="nl">"code"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1111111:8E3736F2"</span><span class="p">,</span><span class="w">
+                        </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"TechDomainContact"</span><span class="p">,</span><span class="w">
+                        </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Mary Änn O’Connež-Šuslik"</span><span class="w">
+                    </span><span class="p">}</span><span class="w">
+                </span><span class="p">],</span><span class="w">
+                </span><span class="nl">"nameservers"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+                    </span><span class="p">{</span><span class="w">
+                        </span><span class="nl">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">37</span><span class="p">,</span><span class="w">
+                        </span><span class="nl">"hostname"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ns1.oberbrunner.net"</span><span class="p">,</span><span class="w">
+                        </span><span class="nl">"ipv4"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+                            </span><span class="s2">"219.175.134.244"</span><span class="w">
+                        </span><span class="p">],</span><span class="w">
+                        </span><span class="nl">"ipv6"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+                            </span><span class="s2">"647B:275:536E:1C6B:8D51:5E15:D6F5:184A"</span><span class="w">
+                        </span><span class="p">]</span><span class="w">
+                    </span><span class="p">},</span><span class="w">
+                    </span><span class="p">{</span><span class="w">
+                        </span><span class="nl">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">38</span><span class="p">,</span><span class="w">
+                        </span><span class="nl">"hostname"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ns2.kunze.org"</span><span class="p">,</span><span class="w">
+                        </span><span class="nl">"ipv4"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+                            </span><span class="s2">"134.156.204.100"</span><span class="w">
+                        </span><span class="p">],</span><span class="w">
+                        </span><span class="nl">"ipv6"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+                            </span><span class="s2">"A724:680A:9437:E459:A20D:5C53:DF42:CD5F"</span><span class="w">
+                        </span><span class="p">]</span><span class="w">
+                    </span><span class="p">}</span><span class="w">
+                </span><span class="p">],</span><span class="w">
+                </span><span class="nl">"dnssec_keys"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+                    </span><span class="p">{</span><span class="w">
+                        </span><span class="nl">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">8</span><span class="p">,</span><span class="w">
+                        </span><span class="nl">"flags"</span><span class="p">:</span><span class="w"> </span><span class="mi">257</span><span class="p">,</span><span class="w">
+                        </span><span class="nl">"protocol"</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w">
+                        </span><span class="nl">"alg"</span><span class="p">:</span><span class="w"> </span><span class="mi">8</span><span class="p">,</span><span class="w">
+                        </span><span class="nl">"public_key"</span><span class="p">:</span><span class="w"> </span><span class="s2">"e087a47db0e31dbb162e4bb62da7a34322be3ff66fdcf65268225c4db3b37d79"</span><span class="w">
+                    </span><span class="p">}</span><span class="w">
+                </span><span class="p">],</span><span class="w">
+                </span><span class="nl">"statuses"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                    </span><span class="nl">"ok"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="p">,</span><span class="w">
+                    </span><span class="nl">"pendingDelete"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="p">,</span><span class="w">
+                    </span><span class="nl">"serverHold"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="w">
+                </span><span class="p">},</span><span class="w">
+                </span><span class="nl">"registrar"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                    </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Registrar"</span><span class="p">,</span><span class="w">
+                    </span><span class="nl">"website"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://regitrar.ee"</span><span class="w">
+                </span><span class="p">},</span><span class="w">
+                </span><span class="nl">"dispute"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
+                </span><span class="nl">"transfer_code"</span><span class="p">:</span><span class="w"> </span><span class="s2">"a39f33a5c6a5aa3ac44e625c9eaa7476"</span><span class="w">
+            </span><span class="p">}</span><span class="w">
+        </span><span class="p">],</span><span class="w">
+        </span><span class="nl">"domains"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+            </span><span class="p">{</span><span class="w">
+                </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"kass.ee"</span><span class="p">,</span><span class="w">
+                </span><span class="nl">"registrant"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                    </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"KARL"</span><span class="p">,</span><span class="w">
+                    </span><span class="nl">"code"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ATSAA:KARL"</span><span class="w">
+                </span><span class="p">},</span><span class="w">
+                </span><span class="nl">"created_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2021-01-29T11:15:52.753+02:00"</span><span class="p">,</span><span class="w">
+                </span><span class="nl">"updated_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2021-01-29T11:15:52.753+02:00"</span><span class="p">,</span><span class="w">
+                </span><span class="nl">"expire_time"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2022-01-30T00:00:00.000+02:00"</span><span class="p">,</span><span class="w">
+                </span><span class="nl">"outzone_at"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+                </span><span class="nl">"delete_date"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+                </span><span class="nl">"force_delete_date"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+                </span><span class="nl">"transfer_code"</span><span class="p">:</span><span class="w"> </span><span class="s2">"378499652fe9f0075600bba06c3a2449"</span><span class="p">,</span><span class="w">
+                </span><span class="nl">"contacts"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+                    </span><span class="p">{</span><span class="w">
+                        </span><span class="nl">"code"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ATSAA:KARL"</span><span class="p">,</span><span class="w">
+                        </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"AdminDomainContact"</span><span class="p">,</span><span class="w">
+                        </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"KARL"</span><span class="w">
+                    </span><span class="p">},</span><span class="w">
+                    </span><span class="p">{</span><span class="w">
+                        </span><span class="nl">"code"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ATSAA:KARL"</span><span class="p">,</span><span class="w">
+                        </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"TechDomainContact"</span><span class="p">,</span><span class="w">
+                        </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"KARL"</span><span class="w">
+                    </span><span class="p">}</span><span class="w">
+                </span><span class="p">],</span><span class="w">
+                </span><span class="nl">"nameservers"</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span><span class="w">
+                </span><span class="nl">"dnssec_keys"</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span><span class="w">
+                </span><span class="nl">"statuses"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                    </span><span class="nl">"inactive"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="w">
+                </span><span class="p">},</span><span class="w">
+            </span><span class="nl">"registrar"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Kreative Digital OÜ"</span><span class="p">,</span><span class="w">
+                </span><span class="nl">"website"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://kreative.ee"</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nl">"dispute"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"transfer_code"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2f81ec671b69a2aa5d6375631e259ae7"</span><span class="p">,</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="p">{</span><span class="w">
+                </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"koer.ee"</span><span class="p">,</span><span class="w">
+                </span><span class="nl">"registrant"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ATSAA:KARL"</span><span class="p">,</span><span class="w">
+                </span><span class="nl">"created_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2021-01-29T11:16:23.679+02:00"</span><span class="p">,</span><span class="w">
+                </span><span class="nl">"updated_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2021-01-29T11:16:23.679+02:00"</span><span class="p">,</span><span class="w">
+                </span><span class="nl">"expire_time"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2022-01-30T00:00:00.000+02:00"</span><span class="p">,</span><span class="w">
+                </span><span class="nl">"outzone_at"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+                </span><span class="nl">"delete_date"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+                </span><span class="nl">"force_delete_date"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+                </span><span class="nl">"transfer_code"</span><span class="p">:</span><span class="w"> </span><span class="s2">"669031afb3bf93a8df55d29e33debc8c"</span><span class="p">,</span><span class="w">
+                </span><span class="nl">"contacts"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+                    </span><span class="p">{</span><span class="w">
+                        </span><span class="nl">"code"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ATSAA:KARL"</span><span class="p">,</span><span class="w">
+                        </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"AdminDomainContact"</span><span class="w">
+                    </span><span class="p">},</span><span class="w">
+                    </span><span class="p">{</span><span class="w">
+                        </span><span class="nl">"code"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ATSAA:KARL"</span><span class="p">,</span><span class="w">
+                        </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"TechDomainContact"</span><span class="w">
+                    </span><span class="p">}</span><span class="w">
+                </span><span class="p">],</span><span class="w">
+                </span><span class="nl">"nameservers"</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span><span class="w">
+                </span><span class="nl">"dnssec_keys"</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span><span class="w">
+                </span><span class="nl">"statuses"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                    </span><span class="nl">"inactive"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="w">
+                </span><span class="p">},</span><span class="w">
+            </span><span class="nl">"registrar"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Kreative Digital OÜ"</span><span class="p">,</span><span class="w">
+                </span><span class="nl">"website"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://kreative.ee"</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nl">"dispute"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"transfer_code"</span><span class="p">:</span><span class="w"> </span><span class="s2">"asdf564cs89er3dg46d5f3v1df6534g3f2"</span><span class="p">,</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+        </span><span class="p">],</span><span class="w">
+        </span><span class="nl">"count"</span><span class="p">:</span><span class="w"> </span><span class="mi">69</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<p>Gets all existing domains under current registrar account.</p>
+<h3 id='http-request-12'>HTTP Request</h3>
+<p><code>GET /repp/v1/domains</code></p>
+<h3 id='url-parameters-10'>URL Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Required</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>limit</td>
+<td>No</td>
+<td>200</td>
+<td>How many objects to return</td>
+</tr>
+<tr>
+<td>offset</td>
+<td>No</td>
+<td>0</td>
+<td>Object query offset</td>
+</tr>
+<tr>
+<td>details</td>
+<td>No</td>
+<td>false</td>
+<td>Show full object of each domain</td>
+</tr>
+</tbody></table>
+<h2 id='get-a-specific-domain'>Get a specific domain</h2><div class="highlight"><pre class="highlight shell tab-shell"><code>curl <span class="nt">--location</span> <span class="nt">--request</span> GET <span class="s1">'https://testrar.internet.ee/repp/v1/domains/biz.ee'</span> <span class="se">\</span>
+<span class="nt">--header</span> <span class="s1">'Authorization: Basic dGVzdDp0ZXN0MTIz'</span> <span class="se">\</span>
+<span class="nt">--data-raw</span> <span class="s1">''</span>
+</code></pre></div>
+<blockquote>
+<p>The above command returns JSON structured like this:</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+    </span><span class="nl">"code"</span><span class="p">:</span><span class="w"> </span><span class="mi">1000</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Command completed successfully"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"domain"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"biz.ee"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"registrant"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"KARL"</span><span class="p">,</span><span class="w">
+                </span><span class="nl">"code"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ATSAA:749AA80F"</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nl">"created_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2021-01-15T12:07:20.079+02:00"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"updated_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2021-01-21T16:41:59.707+02:00"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"expire_time"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2023-01-16T00:00:00.000+02:00"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"outzone_at"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"delete_date"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"force_delete_date"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"contacts"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+                </span><span class="p">{</span><span class="w">
+                    </span><span class="nl">"code"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ATSAA:C7A52A30"</span><span class="p">,</span><span class="w">
+                    </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"AdminDomainContact"</span><span class="p">,</span><span class="w">
+                    </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"KARL"</span><span class="w">
+                </span><span class="p">},</span><span class="w">
+                </span><span class="p">{</span><span class="w">
+                    </span><span class="nl">"code"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ATSAA:CC53EF9C"</span><span class="p">,</span><span class="w">
+                    </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"TechDomainContact"</span><span class="p">,</span><span class="w">
+                    </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"KARL"</span><span class="w">
+                </span><span class="p">}</span><span class="w">
+            </span><span class="p">],</span><span class="w">
+            </span><span class="nl">"nameservers"</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span><span class="w">
+            </span><span class="nl">"dnssec_keys"</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span><span class="w">
+            </span><span class="nl">"statuses"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                </span><span class="nl">"inactive"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nl">"registrar"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Kreative Digital OÜ"</span><span class="p">,</span><span class="w">
+                </span><span class="nl">"website"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://kreative.ee"</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nl">"dispute"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"transfer_code"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2f81ec671b69a2aa5d6375631e259ae7"</span><span class="p">,</span><span class="w">
+        </span><span class="p">}</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<p>Returns a specific domain object, even if it doesn&#39;t belong to your registrar account.
+If you aren&#39;t sponsoring registrar for the domain, transfer_code is omitted from the response.</p>
+<h3 id='http-request-13'>HTTP Request</h3>
+<p><code>GET /repp/v1/domains/:domain_name</code></p>
+<h3 id='url-parameters-11'>URL Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>domain_name</td>
+<td>Yes</td>
+<td>Domain name</td>
+</tr>
+</tbody></table>
+<h2 id='register-a-new-domain'>Register a new domain</h2><div class="highlight"><pre class="highlight shell tab-shell"><code>curl <span class="nt">--location</span> <span class="nt">--request</span> POST <span class="s1">'https://testrar.internet.ee/repp/v1/domains'</span> <span class="se">\</span>
+<span class="nt">--header</span> <span class="s1">'Authorization: Basic dGVzdDp0ZXN0MTIz'</span> <span class="se">\</span>
+<span class="nt">--header</span> <span class="s1">'Content-Type: application/json'</span> <span class="se">\</span>
+<span class="nt">--data-raw</span> <span class="s1">'{
+    "domain": {
+        "name": "kasskoer.ee",
+        "registrant": "ATSAA:KARL",
+        "period": 1,
+        "period_unit": "y",
+        "admin_contacts": [
+            "ATSAA:KARL"
+        ],
+        "tech_contacts": [
+            "ATSAA:KARL"
+        ],
+        "nameservers_attributes": [
+            {
+                "hostname": "ns1.kreative.ee"
+            },
+            {
+                "hostname": "ns2.kreative.ee"
+            }
+        ]
+    }
+}'</span>
+</code></pre></div>
+<blockquote>
+<p>The above command returns JSON structured like this:</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+    </span><span class="nl">"code"</span><span class="p">:</span><span class="w"> </span><span class="mi">1000</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Command completed successfully"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"domain"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"kasskoer.ee"</span><span class="w">
+        </span><span class="p">}</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<p>Register a new domain</p>
+<h3 id='http-request-14'>HTTP Request</h3>
+<p><code>POST /repp/v1/domains</code></p>
+<h3 id='payload-parameters-4'>Payload Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Required</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>name</td>
+<td>Yes</td>
+<td>String</td>
+<td>Domain name</td>
+</tr>
+<tr>
+<td>reserved_pw</td>
+<td>No</td>
+<td>String</td>
+<td>Reserved password for domain</td>
+</tr>
+<tr>
+<td>transfer_code</td>
+<td>No</td>
+<td>String</td>
+<td>Desired transfer code for domain</td>
+</tr>
+<tr>
+<td>registrant</td>
+<td>Yes</td>
+<td>String</td>
+<td>Registrant contact code</td>
+</tr>
+<tr>
+<td>period_unit</td>
+<td>Yes</td>
+<td>String</td>
+<td>Period unit. Can be year (y) or month (m)</td>
+</tr>
+<tr>
+<td>period</td>
+<td>Yes</td>
+<td>Integer</td>
+<td>For how many period units to register domain</td>
+</tr>
+<tr>
+<td>admin_contacts</td>
+<td>No</td>
+<td>Array</td>
+<td>Array of admin domain contact codes</td>
+</tr>
+<tr>
+<td>tech_contacts</td>
+<td>No</td>
+<td>Array</td>
+<td>Array of tech domain contact codes</td>
+</tr>
+<tr>
+<td>nameservers_attributes</td>
+<td>No</td>
+<td>Array</td>
+<td>Array of nameserver objects</td>
+</tr>
+<tr>
+<td>nameservers_attributes[hostname]</td>
+<td>Yes</td>
+<td>String</td>
+<td>Hostname of nameserver</td>
+</tr>
+<tr>
+<td>nameservers_attributes[ipv4]</td>
+<td>Yes</td>
+<td>Array</td>
+<td>Array of IPv4 attributes</td>
+</tr>
+<tr>
+<td>nameservers_attributes[ipv6]</td>
+<td>Yes</td>
+<td>Array</td>
+<td>Array of IPv6 attributes</td>
+</tr>
+<tr>
+<td>dnskeys_attributes</td>
+<td>No</td>
+<td>Array</td>
+<td>Array of DNSSEC key attributes</td>
+</tr>
+<tr>
+<td>dnskeys_attributes[flags]</td>
+<td>Yes</td>
+<td>String</td>
+<td>256 (KSK) or 257 (ZSK)</td>
+</tr>
+<tr>
+<td>dnskeys_attributes[protocol]</td>
+<td>Yes</td>
+<td>String</td>
+<td>Key protocol (3)</td>
+</tr>
+<tr>
+<td>dnskeys_attributes[alg]</td>
+<td>Yes</td>
+<td>String</td>
+<td>DNSSEC key algorithm (3,5,6,7,8,10,13,14)</td>
+</tr>
+<tr>
+<td>dnskeys_attributes[public_key]</td>
+<td>Yes</td>
+<td>String</td>
+<td>DNSSEC public key</td>
+</tr>
+</tbody></table>
+
+<aside class="notice">
+Note — Wrap your payload attributes into "domain" object, as shown in example.
+</aside>
+<h2 id='change-domain-registrant-auth-code'>Change domain registrant / Auth code</h2><div class="highlight"><pre class="highlight shell tab-shell"><code>curl <span class="nt">--location</span> <span class="nt">--request</span> PUT <span class="s1">'https://testrar.internet.ee/repp/v1/domains/kasskoer.ee'</span> <span class="se">\</span>
+<span class="nt">--header</span> <span class="s1">'Authorization: Basic dGVzdDp0ZXN0MTIz'</span> <span class="se">\</span>
+<span class="nt">--header</span> <span class="s1">'Content-Type: application/json'</span> <span class="se">\</span>
+<span class="nt">--data-raw</span> <span class="s1">'{
+    "domain": {
+        "registrant": {
+            "code": "ATSAA:LIZ"
+        },
+        "transfer_code": "123"
+    }
+}'</span>
+</code></pre></div>
+<blockquote>
+<p>The above command returns JSON structured like this:</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+    </span><span class="nl">"code"</span><span class="p">:</span><span class="w"> </span><span class="mi">1000</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Command completed successfully"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"domain"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"kasskoer.ee"</span><span class="w">
+        </span><span class="p">}</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<p>Changes domain registrant or auth code</p>
+<h3 id='http-request-15'>HTTP Request</h3>
+<p><code>PUT /repp/v1/domains/:domain_name</code></p>
+<h3 id='url-parameters-12'>URL Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Required</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>domain_name</td>
+<td>Yes</td>
+<td>String</td>
+<td>Domain</td>
+</tr>
+</tbody></table>
+<h3 id='payload-parameters-5'>Payload Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Required</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>registrant</td>
+<td>Yes</td>
+<td>Object</td>
+<td>New registrant object</td>
+</tr>
+<tr>
+<td>registrant[code]</td>
+<td>Yes</td>
+<td>String</td>
+<td>Contact ID of new registrant</td>
+</tr>
+<tr>
+<td>registrant[verified]</td>
+<td>No</td>
+<td>Boolean</td>
+<td>Possible values are true / false. Defaults to false. Include it only if set to true.</td>
+</tr>
+<tr>
+<td>transfer_code</td>
+<td>No</td>
+<td>String</td>
+<td>New EPP transfer code for domain</td>
+</tr>
+</tbody></table>
+
+<aside class="notice">
+Note — Wrap your payload attributes into "domain" object, as shown in example.
+</aside>
+<h2 id='get-all-contacts-of-specific-domain'>Get all contacts of specific domain</h2><div class="highlight"><pre class="highlight shell tab-shell"><code>curl <span class="nt">--location</span> <span class="nt">--request</span> GET <span class="s1">'https://testrar.internet.ee/repp/v1/domains/kasskoer.ee/contacts'</span> <span class="se">\</span>
+<span class="nt">--header</span> <span class="s1">'Authorization: Basic dGVzdDp0ZXN0MTIz'</span> <span class="se">\</span>
+<span class="nt">--data-raw</span> <span class="s1">''</span>
+</code></pre></div>
+<blockquote>
+<p>The above command returns JSON structured like this:</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+    </span><span class="nl">"code"</span><span class="p">:</span><span class="w"> </span><span class="mi">1000</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Command completed successfully"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"admin_contacts"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+            </span><span class="s2">"1111111:65B7EB55"</span><span class="w">
+        </span><span class="p">],</span><span class="w">
+        </span><span class="nl">"tech_contacts"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+            </span><span class="s2">"1111111:0FEEDC3C"</span><span class="p">,</span><span class="w">
+            </span><span class="s2">"1111111:65B7EB55"</span><span class="w">
+        </span><span class="p">]</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<p>Views domain&#39;s admin and tech contacts.</p>
+<h3 id='url-parameters-13'>URL Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>domain_name</td>
+<td>Yes</td>
+<td>Domain name</td>
+</tr>
+</tbody></table>
+<h2 id='link-new-contact-s-to-specific-domain'>Link new contact(s) to specific domain</h2><div class="highlight"><pre class="highlight shell tab-shell"><code>curl <span class="nt">--location</span> <span class="nt">--request</span> POST <span class="s1">'https://testrar.internet.ee/repp/v1/domains/kasskoer.ee/contacts'</span> <span class="se">\</span>
+<span class="nt">--header</span> <span class="s1">'Authorization: Basic dGVzdDp0ZXN0MTIz'</span> <span class="se">\</span>
+<span class="nt">--header</span> <span class="s1">'Content-Type: application/json'</span> <span class="se">\</span>
+<span class="nt">--data-raw</span> <span class="s1">'{
+    "contacts": [
+        {
+            "code": "1111111:65B7EB55",
+            "type": "admin"
+        },
+        {
+            "code": "1111111:8E3736F2",
+            "type": "tech"
+        }
+    ]
+}'</span>
+</code></pre></div>
+<blockquote>
+<p>The above command returns JSON structured like this:</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+    </span><span class="nl">"code"</span><span class="p">:</span><span class="w"> </span><span class="mi">1000</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Command completed successfully"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"domain"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"kasskoer.ee"</span><span class="w">
+        </span><span class="p">}</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<p>Adds contact(s) to domain.</p>
+<h3 id='http-request-16'>HTTP Request</h3>
+<p><code>POST /repp/v1/domains/:domain_name/contacts</code></p>
+<h3 id='url-parameters-14'>URL Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Required</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>domain_name</td>
+<td>Yes</td>
+<td>String</td>
+<td>Domain name</td>
+</tr>
+</tbody></table>
+<h3 id='payload-parameters-6'>Payload Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Required</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>contacts</td>
+<td>Yes</td>
+<td>Array</td>
+<td>Array of contact objects</td>
+</tr>
+<tr>
+<td>contacts[code]</td>
+<td>Yes</td>
+<td>String</td>
+<td>Code of contact</td>
+</tr>
+<tr>
+<td>contacts[type]</td>
+<td>Yes</td>
+<td>String</td>
+<td>Type of contact. Can be &#39;admin&#39; or &#39;tech&#39;</td>
+</tr>
+</tbody></table>
+<h2 id='remove-contact-s-from-specific-domain'>Remove contact(s) from specific domain</h2><div class="highlight"><pre class="highlight shell tab-shell"><code>curl <span class="nt">--location</span> <span class="nt">--request</span> DELETE <span class="s1">'https://testrar.internet.ee/repp/v1/domains/kasskoer.ee/contacts'</span> <span class="se">\</span>
+<span class="nt">--header</span> <span class="s1">'Authorization: Basic dGVzdDp0ZXN0MTIz'</span> <span class="se">\</span>
+<span class="nt">--header</span> <span class="s1">'Content-Type: application/json'</span> <span class="se">\</span>
+<span class="nt">--data-raw</span> <span class="s1">'{
+    "contacts": [
+        {
+            "code": "1111111:65B7EB55",
+            "type": "admin"
+        },
+        {
+            "code": "1111111:8E3736F2",
+            "type": "tech"
+        }
+    ]
+}'</span>
+</code></pre></div>
+<blockquote>
+<p>The above command returns JSON structured like this:</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+    </span><span class="nl">"code"</span><span class="p">:</span><span class="w"> </span><span class="mi">1000</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Command completed successfully"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"domain"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"kasskoer.ee"</span><span class="w">
+        </span><span class="p">}</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<p>Deletes contact(s) from domain.</p>
+<h3 id='http-request-17'>HTTP Request</h3>
+<p><code>DELETE /repp/v1/domains/:domain_name/contacts</code></p>
+<h3 id='url-parameters-15'>URL Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Required</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>domain_name</td>
+<td>Yes</td>
+<td>String</td>
+<td>Domain name</td>
+</tr>
+</tbody></table>
+<h3 id='payload-parameters-7'>Payload Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Required</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>contacts</td>
+<td>Yes</td>
+<td>Array</td>
+<td>Array of contact objects</td>
+</tr>
+<tr>
+<td>contacts[code]</td>
+<td>Yes</td>
+<td>String</td>
+<td>Code of contact</td>
+</tr>
+<tr>
+<td>contacts[type]</td>
+<td>Yes</td>
+<td>String</td>
+<td>Type of contact. Can be &#39;admin&#39; or &#39;tech&#39;</td>
+</tr>
+</tbody></table>
+<h2 id='renew-a-specific-domain'>Renew a specific domain</h2><div class="highlight"><pre class="highlight shell tab-shell"><code>curl <span class="nt">--location</span> <span class="nt">--request</span> POST <span class="s1">'https://testrar.internet.ee/repp/v1/domains/kasskoer.ee/renew'</span> <span class="se">\</span>
+<span class="nt">--header</span> <span class="s1">'Authorization: Basic dGVzdDp0ZXN0MTIz'</span> <span class="se">\</span>
+<span class="nt">--header</span> <span class="s1">'Content-Type: application/json'</span> <span class="se">\</span>
+<span class="nt">--data-raw</span> <span class="s1">'{
+    "renews": {
+        "period": 1,
+        "period_unit": "y",
+        "exp_date": "2021-04-20"
+    }
+}'</span>
+</code></pre></div>
+<blockquote>
+<p>The above command returns JSON structured like this:</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+    </span><span class="nl">"code"</span><span class="p">:</span><span class="w"> </span><span class="mi">1000</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Command completed successfully"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"domain"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"kasskoer.ee"</span><span class="w">
+        </span><span class="p">}</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<p>Renews current domain for desired period.</p>
+<h3 id='http-request-18'>HTTP Request</h3>
+<p><code>POST /repp/v1/domains/:domain_name/renew</code></p>
+<h3 id='url-parameters-16'>URL Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Required</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>domain_name</td>
+<td>Yes</td>
+<td>String</td>
+<td>Domain name</td>
+</tr>
+</tbody></table>
+<h3 id='payload-parameters-8'>Payload Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Required</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>period_unit</td>
+<td>Yes</td>
+<td>String</td>
+<td>Period unit. Can be year (y) or month (m)</td>
+</tr>
+<tr>
+<td>period</td>
+<td>Yes</td>
+<td>Integer</td>
+<td>For how many period units to register domain</td>
+</tr>
+<tr>
+<td>exp_date</td>
+<td>Yes</td>
+<td>String</td>
+<td>Current expiry date for domain (yyyy-mm-dd)</td>
+</tr>
+</tbody></table>
+
+<aside class="notice">
+Note — Wrap your payload attributes into "renew" object, as shown in example.
+</aside>
+<h2 id='delete-a-specific-domain'>Delete a specific domain</h2><div class="highlight"><pre class="highlight shell tab-shell"><code>curl <span class="nt">--location</span> <span class="nt">--request</span> DELETE <span class="s1">'https://registry.test/repp/v1/domains/kanakotlet.ee'</span> <span class="se">\</span>
+<span class="nt">--header</span> <span class="s1">'Authorization: Basic dGVzdDp0ZXN0MTIz'</span> <span class="se">\</span>
+
+<span class="nt">--header</span> <span class="s1">'Content-Type: application/json'</span> <span class="se">\</span>
+<span class="nt">--data-raw</span> <span class="s1">'{
+    "domain": {
+        "delete": {
+            "verified": false
+        }
+    }
+}'</span>
+</code></pre></div>
+<blockquote>
+<p>The above command returns JSON structured like this:</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+    </span><span class="nl">"code"</span><span class="p">:</span><span class="w"> </span><span class="mi">1000</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Command completed successfully"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"domain"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"kanakotlet.ee"</span><span class="w">
+        </span><span class="p">}</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<p>Deletes a specific domain</p>
+<h3 id='http-request-19'>HTTP Request</h3>
+<p><code>DELETE /repp/v1/domains/:domain_name</code></p>
+<h3 id='url-parameters-17'>URL Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>domain_name</td>
+<td>Yes</td>
+<td>Domain name</td>
+</tr>
+</tbody></table>
+<h3 id='required-headers'>Required Headers</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>Auth-Code</td>
+<td>No</td>
+<td>domain&#39;s EPP transfer code</td>
+</tr>
+</tbody></table>
+<h3 id='payload-parameters-9'>Payload Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Required</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>delete</td>
+<td>Yes</td>
+<td>Hash</td>
+<td>Hash holding verified flag</td>
+</tr>
+<tr>
+<td>delete[verified]</td>
+<td>Yes</td>
+<td>Boolean</td>
+<td>Whether to ask registrant confirmation or not</td>
+</tr>
+</tbody></table>
+<h1 id='nameservers'>Nameservers</h1><h2 id='get-domain-39-s-nameservers'>Get domain&#39;s nameservers</h2><div class="highlight"><pre class="highlight shell tab-shell"><code>curl <span class="nt">--location</span> <span class="nt">--request</span> GET <span class="s1">'https://testrar.internet.ee/repp/v1/domains/domeener.ee/nameservers'</span> <span class="se">\</span>
+<span class="nt">--header</span> <span class="s1">'Authorization: Basic dGVzdDp0ZXN0MTIz'</span> <span class="se">\</span>
+<span class="nt">--data-raw</span> <span class="s1">''</span>
+</code></pre></div>
+<blockquote>
+<p>The above command returns JSON structured like this:</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+    </span><span class="nl">"code"</span><span class="p">:</span><span class="w"> </span><span class="mi">1000</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Command completed successfully"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"nameservers"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+            </span><span class="p">{</span><span class="w">
+                </span><span class="nl">"hostname"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ns1.domeener.ee"</span><span class="p">,</span><span class="w">
+                </span><span class="nl">"ipv4"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"192.168.1.1"</span><span class="p">],</span><span class="w">
+                </span><span class="nl">"ipv6"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"fe80::aede:48ff:fe00:1122"</span><span class="p">]</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="p">{</span><span class="w">
+                </span><span class="nl">"hostname"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ns2.domeener.ee"</span><span class="p">,</span><span class="w">
+                </span><span class="nl">"ipv4"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"192.168.1.2"</span><span class="p">],</span><span class="w">
+                </span><span class="nl">"ipv6"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"fe80::aede:48ff:fe00:1123"</span><span class="p">]</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+        </span><span class="p">]</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<p>Gets a specific domain&#39;s nameservers</p>
+<h3 id='http-request-20'>HTTP Request</h3>
+<p><code>GET /repp/v1/domains/:domain_name/nameservers</code></p>
+<h3 id='url-parameters-18'>URL Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>domain_name</td>
+<td>Yes</td>
+<td>Domain name</td>
+</tr>
+</tbody></table>
+<h2 id='add-new-nameserver'>Add new nameserver</h2><div class="highlight"><pre class="highlight shell tab-shell"><code>curl <span class="nt">--location</span> <span class="nt">--request</span> POST <span class="s1">'https://testrar.internet.ee/repp/v1/domains/kotlet.ee/nameservers'</span> <span class="se">\</span>
+<span class="nt">--header</span> <span class="s1">'Authorization: Basic dGVzdDp0ZXN0MTIz'</span> <span class="se">\</span>
+<span class="nt">--header</span> <span class="s1">'Content-Type: application/json'</span> <span class="se">\</span>
+<span class="nt">--data-raw</span> <span class="s1">'{
+    "nameservers": [
+        {
+            "hostname": "ns1.domainer.ee",
+            "ipv4": ["192.168.1.1", "192.168.1.2"],
+            "ipv6": ["2620:119:35::35", "2620:119:35::36"]
+        },
+        {
+            "hostname": "ns2.domainer.ee",
+            "ipv4": ["192.168.1.3", "192.168.1.4"],
+            "ipv6": ["2620:119:35::37", "2620:119:35::38"]
+        }
+    ]
+}'</span>
+</code></pre></div>
+<blockquote>
+<p>The above command returns JSON structured like this:</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+    </span><span class="nl">"code"</span><span class="p">:</span><span class="w"> </span><span class="mi">1000</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Command completed successfully"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"domain"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"kotlet.ee"</span><span class="w">
+        </span><span class="p">}</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<p>Add new nameserver(s) to specific domain</p>
+<h3 id='http-request-21'>HTTP Request</h3>
+<p><code>POST /repp/v1/domains/:domain_name/nameservers</code></p>
+<h3 id='url-parameters-19'>URL Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>domain_name</td>
+<td>Yes</td>
+<td>Domain name</td>
+</tr>
+</tbody></table>
+<h3 id='payload-parameters-10'>Payload Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Required</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>nameservers</td>
+<td>Yes</td>
+<td>Array</td>
+<td>Array of new nameserver objects</td>
+</tr>
+<tr>
+<td>nameservers[hostname]</td>
+<td>Yes</td>
+<td>Hostname of nameserver</td>
+<td></td>
+</tr>
+<tr>
+<td>nameservers[ipv4]</td>
+<td>No</td>
+<td>Array</td>
+<td>Array of IPv4 addresses</td>
+</tr>
+<tr>
+<td>nameservers[ipv6]</td>
+<td>No</td>
+<td>Array</td>
+<td>Array of IPv6 addresses</td>
+</tr>
+</tbody></table>
+<h2 id='delete-existing-nameserver'>Delete existing nameserver</h2><div class="highlight"><pre class="highlight shell tab-shell"><code>curl <span class="nt">--location</span> <span class="nt">--request</span> DELETE <span class="s1">'https://testrar.internet.ee/repp/v1/domains/kotlet.ee/nameservers/ns3.domainer.ee'</span> <span class="se">\</span>
+<span class="nt">--header</span> <span class="s1">'Authorization: Basic dGVzdDp0ZXN0MTIz'</span> <span class="se">\</span>
+<span class="nt">--data-raw</span> <span class="s1">''</span>
+</code></pre></div>
+<blockquote>
+<p>The above command returns JSON structured like this:</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+    </span><span class="nl">"code"</span><span class="p">:</span><span class="w"> </span><span class="mi">1000</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Command completed successfully"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"domain"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"666.ee"</span><span class="w">
+        </span><span class="p">}</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<p>Delete existing nameserver from domain.</p>
+<h3 id='http-request-22'>HTTP Request</h3>
+<p><code>DELETE /repp/v1/domains/:domain_name/nameservers/:nameserver_hostname</code></p>
+<h3 id='url-parameters-20'>URL Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>domain_name</td>
+<td>Yes</td>
+<td>Domain name</td>
+</tr>
+<tr>
+<td>nameserver_hostname</td>
+<td>Yes</td>
+<td>nameserver hostname to delete</td>
+</tr>
+</tbody></table>
+<h1 id='dnssec'>DNSSEC</h1><h2 id='get-domain-39-s-dnssec-keys'>Get domain&#39;s DNSSEC keys</h2><div class="highlight"><pre class="highlight shell tab-shell"><code>curl <span class="nt">--location</span> <span class="nt">--request</span> GET <span class="s1">'https://testrar.internet.ee/repp/v1/domains/666.ee/dnssec'</span> <span class="se">\</span>
+<span class="nt">--header</span> <span class="s1">'Authorization: Basic dGVzdDp0ZXN0MTIz'</span> <span class="se">\</span>
+<span class="nt">--data-raw</span> <span class="s1">''</span>
+</code></pre></div>
+<blockquote>
+<p>The above command returns JSON structured like this:</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+    </span><span class="nl">"code"</span><span class="p">:</span><span class="w"> </span><span class="mi">1000</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Command completed successfully"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"dns_keys"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+            </span><span class="p">{</span><span class="w">
+                </span><span class="nl">"flags"</span><span class="p">:</span><span class="w"> </span><span class="mi">257</span><span class="p">,</span><span class="w">
+                </span><span class="nl">"protocol"</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w">
+                </span><span class="nl">"alg"</span><span class="p">:</span><span class="w"> </span><span class="mi">13</span><span class="p">,</span><span class="w">
+                </span><span class="nl">"public_key"</span><span class="p">:</span><span class="w"> </span><span class="s2">"pubkeyhere"</span><span class="w">
+            </span><span class="p">}</span><span class="w">
+        </span><span class="p">]</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<p>Gets a specific domain&#39;s DNSSEC keys</p>
+<h3 id='http-request-23'>HTTP Request</h3>
+<p><code>GET /repp/v1/domains/:domain_name/dnssec</code></p>
+<h3 id='url-parameters-21'>URL Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>domain_name</td>
+<td>Yes</td>
+<td>Domain name</td>
+</tr>
+</tbody></table>
+<h2 id='add-new-dnssec-key'>Add new DNSSEC key</h2><div class="highlight"><pre class="highlight shell tab-shell"><code>curl <span class="nt">--location</span> <span class="nt">--request</span> POST <span class="s1">'https://testrar.internet.ee/repp/v1/domains/666.ee/dnssec'</span> <span class="se">\</span>
+<span class="nt">--header</span> <span class="s1">'Authorization: Basic dGVzdDp0ZXN0MTIz'</span> <span class="se">\</span>
+<span class="nt">--header</span> <span class="s1">'Content-Type: application/json'</span> <span class="se">\</span>
+<span class="nt">--data-raw</span> <span class="s1">'{
+    "dns_keys": [
+        {
+            "flags": "257",
+            "protocol": "3",
+            "alg": "8",
+            "public_key": "AwEAAddt2AkLfYGKgiEZB5SmIF8EvrjxNMH6HtxWEA4RJ9Ao6LCWheg8"
+        },
+        {
+            "flags": "257",
+            "protocol": "3",
+            "alg": "13",
+            "public_key": "mdsswUyr3DPW132mOi8V9xESWE8jTo0dxCjjnopKl+GqJxpVXckHAeF+KkxLbxILfDLUT0rAK9iUzy1L53eKGQ=="
+        }
+    ]
+}'</span>
+</code></pre></div>
+<blockquote>
+<p>The above command returns JSON structured like this:</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+    </span><span class="nl">"code"</span><span class="p">:</span><span class="w"> </span><span class="mi">1000</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Command completed successfully"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"domain"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"666.ee"</span><span class="w">
+        </span><span class="p">}</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<p>Add new DNSSEC key(s) to specific domain</p>
+<h3 id='http-request-24'>HTTP Request</h3>
+<p><code>POST /repp/v1/domains/:domain_name/dnssec</code></p>
+<h3 id='url-parameters-22'>URL Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>domain_name</td>
+<td>Yes</td>
+<td>Domain name</td>
+</tr>
+</tbody></table>
+<h3 id='payload-parameters-11'>Payload Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Required</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>dns_keys</td>
+<td>Yes</td>
+<td>Array</td>
+<td>Array of DNSSEC key objects</td>
+</tr>
+<tr>
+<td>dns_keys[flags]</td>
+<td>Yes</td>
+<td>String</td>
+<td>256 (KSK) or 257 (ZSK)</td>
+</tr>
+<tr>
+<td>dns_keys[protocol]</td>
+<td>Yes</td>
+<td>String</td>
+<td>Key protocol (3)</td>
+</tr>
+<tr>
+<td>dns_keys[alg]</td>
+<td>Yes</td>
+<td>String</td>
+<td>DNSSEC key algorithm (3,5,6,7,8,10,13,14)</td>
+</tr>
+<tr>
+<td>dns_keys[public_key]</td>
+<td>Yes</td>
+<td>String</td>
+<td>DNSSEC public key</td>
+</tr>
+</tbody></table>
+<h2 id='delete-dnssec-key'>Delete DNSSEC key</h2><div class="highlight"><pre class="highlight shell tab-shell"><code>curl <span class="nt">--location</span> <span class="nt">--request</span> DELETE <span class="s1">'https://testrar.internet.ee/repp/v1/domains/666.ee/dnssec'</span> <span class="se">\</span>
+<span class="nt">--header</span> <span class="s1">'Authorization: Basic dGVzdDp0ZXN0MTIz'</span> <span class="se">\</span>
+<span class="nt">--header</span> <span class="s1">'Content-Type: application/json'</span> <span class="se">\</span>
+<span class="nt">--data-raw</span> <span class="s1">'{
+    "dns_keys": [
+        {
+            "flags": "257",
+            "protocol": "3",
+            "alg": "8",
+            "public_key": "AwEAAddt2AkLfYGKgiEZB5SmIF8EvrjxNMH6HtxWEA4RJ9Ao6LCWheg8"
+        }
+    ]
+}'</span>
+</code></pre></div>
+<blockquote>
+<p>The above command returns JSON structured like this:</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+    </span><span class="nl">"code"</span><span class="p">:</span><span class="w"> </span><span class="mi">1000</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Command completed successfully"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"domain"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"666.ee"</span><span class="w">
+        </span><span class="p">}</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<p>Deletes one or many DNSSEC key(s) for specific domain.</p>
+<h3 id='http-request-25'>HTTP Request</h3>
+<p><code>DELETE /repp/v1/domains/:domain_name/dnssec</code></p>
+<h3 id='url-parameters-23'>URL Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>domain_name</td>
+<td>Yes</td>
+<td>Domain name</td>
+</tr>
+</tbody></table>
+<h3 id='payload-parameters-12'>Payload Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Required</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>dns_keys</td>
+<td>Yes</td>
+<td>Array</td>
+<td>Array of DNSSEC key objects</td>
+</tr>
+<tr>
+<td>dns_keys[flags]</td>
+<td>Yes</td>
+<td>String</td>
+<td>256 (KSK) or 257 (ZSK) of existing DNSSEC key</td>
+</tr>
+<tr>
+<td>dns_keys[protocol]</td>
+<td>Yes</td>
+<td>String</td>
+<td>Key protocol of existing DNSSEC key</td>
+</tr>
+<tr>
+<td>dns_keys[alg]</td>
+<td>Yes</td>
+<td>String</td>
+<td>DNSSEC key algorithm of existing DNSSEC key</td>
+</tr>
+<tr>
+<td>dns_keys[public_key]</td>
+<td>Yes</td>
+<td>String</td>
+<td>Public key of existing DNSSEC key</td>
+</tr>
+</tbody></table>
+<h1 id='statuses'>Statuses</h1><h2 id='add-clienthold-to-domain'>Add clientHold to domain</h2><div class="highlight"><pre class="highlight shell tab-shell"><code>curl <span class="nt">--location</span> <span class="nt">--request</span> PUT <span class="s1">'https://testrar.internet.ee/repp/v1/domains/biz.ee/statuses/clientHold'</span> <span class="se">\</span>
+<span class="nt">--header</span> <span class="s1">'Authorization: Basic dGVzdDp0ZXN0MTIz'</span> <span class="se">\</span>
+<span class="nt">--data-raw</span> <span class="s1">''</span>
+</code></pre></div>
+<blockquote>
+<p>The above command returns JSON structured like this:</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+    </span><span class="nl">"code"</span><span class="p">:</span><span class="w"> </span><span class="mi">1000</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Command completed successfully"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"domain"</span><span class="p">:</span><span class="w"> </span><span class="s2">"biz.ee"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"clientHold"</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<p>Adds a clientHold status to a specific domain</p>
+<h3 id='http-request-26'>HTTP Request</h3>
+<p><code>PUT /repp/v1/domains/:domain_name/statuses/clientHold</code></p>
+<h3 id='url-parameters-24'>URL Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>domain_name</td>
+<td>Yes</td>
+<td>Domain name</td>
+</tr>
+</tbody></table>
+<h2 id='remove-clienthold-from-domain'>Remove clientHold from domain</h2><div class="highlight"><pre class="highlight shell tab-shell"><code>curl <span class="nt">--location</span> <span class="nt">--request</span> DELETE <span class="s1">'https://testrar.internet.ee/repp/v1/domains/biz.ee/statuses/clientHold'</span> <span class="se">\</span>
+<span class="nt">--header</span> <span class="s1">'Authorization: Basic dGVzdDp0ZXN0MTIz'</span> <span class="se">\</span>
+<span class="nt">--data-raw</span> <span class="s1">''</span>
+</code></pre></div>
+<blockquote>
+<p>The above command returns JSON structured like this:</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+    </span><span class="nl">"code"</span><span class="p">:</span><span class="w"> </span><span class="mi">1000</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Command completed successfully"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<p>Removes clientHold status from specific domain</p>
+<h3 id='http-request-27'>HTTP Request</h3>
+<p><code>DELETE /repp/v1/domains/:domain_name/statuses/clientHold</code></p>
+<h3 id='url-parameters-25'>URL Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>domain_name</td>
+<td>Yes</td>
+<td>Domain name</td>
+</tr>
+</tbody></table>
+<h1 id='transfers'>Transfers</h1><h2 id='get-transfer-info'>Get transfer info</h2><div class="highlight"><pre class="highlight shell tab-shell"><code>curl <span class="nt">--location</span> <span class="nt">--request</span> GET <span class="s1">'https://testrar.internet.ee/repp/v1/domains/kotlet.ee/transfer_info'</span> <span class="se">\</span>
+<span class="nt">--header</span> <span class="s1">'Auth-Code: 6699fb661ee3a2006a3d1e5833d7c5abv'</span> <span class="se">\</span>
+<span class="nt">--header</span> <span class="s1">'Authorization: Basic dGVzdDp0ZXN0MTIz'</span> <span class="se">\</span>
+<span class="nt">--data-raw</span> <span class="s1">''</span>
+</code></pre></div>
+<blockquote>
+<p>The above command returns JSON structured like this:</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+    </span><span class="nl">"code"</span><span class="p">:</span><span class="w"> </span><span class="mi">1000</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Command completed successfully"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"domain"</span><span class="p">:</span><span class="w"> </span><span class="s2">"kotlet.ee"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"registrant"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="nl">"code"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ATSAA:E36957D7"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"phone"</span><span class="p">:</span><span class="w"> </span><span class="s2">"+372.xxx"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"email"</span><span class="p">:</span><span class="w"> </span><span class="s2">"xxx"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"ident"</span><span class="p">:</span><span class="w"> </span><span class="s2">"xxx"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"ident_type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"priv"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"xxx"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"ident_country_code"</span><span class="p">:</span><span class="w"> </span><span class="s2">"EE"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"city"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"street"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"zip"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"country_code"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"statuses"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+                </span><span class="s2">"ok"</span><span class="p">,</span><span class="w">
+                </span><span class="s2">"linked"</span><span class="w">
+            </span><span class="p">]</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="nl">"admin_contacts"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+            </span><span class="p">{</span><span class="w">
+              </span><span class="nl">"code"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ATSAA:E36957D7"</span><span class="p">,</span><span class="w">
+              </span><span class="nl">"phone"</span><span class="p">:</span><span class="w"> </span><span class="s2">"+372.xxx"</span><span class="p">,</span><span class="w">
+              </span><span class="nl">"email"</span><span class="p">:</span><span class="w"> </span><span class="s2">"xxx"</span><span class="p">,</span><span class="w">
+              </span><span class="nl">"ident"</span><span class="p">:</span><span class="w"> </span><span class="s2">"xxx"</span><span class="p">,</span><span class="w">
+              </span><span class="nl">"ident_type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"priv"</span><span class="p">,</span><span class="w">
+              </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"xxx"</span><span class="p">,</span><span class="w">
+              </span><span class="nl">"ident_country_code"</span><span class="p">:</span><span class="w"> </span><span class="s2">"EE"</span><span class="p">,</span><span class="w">
+              </span><span class="nl">"city"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+              </span><span class="nl">"street"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+              </span><span class="nl">"zip"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+              </span><span class="nl">"country_code"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+              </span><span class="nl">"statuses"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+                </span><span class="s2">"ok"</span><span class="p">,</span><span class="w">
+                </span><span class="s2">"linked"</span><span class="w">
+              </span><span class="p">]</span><span class="w">
+            </span><span class="p">}</span><span class="w">
+        </span><span class="p">],</span><span class="w">
+        </span><span class="nl">"tech_contacts"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+            </span><span class="p">{</span><span class="w">
+                </span><span class="nl">"code"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ATSAA:E36957D7"</span><span class="p">,</span><span class="w">
+                </span><span class="nl">"phone"</span><span class="p">:</span><span class="w"> </span><span class="s2">"+372.xxx"</span><span class="p">,</span><span class="w">
+                </span><span class="nl">"email"</span><span class="p">:</span><span class="w"> </span><span class="s2">"xxx"</span><span class="p">,</span><span class="w">
+                </span><span class="nl">"ident"</span><span class="p">:</span><span class="w"> </span><span class="s2">"xxx"</span><span class="p">,</span><span class="w">
+                </span><span class="nl">"ident_type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"priv"</span><span class="p">,</span><span class="w">
+                </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"xxx"</span><span class="p">,</span><span class="w">
+                </span><span class="nl">"ident_country_code"</span><span class="p">:</span><span class="w"> </span><span class="s2">"EE"</span><span class="p">,</span><span class="w">
+                </span><span class="nl">"city"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+                </span><span class="nl">"street"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+                </span><span class="nl">"zip"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+                </span><span class="nl">"country_code"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+                </span><span class="nl">"statuses"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+                    </span><span class="s2">"ok"</span><span class="p">,</span><span class="w">
+                    </span><span class="s2">"linked"</span><span class="w">
+                </span><span class="p">]</span><span class="w">
+            </span><span class="p">}</span><span class="w">
+        </span><span class="p">]</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<p>Gets a specific domain&#39;s transfer info</p>
+<h3 id='http-request-28'>HTTP Request</h3>
+<p><code>GET /repp/v1/domains/:domain_name/transfer_info</code></p>
+<h3 id='url-parameters-26'>URL Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>domain_name</td>
+<td>Yes</td>
+<td>Domain name</td>
+</tr>
+</tbody></table>
+<h3 id='required-headers-2'>Required Headers</h3>
+<p>Submit domain&#39;s EPP authorization code if domain doesn&#39;t belong to you (yet)</p>
+
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>Auth-Code</td>
+<td>No</td>
+<td>Queried domain&#39;s EPP authorization code</td>
+</tr>
+</tbody></table>
+<h2 id='transfer-domain'>Transfer domain</h2><div class="highlight"><pre class="highlight shell tab-shell"><code>curl <span class="nt">--location</span> <span class="nt">--request</span> POST <span class="s1">'https://testrar.internet.ee/repp/v1/domains/666.ee/transfer'</span> <span class="se">\</span>
+<span class="nt">--header</span> <span class="s1">'Authorization: Basic dGVzdDp0ZXN0MTIz'</span> <span class="se">\</span>
+<span class="nt">--header</span> <span class="s1">'Content-Type: application/json'</span> <span class="se">\</span>
+<span class="nt">--data-raw</span> <span class="s1">'{
+    "transfer": {
+        "transfer_code": "d79d865fdf589a1cd52ae95fde4e5d30"
+    }
+}'</span>
+</code></pre></div>
+<blockquote>
+<p>The above command returns JSON structured like this:</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+    </span><span class="nl">"code"</span><span class="p">:</span><span class="w"> </span><span class="mi">1000</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Command completed successfully"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"domain"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"666.ee"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"domain_transfer"</span><span class="w">
+        </span><span class="p">}</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<p>Transfers domain from another registrar to your account.</p>
+<h3 id='http-request-29'>HTTP Request</h3>
+<p><code>POST /repp/v1/domains/:domain_name/transfer</code></p>
+<h3 id='url-parameters-27'>URL Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>domain_name</td>
+<td>Yes</td>
+<td>Domain name</td>
+</tr>
+</tbody></table>
+<h3 id='payload-parameters-13'>Payload Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Required</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>transfer</td>
+<td>Yes</td>
+<td>Object</td>
+<td>Object holding transfer elements</td>
+</tr>
+<tr>
+<td>transfer[transfer_code]</td>
+<td>Yes</td>
+<td>String</td>
+<td>EPP authorization code</td>
+</tr>
+</tbody></table>
+<h1 id='bulk-actions'>Bulk actions</h1><h2 id='bulk-domain-transfer'>Bulk domain transfer</h2><div class="highlight"><pre class="highlight shell tab-shell"><code>curl <span class="nt">--location</span> <span class="nt">--request</span> POST <span class="s1">'https://testrar.internet.ee/repp/v1/domains/transfer'</span> <span class="se">\</span>
+<span class="nt">--header</span> <span class="s1">'Authorization: Basic dGVzdDp0ZXN0MTIz'</span> <span class="se">\</span>
+<span class="nt">--header</span> <span class="s1">'Content-Type: application/json'</span> <span class="se">\</span>
+<span class="nt">--data-raw</span> <span class="s1">'{
+    "data": {
+        "domain_transfers": [
+            {
+                "domain_name": "domain1.ee",
+                "transfer_code": "a45e543ddabee202f95eebae5a7c917c"
+            },
+            {
+                "domain_name": "domain2.ee",
+                "transfer_code": "cce67ca63adc8c2938f199f10108881e"
+            }
+        ]
+    }
+}'</span>
+</code></pre></div>
+<blockquote>
+<p>The above command returns JSON structured like this:</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+    </span><span class="nl">"code"</span><span class="p">:</span><span class="w"> </span><span class="mi">1000</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Command completed successfully"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"success"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+            </span><span class="p">{</span><span class="w">
+                </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"domain_transfer"</span><span class="p">,</span><span class="w">
+                </span><span class="nl">"domain_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"domain1.ee"</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="p">{</span><span class="w">
+                </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"domain_transfer"</span><span class="p">,</span><span class="w">
+                </span><span class="nl">"domain_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"domain2.ee"</span><span class="w">
+            </span><span class="p">}</span><span class="w">
+        </span><span class="p">],</span><span class="w">
+        </span><span class="nl">"failed"</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<p>Transfers multiple domains from another registrar to your account.</p>
+<h3 id='http-request-30'>HTTP Request</h3>
+<p><code>POST /repp/v1/domains/transfer</code></p>
+<h3 id='payload-parameters-14'>Payload Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Required</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>data</td>
+<td>Yes</td>
+<td>Object</td>
+<td>Object holding domain_transfers array</td>
+</tr>
+<tr>
+<td>data[domain_transfers]</td>
+<td>Yes</td>
+<td>Array</td>
+<td>Array of domain transfer objects</td>
+</tr>
+<tr>
+<td>data[domain_transfers][domain_name]</td>
+<td>Yes</td>
+<td>String</td>
+<td>Domain name</td>
+</tr>
+<tr>
+<td>data[domain_transfers][transfer_code]</td>
+<td>Yes</td>
+<td>String</td>
+<td>EPP authorization code</td>
+</tr>
+</tbody></table>
+<h2 id='bulk-tech-contact-replace'>Bulk tech contact replace</h2><div class="highlight"><pre class="highlight shell tab-shell"><code>curl <span class="nt">--location</span> <span class="nt">--request</span> PATCH <span class="s1">'https://testrar.internet.ee/repp/v1/domains/contacts'</span> <span class="se">\</span>
+<span class="nt">--header</span> <span class="s1">'Authorization: Basic dGVzdDp0ZXN0MTIz'</span> <span class="se">\</span>
+<span class="nt">--header</span> <span class="s1">'Content-Type: application/json'</span> <span class="se">\</span>
+<span class="nt">--data-raw</span> <span class="s1">'{
+    "current_contact_id": "ATSAA:B839862D",
+    "new_contact_id": "ATSAA:KARL"
+}'</span>
+</code></pre></div>
+<blockquote>
+<p>The above command returns JSON structured like this:</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+    </span><span class="nl">"code"</span><span class="p">:</span><span class="w"> </span><span class="mi">1000</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Command completed successfully"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"affected_domains"</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span><span class="w">
+        </span><span class="nl">"skipped_domains"</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<p>Cycles through every domain and replaces specific tech contact with another one.</p>
+<h3 id='http-request-31'>HTTP Request</h3>
+<p><code>PATCH /repp/v1/domains/contacts</code></p>
+<h3 id='payload-parameters-15'>Payload Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Required</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>current_contact_id</td>
+<td>Yes</td>
+<td>String</td>
+<td>Tech contact ID you wish to replace</td>
+</tr>
+<tr>
+<td>new_contact_id</td>
+<td>Yes</td>
+<td>String</td>
+<td>New contact ID to assign as tech contact</td>
+</tr>
+</tbody></table>
+<h2 id='bulk-nameserver-change'>Bulk nameserver change</h2><div class="highlight"><pre class="highlight shell tab-shell"><code>curl <span class="nt">--location</span> <span class="nt">--request</span> PUT <span class="s1">'https://testrar.internet.ee/repp/v1/registrar/nameservers'</span> <span class="se">\</span>
+<span class="nt">--header</span> <span class="s1">'Authorization: Basic dGVzdDp0ZXN0MTIz'</span> <span class="se">\</span>
+<span class="nt">--header</span> <span class="s1">'Content-Type: application/json'</span> <span class="se">\</span>
+<span class="nt">--data-raw</span> <span class="s1">'{
+    "data": {
+        "type": "nameserver",
+        "id": "ns1.domainer.ee",
+        "attributes": {
+            "hostname": "ns1.ams1.domainer.ee",
+            "ipv4": ["192.168.1.1"],
+            "ipv6": ["2620:119:35::36"]
+        }
+    }
+}'</span>
+</code></pre></div>
+<blockquote>
+<p>If you want to replace nameserver only for specific domains, submit scoped &quot;domains&quot; array like that:</p>
+</blockquote>
+<div class="highlight"><pre class="highlight shell tab-shell"><code>curl <span class="nt">--location</span> <span class="nt">--request</span> PUT <span class="s1">'https://testrar.internet.ee/repp/v1/registrar/nameservers'</span> <span class="se">\</span>
+<span class="nt">--header</span> <span class="s1">'Authorization: Basic dGVzdDp0ZXN0MTIz'</span> <span class="se">\</span>
+<span class="nt">--header</span> <span class="s1">'Content-Type: application/json'</span> <span class="se">\</span>
+<span class="nt">--data-raw</span> <span class="s1">'{
+    "data": {
+        "type": "nameserver",
+        "id": "ns1.ams1.domainer.ee",
+        "domains": ["only.ee", "these.ee", "domains.ee"],
+        "attributes": {
+            "hostname": "ns2.ams1.domainer.ee",
+            "ipv4": ["192.168.1.1"],
+            "ipv6": ["2620:119:35::36"]
+        }
+    }
+}'</span>
+</code></pre></div>
+<blockquote>
+<p>Both commands above return JSON structured like this:</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+    </span><span class="nl">"code"</span><span class="p">:</span><span class="w"> </span><span class="mi">1000</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Command completed successfully"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"nameserver"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ns1.ams1.domainer.ee"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"attributes"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="nl">"hostname"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ns1.ams1.domainer.ee"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"ipv4"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+                </span><span class="s2">"192.168.1.1"</span><span class="w">
+            </span><span class="p">],</span><span class="w">
+            </span><span class="nl">"ipv6"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+                </span><span class="s2">"2620:119:35::36"</span><span class="w">
+            </span><span class="p">]</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="nl">"affected_domains"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+            </span><span class="s2">"only.ee"</span><span class="p">,</span><span class="w">
+            </span><span class="s2">"these.ee"</span><span class="p">,</span><span class="w">
+            </span><span class="s2">"domains.ee"</span><span class="w">
+        </span><span class="p">],</span><span class="w">
+        </span><span class="nl">"skipped_domains"</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<p>Cycles through every domain and replaces their specific nameserver with new data.
+The new new hostname of the nameserver must be different. It&#39;s not possible to change existing nameserver&#39;s IPv4 / IPv6 addresses with this request.</p>
+<h3 id='http-request-32'>HTTP Request</h3>
+<p><code>PUT /repp/v1/registrar/nameservers</code></p>
+<h3 id='payload-parameters-16'>Payload Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Required</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>data</td>
+<td>Yes</td>
+<td>Object</td>
+<td>Object holding nameserver changes</td>
+</tr>
+<tr>
+<td>data[type]</td>
+<td>Yes</td>
+<td>String</td>
+<td>Always set it as &quot;nameserver&quot;</td>
+</tr>
+<tr>
+<td>data[id]</td>
+<td>Yes</td>
+<td>String</td>
+<td>Hostname of replacable nameserver</td>
+</tr>
+<tr>
+<td>data[domains]</td>
+<td>No</td>
+<td>Array</td>
+<td>Array of domain names qualified for nameserver replacement.</td>
+</tr>
+<tr>
+<td>data[attributes] Yes</td>
+<td>Object</td>
+<td>Object holding new nameserver values</td>
+<td></td>
+</tr>
+<tr>
+<td>data[attributes][hostname]</td>
+<td>Yes</td>
+<td>String</td>
+<td>New hostname of nameserver</td>
+</tr>
+<tr>
+<td>data[attributes][ipv4]</td>
+<td>No</td>
+<td>Array</td>
+<td>Array of nameserver&#39;s fixed IPv4 addresses</td>
+</tr>
+<tr>
+<td>data[attributes][ipv6]</td>
+<td>No</td>
+<td>Array</td>
+<td>Array of nameserver&#39;s fixed IPv6 addresses</td>
+</tr>
+</tbody></table>
+
+<aside class="warning">
+Note - It's safer to use "domains" scope, although it's not required. If you don't submit "domains" array, we're going to take every domain in registrar's account to cycle, which can, from experience, deal pretty large damage.
+</aside>
+<h2 id='bulk-domain-renew'>Bulk domain renew</h2><div class="highlight"><pre class="highlight shell tab-shell"><code>curl <span class="nt">--location</span> <span class="nt">--request</span> POST <span class="s1">'https://testrar.internet.ee/repp/v1/domains/renew/bulk'</span> <span class="se">\</span>
+<span class="nt">--header</span> <span class="s1">'Authorization: Basic dGVzdDp0ZXN0MTIz'</span> <span class="se">\</span>
+<span class="nt">--header</span> <span class="s1">'Content-Type: application/json'</span> <span class="se">\</span>
+<span class="nt">--data-raw</span> <span class="s1">'{
+    "domains": ["kotlet.ee", "kasskoer.ee"],
+    "renew_period": "1y"
+}'</span>
+</code></pre></div>
+<blockquote>
+<p>Command above returns JSON structured like this:</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+    </span><span class="nl">"code"</span><span class="p">:</span><span class="w"> </span><span class="mi">1000</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Command completed successfully"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"updated_domains"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+            </span><span class="s2">"kotlet.ee"</span><span class="p">,</span><span class="w">
+            </span><span class="s2">"kasskoer.ee"</span><span class="w">
+        </span><span class="p">]</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<p>Renews multiple domanins at once, for a fixed period.</p>
+<h3 id='http-request-33'>HTTP Request</h3>
+<p><code>POST /repp/v1/domains/renew/bulk</code></p>
+<h3 id='payload-parameters-17'>Payload Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Required</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>domains</td>
+<td>Yes</td>
+<td>Array</td>
+<td>Array of domain names for renewal</td>
+</tr>
+<tr>
+<td>renew_period</td>
+<td>Yes</td>
+<td>String</td>
+<td>Period for domain renew (3m, 6m, 9m, 1y ... 10y)</td>
+</tr>
+</tbody></table>
+<h1 id='errors'>Errors</h1>
+<aside class="notice">
+This error section only covers HTTP codes. In additional to HTTP code, with each request, we provide EPP "code" attribute and human-readable "message" as well.
+</aside>
+
+<p>The REPP API uses the following error codes:</p>
+
+<table><thead>
+<tr>
+<th>Error Code</th>
+<th>Meaning</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>400</td>
+<td>Bad Request -- Your request is invalid.</td>
+</tr>
+<tr>
+<td>401</td>
+<td>Unauthorized -- Your API key is wrong.</td>
+</tr>
+<tr>
+<td>403</td>
+<td>Forbidden -- The requested object is hidden for administrators only.</td>
+</tr>
+<tr>
+<td>404</td>
+<td>Not Found -- The specified object could not be found.</td>
+</tr>
+<tr>
+<td>405</td>
+<td>Method Not Allowed -- You tried to access a object with an invalid method.</td>
+</tr>
+<tr>
+<td>406</td>
+<td>Not Acceptable -- You requested a format that isn&#39;t json.</td>
+</tr>
+<tr>
+<td>410</td>
+<td>Gone -- The requested object has been removed from our servers.</td>
+</tr>
+<tr>
+<td>418</td>
+<td>I&#39;m a teapot.</td>
+</tr>
+<tr>
+<td>429</td>
+<td>Too Many Requests -- You&#39;re requesting too many objects! Slow down!</td>
+</tr>
+<tr>
+<td>500</td>
+<td>Internal Server Error -- We had a problem with our server. Try again later.</td>
+</tr>
+<tr>
+<td>503</td>
+<td>Service Unavailable -- We&#39;re temporarily offline for maintenance. Please try again later.</td>
+</tr>
+</tbody></table>
+
+      </div>
+      <div class="dark-box">
+          <div class="lang-selector">
+                <a href="#" data-language-name="shell">shell</a>
+          </div>
+      </div>
+    </div>
+  </body>
+</html>
