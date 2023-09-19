@@ -1,15 +1,12 @@
 ---
 
-title: Estonian Internet Foundation's REST EPP
-
-language_tabs:
-   - shell
+title: Estonian Internet Foundation's eeID Documentation
 
 toc_footers:
    - <a href='https://internet.ee'>Estonian Internet Foundation</a>
-   - <a href='https://github.com/internetee/registry'>Registry project</a>
+   - <a href='https://github.com/internetee/eeID-manager'>Sign Up for eeID</a>
+   - <a href='https://github.com/slatedocs/slate'>Powered by Slate</a>
 includes:
-   - errors
 
 search: true
 code_clipboard: true
@@ -17,1893 +14,739 @@ code_clipboard: true
 
 # Introduction
 
-Welcome to the Estonian Internet Foundation's REST EPP (REPP for short) API documentation! You can use our API endpoints, which can mimic almost the full functionality of our EPP protocol.
+Welcome to the Estonian Internet Foundation's eeID documentation! This document describes the technical characteristics of the Estonian Internet Foundation eeID authentication service and includes advice for interfacing the client application with e-services. The eeID authentication service can be used by institutions and private persons to add the support of various different [authentication methods](#authentication-methods) to its e-service:
 
-We have language bindings in Shell. You can view code examples in the dark area to the right, and you can switch the programming language of the examples with the tabs in the top right.
+- Mobiil-ID
+- ID card
+- Smart-ID
+- EU-citizen cross-border authentication (i.e. via eIDAS-Node)
+- FIDO2 Web Authentication (WebAuthn)
 
-This production API project is only available for our active registrars. You can find more information about becoming registrar at our [wiki page](https://www.internet.ee/registrars/terms-and-conditions-for-becoming-a-registrar).
+# OpenID Connect
 
-# Environments
+The eeID authentication service is based on the OpenID Connect protocol, which is built on top of the OAuth 2.0 authorization framework. It's designed to provide a secure and standardized way to authenticate users and obtain their basic profile information. OIDC is commonly used in applications that require user authentication, such as web and mobile applications.
 
-Production endpoint: https://repp.internet.ee/
+Limited subset from standards was chosen and some adjustments were made. The main selections and adjustments compared to the full OpenID Connect protocol are the following:
 
-Sandbox endpoint: https://testrepp.internet.ee/
+- The service supports the authorisation code flow. The authorisation code flow is deemed the most secure option and is thus appropriate for public services.
+- All information about an authenticated user is transferred to the application in an ID token.
+- The eIDAS assurance level is also transferred to the application if it is known (in the acr statement).
+- The authentication method is selected by the user in the authentication service or by the interfaced client with the scope parameter.
+- Cross-border authentication based on the technical specification of eIDAS.
+- Dynamic registration of the client application is not supported. The client application is registered in [eeID manager](https://eeid.ee) by a separate procedure.
 
-Production environment is only available for our active registrars.
+# Getting started
 
-Access to our sandbox environment is not publicly available. We can grant access to third parties upon request.
+In order to get started you have to sign up and create your first client (service) in the [eeID manager](https://eeid.ee). 
 
-# Authentication
+1. Add a new contact first. From the main menu select `Contacts` to go to the contacts management view. Click on + Create New Contact and fill in the form.
+![Create New Contact](images/new_contact_form.png)
 
-REPP uses API keys and certificates to allow access to our API. Certificates are the same ones that are used for EPP protocol.
+2. From the main menu select `Services` to go to the service management view. Click on + Create New Service.
+![Create New Service](images/create_new_service.png)
 
-API key, in a nutshell, is a Basic authorization key that consists of ApiUser's username and password, separated by colon, in Base64 format.
+3. Fill in the form
+![New Service Form](images/new_service_form.png)
 
-For example if your username is `test` and password `test123`, , you have to encode `test:test123` to Base64 and put it into `Authorization` header of each request.
+4. All the fields must be valid to proceed.
 
-For example:
+* Name - enter the name for your service. This will ultimately appear in-front of your customers
+* Description - provide a brief description of your service. It should be concise, ideally one sentence.
+* Approval description - in this field, provide details about what you are building and who your target customers are.
+* Redirection URL - specify the URL where users should be redirected to after they have been authenticated. If you do not know what you will use, just enter `https://localhost/callback` for now. The value can be changed later if needed.
+* Environment - indicate the environment in which you will be using the service. `Test` is free and used for testing purposes.
+* Authentication methods - choose the authentication methods you wish to support. The options given are `EE ID-card`, `Mobile-ID`, `Smart-ID`, `EU-Citizen` and `Webauthn`. You can select one or more methods based on your preference.
+* Contact - choose an existing contact or create a new one. This contact will be associated with the service, and it might be the point of contact for any communications or notifications regarding the service.
+* Submission - review all the details entered in the form, and if everything is correct, click on `SUBMIT FOR APPROVAL` to submit your service.
 
-`Authorization: Basic dGVzdDp0ZXN0MTIz`
+Once you submit the form, it will be reviewed by the service administrators
+at the [Estonian Internet Foundation](https://www.internet.ee/)
+They will assess the details provided in your application to ensure
+they meet the necessary criteria and adhere to the [terms of use](https://meedia.internet.ee/files/Terms_of_use_eeID.pdf).
+If your application meets all the requirements, it will be approved and you will be provided with the client ID and secret.
+In case there are issues or discrepancies in your application, it might be rejected.
+After the review process is completed, you will receive a notification regarding the
+status of your application. This notification will inform you whether your application has
+been approved or rejected.
 
-<aside class="notice">
-You must replace <code>dGVzdDp0ZXN0MTIz</code> with your personal API key.
-</aside>
+# Authentication methods
 
-# Billing
+By default, the eeID service facilitates the following authentication methods:
 
-## Get account balance
+* `EE ID-card` - [Estonian ID-card](https://www.id.ee/en/rubriik/id-card-en/)
+* `Mobile-ID` - [Estonian Mobile-ID](https://www.id.ee/en/mobile-id/) (also used in Lithuania)
+* `Smart-ID` - [Estonian Smart-ID](https://www.id.ee/en/article/smart-id/) (also used in Latvia and Lithuania)
 
-```shell
-curl --location --request GET 'https://testrar.internet.ee/repp/v1/accounts/balance' \
---header 'Authorization: Basic dGVzdDp0ZXN0MTIz' \
---data-raw ''
-```
+These authentication methods stand as testimony to Estonia's advanced digital infrastructure, offering citizens secure, reliable, and convenient options for online authentication. By leveraging state-of-the-art technology and stringent security protocols, these methods ensure that Estonian citizens can safely access e-services, conduct online transactions, and sign digital documents from the comfort of their homes or on the go.
 
-> The above command returns JSON structured like this:
+* `EU-Citizen` authentication method activates a range of cross-border authentication methods. This activation allows EU citizens to log in to e-services using authentication methods recognized and approved in their respective EU member states (i.e. via [eIDAS-Node](https://ec.europa.eu/digital-building-blocks/wikis/display/DIGITAL/eIDAS-Node+Integration+Package)):
 
-```json
-{
-    "code": 1000,
-    "message": "Command completed successfully",
-    "data": {
-        "balance": "420.0",
-        "currency": "EUR"
-    }
-}
-```
+Country     | Authentication methods | Required scopes
+------------| ----------------------| ---------------
+Belgium | eIDAS | `eidas`
+Czech Republic | mojeID | `eidas`
+Estonia | ID-card, Mobile-ID, Smart-ID | `eidas` `idcard` `mid` `smartid`
+Latvia | Smart-ID | `eidas` `smartid`
+Lithuania | Smart-ID, Mobile-ID | `eidas` `smartid` `mid`
+Portugal | eIDAS | `eidas`
+Sweden | eIDAS | `eidas`
 
-> Command above with detailed=true flag returns JSON structured like this:
+* `Webauthn` authentication method enables a robust and secure user authentication process grounded
+in public key cryptography. This method does away with the need for passwords,
+instead allowing users to employ local authenticators such as biometrics or 
+security keys to securely and conveniently access online services.
+Being a core component of the [FIDO Alliance's FIDO2](https://fidoalliance.org/fido2-2/fido2-web-authentication-webauthn/) set of specifications,
+it is designed to foster stronger and simpler web authentication mechanisms,
+enhancing security and user experience in the digital landscape.
 
-```json
-{
-    "code": 1000,
-    "message": "Command completed successfully",
-    "data": {
-        "balance": "420.0",
-        "currency": "EUR",
-        "transactions": [
-            {
-                "created_at": "2021-02-26T17:12:46.045+02:00",
-                "description": "Create abadiitas.ee",
-                "type": "debit",
-                "sum": "-6.0",
-                "balance": "420.0"
-            },
-            {
-                "created_at": "2021-02-11T11:32:49.158+02:00",
-                "description": "Invoice no. 131096",
-                "type": "credit",
-                "sum": "100.0",
-                "balance": "426.0"
-            }
-        ]
-    }
-}
-```
-Get account balance
+For a demo of WebAuthn, visit [https://webauthn.io/](https://webauthn.io/).
 
-### HTTP Request
+<b>Creating a WebAuthn Credential through eeID:</b>
 
-`GET /repp/v1/accounts/balance`
+1. <b>Initial Authentication</b>
+<br>Before creating a WebAuthn credential, the users must first authenticate themselves
+using one of the other methods provided in the eeID service. This step ensures that the user's identity
+is verified through a secure and recognized authentication method.
 
-### URL Parameters
+2. <b>eeID as Identity Provider</b>
+<br>Once the initial authentication is successful, the eeID service acts as an identity provider.
+In this role, it verifies and stores the authenticated data, establishing a secure and
+trusted identity framework for the user.
 
-Parameter | Required | Description
---------- | ------- | -----------
-detailed | False | Set to true to get detailed transaction data
-from | False | Show detailed transactions starting from datetime (yyyy-mm-dd)
-until | False | Show detailed transactions created before datetime (yyyy-mm-dd)
-# Poll messages
+3. <b>Creating the Webtuhn Credential</b>
+<br>Following the successful authentication through eeID,
+the user can proceed to create a WebAuthn credential. This process involves:
+    * <b>Registering a Local Authenticator.</b> The user will register a local authenticator,
+    such as a biometric identifier (fingerprint, facial recognition, etc.) or a security key.
+    * <b>Public Key Cryptography.</b> The WebAuthn method leverages public key cryptography,
+    where a private key is stored on the user's local device, and a public key is
+    stored on the server. This setup ensures a secure and password-less authentication process.
+    * <b>Credential ID.</b> Upon successful registration, a unique Credential ID is generated, which will be used for future authentications.
 
-## Get all messages
-```shell
-curl --location --request GET 'https://testrar.internet.ee/repp/v1/registrar/notifications/all_notifications' \
---header 'Authorization: Basic dGVzdDp0ZXN0MTIz' \
---data-raw ''
-```
+4. <b>Future Authentications</b>
+<br>With the WebAuthn credential created, the user can now use this method for future authentications. When logging in:
+    * The user will be prompted to authenticate using their local authenticator.
+    * The server verifies the authentication using the stored public key, ensuring a secure and swift login process.
 
-```json
-{
-    "code": 1000,
-    "message": "Command completed successfully. Returning 200 out of 500. Use URL parameters :limit and :offset to list other messages if needed",
-    "data": {
-        "id": 1399,
-        "text": "Registrant rejected domain update: koer.ee",
-        "attached_obj_type": "Epp::Domain",
-        "attached_obj_id": 34
-    }
-}
-```
+Creating a WebAuthn credential through the eeID service not only enhances the security of
+online transactions but also offers a user-friendly authentication experience.
+It represents a forward step in secure, password-less digital authentication,
+promoting ease of use without compromising on security.
 
-Get the list of unread pool messages.
+# Requests
 
-### HTTP Request
+## Authentication request
 
-`GET /repp/v1/registrar/notifications/all_notifications`
+An authentication request is a HTTP GET request by which the user is redirected from the client application to the eeID server for authentication.
 
-### URL Parameters
+URL: `https://auth.eeid.ee/hydra-public/oauth2/auth`
 
-Parameter | Required | Default | Description
---------- | ------- | ------- | -----------
-limit | No | 200 | How many objects to return
-offset | No | 0 | Object query offset
+Required query parameters:
 
-## Get latest unread poll message
+- `client_id` - service identifier issued upon registration of the client application in eeID portal
+- `state` - security code against false request attacks (cross-site request forgery CSRF)
+- `redirect_uri` - redirect_uri
+- `response_type` - determines the manner of communication of the authentication result to the server, must be equal to `code`
+- `scope` - authentication scopes, `openid` is compulsory (required by the OpenID Connect protocol). The following scopes are supported: `idcard`, `mid`, `smartid`, `eidas` and `webauthn`. The scopes must correspond to the authentication methods selected while registering the service:
 
-```shell
-curl --location --request GET 'https://testrar.internet.ee/repp/v1/registrar/notifications' \
---header 'Authorization: Basic dGVzdDp0ZXN0MTIz' \
---data-raw ''
-```
+Scope      | Authentication method
+-----------| --------------
+`idcard` | EE ID-card
+`mid` | Mobile-ID
+`smartid` | Smart-ID
+`eidas` | EU-Citizen
+`webauthn` | Webauthn
 
-> The above command returns JSON structured like this:
+Optional query parameters:
 
-```json
-{
-    "code": 1000,
-    "message": "Command completed successfully",
-    "data": {
-        "id": 1399,
-        "text": "Registrant rejected domain update: koer.ee",
-        "attached_obj_type": "Epp::Domain",
-        "attached_obj_id": 34
-    }
-}
-```
+- `ui_locales` - selection of the user interface language. The following languages are supported: `et`, `en`, `ru`
+- `nonce` - unique parameter which helps to prevent replay attacks based on the protocol
 
-Get the latest unread poll message
-
-### HTTP Request
-
-`GET /repp/v1/registrar/notifications`
-
-## Mark poll message as read
+An example of an authentication request:
 
 ```shell
-curl --location --request PUT 'https://testrar.internet.ee/repp/v1/registrar/notifications/1398' \
---header 'Authorization: Basic dGVzdDp0ZXN0MTIz' \
---header 'Content-Type: application/json' \
---data-raw '{
-    "notification": {
-        "read": true
-    }
-}'
+HTTP GET https://auth.eeid.ee/hydra-public/oauth2/auth?client_id=oidc-b8ab3705-c25f-4271-b87d-ecf190aa4982-11
+&redirect_uri=https%3A%2F%2Feservice.institution.ee%2Fcallback
+&response_type=code
+&scope=openid%20idcard%20mid%20smartid%20eidas
+&state=f3b2c3e7f4cf0bed3a783ed6ece617e3
 ```
 
-> The above command returns JSON structured like this:
+## Redirect request
 
-```json
-{
-    "code": 1000,
-    "message": "Command completed successfully",
-    "data": {
-        "notification_id": 1398,
-        "read": true
-    }
-}
-```
+The redirect request is a HTTP GET request which is used to redirect the user back to the return address entered upon registration of the client application in [eeID manager](https://eeid.ee). In the redirect request an authorization code is sent to the client application, based on which the client application will request the access token in order to get personal identification code, name and other attributes of the authenticated person. The security code state received in the authentication request is mirrored back. Read more about forming and verifying state from [Protection against false request attacks](#protection).
 
-Mark poll message as read
-
-### HTTP Request
-
-`PUT /repp/v1/registrar/notifications/:notification_id`
-
-### URL Parameters
-
-Parameter | Required | Description
---------- | ------- | -----------
-notification_id | Yes | Notification ID
-
-### Payload Parameters
-
-Parameter | Required | Description
---------- | ------- | -----------
-read | Yes | Set to true to mark as read
-
-## Get a specific poll message
+An example of a redirect request:
 
 ```shell
-curl --location --request GET 'https://testrar.internet.ee/repp/v1/registrar/notifications/1398' \
---header 'Authorization: Basic dGVzdDp0ZXN0MTIz' \
---data-raw ''
+HTTP GET https://eservice.institution.ee/callback?code=71ed5797c3d957817d31&
+state=OFfVLKu0kNbJ2EZk
 ```
+<br>
+Request might contain other URL parameters, that client application must ignore.
 
-> The above command returns JSON structured like this:
-
-```json
-{
-    "code": 1000,
-    "message": "Command completed successfully",
-    "data": {
-        "id": 1398,
-        "text": "Contact ATSAA:57C8A9CB has been updated by registrant",
-        "attached_obj_type": null,
-        "attached_obj_id": null
-    }
-}
-```
-
-Get a specific poll message
-
-### HTTP Request
-
-`GET /repp/v1/registrar/notifications/:notification_id`
-
-### URL Parameters
-
-Parameter | Required | Description
---------- | ------- | -----------
-notification_id | Yes | Notification ID
-
-# Contacts
-
-## Get all contacts
+If eeID is unable to process an authentication request - there will be an error in the request. eeID transfers an error message (URL parameter `error`) and the description of the error (URL parameter `error_description`) in the redirect request:
 
 ```shell
-curl --location --request GET 'https://testrar.internet.ee/repp/v1/contacts' \
---header 'Authorization: Basic dGVzdDp0ZXN0MTIz' \
---data-raw ''
+HTTP GET https://eservice.institution.ee/callback?error=invalid_scope&error_description=
+The+requested+scope+is+invalid%2C+unknown%2C+or+malformed.+The+OAuth+2.0+Client+is+not+allowed+to+request+scope+%27invalid_scope%27.
+&state=0b60fe50138f8fdd56afd2a6ab7a40f9
 ```
+<br>
+The redirect request errors are normally resulted by a misconfiguration; therefore the error description in parameter `error_description` is not needed to be displayed for the user directly. The client application should check whether or not an error message has been sent.
 
-> The above command returns JSON structured like this:
+## Identity token request
 
-```json
-{
-    "code": 1000,
-    "message": "Command completed successfully",
-    "data": {
-        "contacts": [
-            "ATSAA:15554596",
-            "ATSAA:5767A313",
-            "ATSAA:634CF14B",
-        ],
-        "count": 3
-    }
-}
-```
+The identity token request is an HTTP POST request which is used by the client application to request the identity token from the login server of eeID.
 
-Get all contacts
-
-### HTTP Request
-
-`GET /repp/v1/contacts`
-
-### URL Parameters
-
-Parameter | Required | Default | Description
---------- | -------- | ------- | -----------
-limit | No | 200 | How many objects to return
-offset | No | 0 | Object query offset
-details | No | false | Show full object for each contact
-
-## Get a specific contact
+An example of an identity token request:
 
 ```shell
-curl --location --request GET 'https://testrar.internet.ee/repp/v1/contacts/ATSAA:KARL' \
---header 'Authorization: Basic dGVzdDp0ZXN0MTIz' \
---data-raw ''
+HTTP POST https://auth.eeid.ee/hydra-public/oauth2/token
+Authorization: Basic czZCaGRSa3F0MzpnWDFmQmF0M2JW
+Content_Type: application/x-www-form-urlencoded
 ```
-
-> The above command returns JSON structured like this:
-
-```json
-{
-    "code": 1000,
-    "message": "Command completed successfully",
-    "data": {
-        "contact": {
-            "code": "1111111:8E561326",
-            "name": "John Doe",
-            "ident": {
-                "code": "12345678901",
-                "type": "priv",
-                "country_code": "EE"
-            },
-            "email": "xxx@xxx.ee",
-            "phone": "+xxx",
-            "auth_info": "ed33c67bedb32b1567b131",
-            "statuses": {
-                "ok": "ok status description",
-                "linked": null
-            },
-            "disclosed_attributes": [],
-            "registrar": {
-                "name": "Registrar",
-                "website": "https://registrar"
-            },
-            "domains": [],
-            "domains_count": 0
-        }
-    }
-}
-```
-
-Get a specific contact
-
-### HTTP Request
-
-`GET /repp/v1/contacts/:contact_id`
-
-### URL Parameters
-
-Parameter | Required | Default | Description
---------- | -------- | ------- | -----------
-contact_id | Yes | | Contact ID
-simple | No | false | Show simple object for contact
-
-## Delete a specific contact
 
 ```shell
-curl --location --request DELETE 'https://testrar.internet.ee/repp/v1/contacts/ATSAA:KARL' \
---header 'Authorization: Basic dGVzdDp0ZXN0MTIz' \
---data-raw ''
+grant_type=authorization_code&
+code=71ed5797c3d957817d31&
+redirect_uri=https%3A%2F%2Feservice.institution.ee%2Fcallback
 ```
+<br>
+The client secret code must be provided in the identity token request. For this purpose, the request must include the `Authorization` request header with the value formed of the word Basic, a space and a string `<client_id>:<client_secret>` encoded in the Base64 format. The body of the HTTP POST request must be presented in a serialised [format](https://openid.net/specs/openid-connect-core-1_0.html#FormSerialization) based on the OpenID Connect protocol. The body of the request must include the `code` received from the authentication service.
 
-> The above command returns JSON structured like this:
+The body of the request must include the following parameters:
 
-```json
-{
-    "code": 1000,
-    "message": "Command completed successfully",
-    "data": {}
-}
-```
+Element        | Description
+-------------- | --------------
+`grant_type` | The `authorization_code` value required based on the protocol
+`code` | The authorization code received from the authentication service
+`redirect_url`| The redirect URL sent in the authorisation request
 
-> In case contact can not be destroyed, it returns a JSON structured like this:
+The server verifies that the access token is requested by the right application and issues the access token included in the response body. The response body uses JSON format consisting four elements:
 
-```json
-{
-    "code": 2305,
-    "message": "Object association prohibits operation [domains]",
-    "data": {}
-}
-```
+Element        | Description
+-------------- | --------------
+`access_token` | OAuth 2.0 access certificate. With access token the client application can issue authenticated user’s data from `userinfo` endpoint.
+`token_type` | OAuth 2.0 access token type with bearer value
+`expires_in`| The validity period of the OAuth 2.0 access token
+`id_token` | Identity token. Presented in [JWS Compact Serialization](https://tools.ietf.org/html/rfc7515#section-3.1) form
 
-Delete a specific contact
+Response body might contain other fields, that client application must ignore. The identity token is a certificate of the fact of authentication issued by eeID. The identity token is issued in [JSON Web Token](https://jwt.io/), JWT format. The identity token is always [signed](https://tools.ietf.org/html/rfc7515#section-5.2).
 
-### HTTP Request
+The client application must obtain the identity token immediately or within 30 seconds (before the expiry time of the identity token).
 
-`DELETE /repp/v1/contacts/:contact_id`
+## User info request
 
-### URL Parameters
+User info request enables requesting information about an authenticated user based on a valid OAuth 2.0 access token. The request must be done by using the HTTP GET method. The access token must be presented to the user info endpoint in the HTTP header by using [the Bearer Token method](https://tools.ietf.org/html/rfc6750#section-2.1) or as a [URLi parameter](https://tools.ietf.org/html/rfc6750#section-2.3).
 
-Parameter | Required | Description
---------- | ------- | -----------
-contact_id | Yes | Contact ID
-
-## Create a new contact
+Example 1 - transferring an access certificate in the `Authorization` header:
 
 ```shell
-curl --location --request POST 'https://testrar.internet.ee/repp/v1/contacts' \
---header 'Authorization: Basic dGVzdDp0ZXN0MTIz' \
---header 'Content-Type: application/json' \
---data-raw '{
-    "contact": {
-        "name": "John Doe",
-        "email": "john@doe.com",
-        "phone": "+372.xxx",
-        "ident": {
-            "ident": "xxx",
-            "ident_type": "priv",
-            "ident_country_code": "EE"
-        }
-    }
-}'
+HTTP GET https://auth.eeid.ee/hydra-public/userinfo
+Auhtorization: Bearer AT-20-qWuioSEtFhYVdW89JJ4yWvtI5SaNWep0
 ```
-
-> The above command returns JSON structured like this:
-
-```json
-{
-    "code": 1000,
-    "message": "Command completed successfully",
-    "data": {
-        "contact": {
-            "code": "ATSAA:84F23FD1"
-        }
-    }
-}
-```
-
-Create a new contact
-
-### HTTP Request
-
-`POST /repp/v1/contacts`
-
-### Payload Parameters
-
-Parameter | Required | Description
---------- | ------- | -----------
-id | No | Custom contact id for contact
-name | Yes | Full name of contact
-email | Yes | Email address of contact
-phone | Yes | phone number of contact, with '.' as CC separator
-ident[ident] | Yes | Identity / Registry code of contact
-ident[ident_type] | Yes | Type of ident number (priv/org/birthday)
-ident[ident_country_code] | Yes | Nationality of contact in alpha-2 format
-
-<aside class="notice">
-Note — Wrap your payload attributes into "contact" object, as shown in example.
-</aside>
-
-## Update an existing contact
+<br>
+Example 2 – transferring of access certificate as an `access_token` parameter:
 
 ```shell
-curl --location --request PUT 'https://testrar.internet.ee/repp/v1/contacts/ATSAA:84F23FD1' \
---header 'Authorization: Basic dGVzdDp0ZXN0MTIz' \
---header 'Content-Type: application/json' \
---data-raw '{
-    "contact": {
-        "name": "John Doee",
-        "email": "john@doee.com",
-        "phone": "+372.590146111"
-    }
-}'
+HTTP GET https://auth.eeid.ee/hydra-public/userinfo?access_token=AT-20-qWuioSEtFhYVdW89JJ4yWvtI5SaNWep0
 ```
-
-> The above command returns JSON structured like this:
+<br>
+The valid access token response is provided in the JSON format. Example:
 
 ```json
 {
-    "code": 1000,
-    "message": "Command completed successfully",
-    "data": {
-        "contact": {
-            "code": "ATSAA:84F23FD1"
-        }
-    }
+   "acr": "high",
+   "amr": [
+      "smartid"
+   ],
+   "profile_attributes": {
+      "authentication_type": "SMART_ID",
+      "date_of_birth": "2000-01-01",
+      "family_name": "O’CONNEŽ-ŠUSLIK TESTNUMBER",
+      "given_name": "MARY ÄNN",
+   },
+   "sub": "EE60001019906",
+   "auth_time": 1694591147,
+   "state": "2093077beb6d063ea65e61fa4c9b2814"
+}
+```
+<br>
+The claims included in the response are issued based on the identity token.
+
+| JSON element (claim)        | Description
+| --------------------------- | ----------------
+| `auth_time` | The time of successful authentication of the user.
+| `sub` | The identifier of the authenticated user (personal identification code or eIDAS identifier) with the prefix of the country code of the citizen (country codes based on [the ISO 3166-1 alpha-2 standard](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2#:~:text=ISO%203166%2D1%20alpha%2D2%20codes%20are%20two%2Dletter,special%20areas%20of%20geographical%20interest.)).
+| `amr` | The authentication method used for user authentication. Example values: `mID` - Mobile-ID, `idcard` - Estonian ID card, `smartid` - Smart-ID.
+| `state` | The authentication request’s state parameter value.
+| `acr` | `high` - level of authentication based on the eIDAS LoA (level of assurance). Possible values: `low`, `substantial`, `high`.
+| `aud` | The ID of a client application that requested authentication.
+| `iat` | The time of issue of the certificate (in Unix epoch format).
+| `iss` | Issuer of the certificate.
+| `profile_attributes` | Data of the authenticated user, including the eIDAS attributes
+| `profile_attributes.date_of_birth` | The date of birth of the authenticated user in the ISO_8601 format.
+| `profile_attributes.given_name` | The first name of the authenticated user.
+| `profile_attributes.family_name` | The surname of the authenticated user.
+
+Response body might contain other fields, that client application may ignore.
+
+In case the access token presented to the user information endpoint is missing or is expired, an error code and a brief description 
+about the error are returned:
+
+```json
+{
+   "error": "invalid_token",
+   "error_description": "Token expired. Access token expired at '2022-10-07 14:55:34 +0000 UTC'."
 }
 ```
 
-Update an existing contact
+# Protection
 
-### HTTP Request
+The client application must implement protective measures against false request attacks (cross-site request forgery, CSRF). 
+This can be achieved by using `state` security code. Using `state` is compulsory.
 
-`PUT /repp/v1/contacts/:contact_id`
+Using `state` with a cookie set on the client application side means that the client application itself does not have to remember the state parameter value. The process is described below.
 
-### URL Parameters
+The `state` security code is used to combat falsification of the redirect request following the authentication request. 
+The client application must perform the following steps:
 
-Parameter | Required | Description
---------- | ------- | -----------
-contact_id | Yes | Contact ID
+1. Generate a random hexadecimal state session key, for example of the length of 32 characters: `07f19702e7e9591c6fa2554e1fcf5f4a` (referred to as `R`).
+2. Add an order to set a cookie for the client application domain with a value of R immediately before making the authentication request, for example:
 
-### Payload Parameters
+`Set-Cookie ESERVICE=07f19702e7e9591c6fa2554e1fcf5f4a; HttpOnly`
+Where `ESERVICE` is a freely selected cookie name. The `HttpOnly` attribute must be applied to the cookie.
 
-Parameter | Required | Description
---------- | ------- | -----------
-name | No | Full name of contact
-email | No | Email address of contact
-phone | No | phone number of contact, with '.' as CC separator
-
-<aside class="notice">
-Note — Wrap your payload attributes into "contact" object, as shown in example.
-</aside>
-
-## Check contact code availability
+3. Set the following value, in the authentication request, for the `state` parameter calculated based on section 1:
 
 ```shell
-curl --location --request GET 'https://testrar.internet.ee/repp/v1/contacts/check/PUDERJAKAPSAS' \
---header 'Authorization: Basic dGVzdDp0ZXN0MTIz' \
---data-raw ''
+state=07f19702e7e9591c6fa2554e1fcf5f4a
+```
+<br>
+Length of state parameter must be minimally 8 characters. In the course of processing the redirect request, the client application must:
+
+4. Take the `ESERVICE` value of the cookie received with the request.
+5. Verify that the `ESERVICE` value matches the state value mirrored back in the redirect request.
+
+The redirect request may only be accepted if the checks described above are successful. 
+The key element of the process described above is connection of the `state` value with the session. This is achieved by using a cookie.
+
+# Endpoints and timeouts
+
+### Production service
+
+| Endpoint         | URL 
+| ---------------- | ----------------
+| server discovery | https://auth.eeid.ee/hydra-public/.well-known/openid-configuration 
+| public signature key | https://auth.eeid.ee/hydra-public/.well-known/jwks.json 
+| authorization | https://auth.eeid.ee/hydra-public/oauth2/auth 
+| token | https://auth.eeid.ee/hydra-public/oauth2/token 
+| userinfo | https://auth.eeid.ee/hydra-public/userinfo 
+
+### Test service
+
+| Endpoint         | URL 
+| ---------------- | ----------------
+| server discovery | https://test-auth.eeid.ee/hydra-public/.well-known/openid-configuration
+| public signature key | https://test-auth.eeid.ee/hydra-public/.well-known/jwks.json
+| authorization | https://test-auth.eeid.ee/hydra-public/oauth2/auth
+| token | https://test-auth.eeid.ee/hydra-public/oauth2/token
+| userinfo | https://test-auth.eeid.ee/hydra-public/userinfo
+
+### Timeouts
+
+| Timeout                      | Value           | Remark
+| ---------------------------- | --------------- | ---------------------------------------------
+| session | 30 min | eeID server creates a session with the user identified. If the user doesn’t perform any activity on eeID page, the session will expire in 30 minutes. Note: eeID session must be distinguished from the session between the client application and the user.
+| SSL/TLS handshake | 25 s | In case of ID-card authentication. The user must enter PIN1 within 25 seconds. After the timeout, the authentication will be terminated for security reasons.
+| Authorization code | 30 s | The client application must obtain the access token using authorization code within 30 seconds.
+
+# Testing
+
+A prerequisite for testing the eeID authentication service is registering a service in test environment. After approving your service, it is possible to test the service immediately, using the credentials generated after approving.
+
+Users for successful authentication:
+
+- Mobile ID phone and id numbers: EE - `00000766` | `60001019906`, LT - `60000666` | `50001018865`
+- Smart-ID personal codes: EE - `30303039914`, LV - `030303-10012`, LT - `30303039914`
+- eIDAS country Czech Republic: select `Testovací profily` from the redirection screen and select a test user for authentication
+
+### Mobile ID
+
+The eeID test environment is directed to the Mobiil-ID demo environment. Public test numbers are available for use:
+
+* Test numbers are available [here](https://github.com/SK-EID/MID/wiki/Test-number-for-automated-testing-in-DEMO). Apply only Estonian (EE) test numbers and personal identification codes.
+
+### Smart ID
+
+The eeID test environment is directed to the Smart-ID demo environment. There are two options for use:
+
+* Install the Smart-ID demo application on your device and register a [demo account](https://github.com/SK-EID/smart-id-documentation/wiki/Smart-ID-demo#getting-started).
+* Use [test users](https://github.com/SK-EID/smart-id-documentation/wiki/Environment-technical-parameters#test-accounts-for-automated-testing).
+
+# Code examples
+
+## OpenID Connect Client with Spring Security
+
+One of the key features of Spring Security 5 was the native support for OAuth2 and OIDC.
+Making use of the OIDC configuration information (OIDC metadata), integrating with
+the eeID Server gets super easy. This tutorial shows how to use a registered service to login via eeID and access the user details within an ID-token.
+
+### Prerequisites
+
+You should be familiar with Java, Spring Boot, and Spring Security.
+Optionally, you should know how to use IntelliJ IDEA, but you can use any IDE of your choice.
+Make sure you [configure a service](#getting-started) in the [eeID manager](https://eeid.ee) before getting started.
+
+### Setting up the project
+
+1. Visit [start.spring.io](https://start.spring.io/) to create a new Spring Boot project
+2. Select Maven as your build tool and Java as your language
+3. Change the group to something meaningful and name your project
+4. Choose JDK 17 (or the latest available)
+5. Search for and add the following dependencies: Spring Security, OAuth2 Client, Spring Reactive Web, Thymeleaf
+
+![Spring Initializr](images/spring_initializr.png)
+6. Generate the application. Spring Initializr creates an archive with a bootstrap application that includes the selected dependencies. Download and extract the archive, and import the project in an IDE of your choice
+
+### Add a Starting Site
+
+Provide a starting site that is publicly available. Create the file `src/main/resources/templates/index.html`.
+Add a link to the protected resource `/secured`.
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Spring Boot eeID Demo</title>
+</head>
+
+<body>
+<h1>Welcome</h1>
+<p><a href="/secured">Secured content</a></p>
+</body>
+</html>
 ```
 
-> The above command returns JSON structured like this:
+### Add a Controller
 
-```json
-{
-    "code": 1000,
-    "message": "Command completed successfully",
-    "data": {
-        "contact": {
-            "code": "PUDERJAKAPSAS",
-            "available": true
-        }
+When the user logs in show the username. For that create a controller that handles
+requests for the endpoint `/` and `/secured`. Create the file `src/main/java/com/example/demo/UserController.java`:
+
+```java
+@Controller
+public class UserController {
+    @GetMapping("/")
+    public String index(){
+        return "index";
+    }
+
+    @GetMapping("/secured")
+    public String user(Model model,
+                        @AuthenticationPrincipal OidcUser oidcUser) {
+        model.addAttribute("userName", oidcUser.getName());
+        model.addAttribute("audience", oidcUser.getAudience());
+        return "secured";
     }
 }
 ```
+<br>
+Create a template called `secured.html` next to `index.html`. Output the attributes for the username and client ID.
 
-Checks whether the contact code is available for custom use
+```html
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>Spring Boot eeID Demo - Login</title>
+	<meta charset="utf-8" />
+</head>
+<body>
 
-### HTTP Request
+<h1>Your Login Details</h1>
+<div>
+	Welcome <span style="font-weight:bold" th:text="${userName}"/>!
+	You logged in at the OAuth 2.0 Client <span style="font-weight:bold" th:text="${audience}"/>.
+</div>
+</body>
+</html>
+```
+<br>
+With these routes in place, we can now set up our security configuration.
 
-`GET /repp/v1/contacts/check/:contact_id`
+### Protect the User Area
 
-### URL Parameters
+So far there are two unprotected endpoints: `/` and `/secured`.
+Create another class, that enforces OAuth for certain paths. Create the file `src/main/java/com/example/demo/OAuth2SecurityConfig.java` with the following content:
 
-Parameter | Required | Description
---------- | ------- | -----------
-contact_id | Yes | Contact ID to check
+```java
+@Configuration
+@EnableWebFluxSecurity
+public class OAuth2SecurityConfig {
 
-# Domains
+	@Bean
+	public SecurityWebFilterChain filterChain(ServerHttpSecurity http) throws Exception {
+		http
+			.authorizeExchange(authorize -> authorize
+				.pathMatchers("/", "/error").permitAll()
+				.anyExchange().authenticated()
+			)
+			.oauth2Login(oauth2 -> oauth2
+				.authenticationMatcher(new PathPatternParserServerWebExchangeMatcher("/login/oauth2/callback/{registrationId}"))
+			);
+		return http.build();
+	}
+}
+```
+<br>
+This enables and configures Spring Web Security.
+The endpoints `/` and `/error` are public. Any other requests must be authenticated using OAuth.
+Spring Security creates a default login page at `/login` that lists all the login options. 
 
-## Get all existing domains
+### Configure the OAuth Client
+
+Define the following client in `src/main/resources/application.yml`:
+
+```yml
+spring:
+  main:
+    allow-bean-definition-overriding: true
+  application:
+    name: demo
+  security:
+    oauth2:
+      client:
+        registration:
+          eeid:
+            client-name: Login with the eeID
+            client-id: <your-eeid-client-id>
+            client-secret: <your-eeid-secret>
+            authorization-grant-type: authorization_code
+            redirect-uri: "{baseUrl}/login/oauth2/callback/{registrationId}"
+            scope: openid,idcard,mid,smartid,eidas
+        provider:
+          eeid:
+            issuer-uri: https://test-auth.eeid.ee/hydra-public/
+```
+<br>
+This triggers Spring Boot to register a client. The client registration gets the id `eeid` which is part of the (default) `redirect-uri`.
+The remaining properties, `client-id`, `client-secret` and `scope` have been defined when
+configuring the client in the [eeID manager](https://eeid.ee) (see [Getting Started](#getting-started)).
+You can choose any descriptive `client-name`. This is the string that is used in the default
+login page setup at `/login`.
+<br>
+Spring Boot Security loads all the necessary OpenID configuration from the metadata
+at [https://test-auth.eeid.ee/hydra-public/.well-known/openid-configuration](https://test-auth.eeid.ee/hydra-public/.well-known/openid-configuration)
+and ensures that the user-agent gets redirected to the right endpoints for authentication.
+
+### Run the Demo Application
+
+Start the demo application with `mvn spring-boot:run`. Navigate to `http://localhost:8080` to access the index site.
+Click on the link to access `http://localhost:8080/secured` that triggers a login.
+
+![Login Screen](images/login_screen.png)
+<br>
+After successful login the page shows details retrieved from the ID token.
+
+![Login Details](images/login_details.png)
+<br>
+You can also navigate to `http://localhost:8080/login` to directly access the default login page created by Spring Security.
+
+For further examples and help regarding OAuth2 and Spring Security for a reactive web application visit [Spring Security Reference Documentation](https://docs.spring.io/spring-security/reference/reactive/oauth2/login/index.html).
+
+## PHP OpenID Connect example
+
+Make sure you [configure a service](#getting-started) in the [eeID manager](https://eeid.ee) before getting started.
+<br>
+This example uses the jumbojett basic OpenID Connect client and phpdotenv installed using composer and running on Docker container.
+
+* jumbojett: [https://github.com/jumbojett/OpenID-Connect-PHP](https://github.com/jumbojett/OpenID-Connect-PHP)
+* phpdotenv: [https://github.com/vlucas/phpdotenv](https://github.com/vlucas/phpdotenv)
+* composer: [https://getcomposer.org/](https://getcomposer.org/)
+
+It takes users to an attributes page after login and display the claims/values that have been passed.
+In the real world you would read the claims and feed them into your authorisation/user-session management process.
+
+### Instructions
+
+1. Start by creating a new Dockerfile. This file will be used to build an image for your container. In the Dockerfile, include the following lines::
+
+```dockerfile
+FROM php:7.4-apache
+RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
+RUN apt-get update && apt-get install -y \
+    zip \
+    unzip
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+```
+<br>
+This will use the `php:7.4-apache` image as the base for your container and install the necessary
+dependencies for Composer (zip and unzip). It will then use curl to download the Composer
+installer and run it to install Composer in the `/usr/local/bin` directory.
+<br>
+<br>
+2. Create docker-compose.yml file in your project folder:
+
+```yml
+version: '3.1'
+
+services:
+  app:
+    build:
+      context: .
+    ports:
+      - "8082:80"
+    volumes:
+      - .:/var/www/html
+    environment:
+      - APACHE_DOCUMENT_ROOT=/var/www/html
+```
+<br>
+3. Create composer.json
+
+```json
+{
+    "require": {
+        "jumbojett/openid-connect-php": "0.8.0",
+        "vlucas/phpdotenv": "^5.3"
+    }
+}
+```
+<br>
+4. Build the image and run a new container
 
 ```shell
-curl --location --request GET 'https://testrar.internet.ee/repp/v1/domains' \
---header 'Authorization: Basic dGVzdDp0ZXN0MTIz' \
---data-raw ''
+dockder-compose up --build
 ```
-
-> The above command returns JSON structured like this:
-
-```json
-{
-    "code": 1000,
-    "message": "Command completed successfully",
-    "data": {
-        "new_domain": [
-            "www.ee"
-        ],
-        "domains": [
-            "kass.ee",
-            "koer.ee",
-        ],
-        "count": 69
-    }
-}
-```
-
-> When ?details=true is appended, it returns JSON structured like this:
-
-```json
-{
-    "code": 1000,
-    "message": "Command completed successfully",
-    "data": {
-        "new_domain": [
-            {
-                "name": "wwww.ee",
-                "registrant": {
-                    "name": "Mary Änn O’Connež-Šuslik",
-                    "code": "1111111:0FEEDC3C"
-                },
-                "created_at": "2022-06-15T16:04:07.042+03:00",
-                "updated_at": "2022-06-20T14:02:10.339+03:00",
-                "expire_time": "2022-12-16T00:00:00.000+02:00",
-                "outzone_at": "2022-06-20T14:02:10.304+03:00",
-                "delete_date": "2022-07-21",
-                "force_delete_date": null,
-                "contacts": [
-                    {
-                        "code": "1111111:65B7EB55",
-                        "type": "AdminDomainContact",
-                        "name": "Mary Änn O’Connež-Šuslik"
-                    },
-                    {
-                        "code": "1111111:8E3736F2",
-                        "type": "TechDomainContact",
-                        "name": "Mary Änn O’Connež-Šuslik"
-                    }
-                ],
-                "nameservers": [
-                    {
-                        "id": 37,
-                        "hostname": "ns1.oberbrunner.net",
-                        "ipv4": [
-                            "219.175.134.244"
-                        ],
-                        "ipv6": [
-                            "647B:275:536E:1C6B:8D51:5E15:D6F5:184A"
-                        ]
-                    },
-                    {
-                        "id": 38,
-                        "hostname": "ns2.kunze.org",
-                        "ipv4": [
-                            "134.156.204.100"
-                        ],
-                        "ipv6": [
-                            "A724:680A:9437:E459:A20D:5C53:DF42:CD5F"
-                        ]
-                    }
-                ],
-                "dnssec_keys": [
-                    {
-                        "id": 8,
-                        "flags": 257,
-                        "protocol": 3,
-                        "alg": 8,
-                        "public_key": "e087a47db0e31dbb162e4bb62da7a34322be3ff66fdcf65268225c4db3b37d79"
-                    }
-                ],
-                "statuses": {
-                    "ok": "",
-                    "pendingDelete": "",
-                    "serverHold": ""
-                },
-                "registrar": {
-                    "name": "Registrar",
-                    "website": "https://regitrar.ee"
-                },
-                "dispute": false,
-                "transfer_code": "a39f33a5c6a5aa3ac44e625c9eaa7476"
-            }
-        ],
-        "domains": [
-            {
-                "name": "kass.ee",
-                "registrant": {
-                    "name": "KARL",
-                    "code": "ATSAA:KARL"
-                },
-                "created_at": "2021-01-29T11:15:52.753+02:00",
-                "updated_at": "2021-01-29T11:15:52.753+02:00",
-                "expire_time": "2022-01-30T00:00:00.000+02:00",
-                "outzone_at": null,
-                "delete_date": null,
-                "force_delete_date": null,
-                "transfer_code": "378499652fe9f0075600bba06c3a2449",
-                "contacts": [
-                    {
-                        "code": "ATSAA:KARL",
-                        "type": "AdminDomainContact",
-                        "name": "KARL"
-                    },
-                    {
-                        "code": "ATSAA:KARL",
-                        "type": "TechDomainContact",
-                        "name": "KARL"
-                    }
-                ],
-                "nameservers": [],
-                "dnssec_keys": [],
-                "statuses": {
-                    "inactive": ""
-                },
-            "registrar": {
-                "name": "Kreative Digital OÜ",
-                "website": "https://kreative.ee"
-            },
-            "dispute": false,
-            "transfer_code": "2f81ec671b69a2aa5d6375631e259ae7",
-            },
-            {
-                "name": "koer.ee",
-                "registrant": "ATSAA:KARL",
-                "created_at": "2021-01-29T11:16:23.679+02:00",
-                "updated_at": "2021-01-29T11:16:23.679+02:00",
-                "expire_time": "2022-01-30T00:00:00.000+02:00",
-                "outzone_at": null,
-                "delete_date": null,
-                "force_delete_date": null,
-                "transfer_code": "669031afb3bf93a8df55d29e33debc8c",
-                "contacts": [
-                    {
-                        "code": "ATSAA:KARL",
-                        "type": "AdminDomainContact"
-                    },
-                    {
-                        "code": "ATSAA:KARL",
-                        "type": "TechDomainContact"
-                    }
-                ],
-                "nameservers": [],
-                "dnssec_keys": [],
-                "statuses": {
-                    "inactive": ""
-                },
-            "registrar": {
-                "name": "Kreative Digital OÜ",
-                "website": "https://kreative.ee"
-            },
-            "dispute": false,
-            "transfer_code": "asdf564cs89er3dg46d5f3v1df6534g3f2",
-            },
-        ],
-        "count": 69
-    }
-}
-```
-
-Gets all existing domains under current registrar account.
-
-### HTTP Request
-
-`GET /repp/v1/domains`
-
-### URL Parameters
-
-Parameter | Required | Default | Description
---------- | -------- | ------- | -----------
-limit | No | 200 | How many objects to return
-offset | No | 0 | Object query offset
-details | No | false | Show full object of each domain
-
-## Get a specific domain
+<br>
+5. Run composer to read the composer.json file from the current directory, resolve the dependencies and install them into vendor:
 
 ```shell
-curl --location --request GET 'https://testrar.internet.ee/repp/v1/domains/biz.ee' \
---header 'Authorization: Basic dGVzdDp0ZXN0MTIz' \
---data-raw ''
+docker-compose run --rm app composer install
 ```
+<br>
+6. Create a php page to handle the login, e.g. `index.php`.
+This one creates a session attribute of an array of the returned claims and then passes the user
+to an `attributes.php` page where they can be displayed.
 
-> The above command returns JSON structured like this:
+```php
+<?php
 
-```json
-{
-    "code": 1000,
-    "message": "Command completed successfully",
-    "data": {
-        "domain": {
-            "name": "biz.ee",
-            "registrant": {
-                "name": "KARL",
-                "code": "ATSAA:749AA80F"
-            },
-            "created_at": "2021-01-15T12:07:20.079+02:00",
-            "updated_at": "2021-01-21T16:41:59.707+02:00",
-            "expire_time": "2023-01-16T00:00:00.000+02:00",
-            "outzone_at": null,
-            "delete_date": null,
-            "force_delete_date": null,
-            "contacts": [
-                {
-                    "code": "ATSAA:C7A52A30",
-                    "type": "AdminDomainContact",
-                    "name": "KARL"
-                },
-                {
-                    "code": "ATSAA:CC53EF9C",
-                    "type": "TechDomainContact",
-                    "name": "KARL"
-                }
-            ],
-            "nameservers": [],
-            "dnssec_keys": [],
-            "statuses": {
-                "inactive": ""
-            },
-            "registrar": {
-                "name": "Kreative Digital OÜ",
-                "website": "https://kreative.ee"
-            },
-            "dispute": false,
-            "transfer_code": "2f81ec671b69a2aa5d6375631e259ae7",
-        }
+require 'vendor/autoload.php';
+
+use Jumbojett\OpenIDConnectClient;
+
+$dotenv = \Dotenv\Dotenv::createUnsafeImmutable(__DIR__);
+$dotenv->load();
+
+$issuer = getenv('ISSUER');
+$cid = getenv('OAUTH_CLIENT_ID');
+$secret = getenv('OAUTH_CLIENT_SECRET');
+$redirectUrl = getenv('CLIENT_REDIRECT_URI');
+$scope = getenv('SCOPE');
+
+$oidc = new OpenIDConnectClient($issuer, $cid, $secret);
+$oidc->setRedirectURL($redirectUrl);
+$oidc->addScope($scope);
+$oidc->addAuthParam(['ui_locales' => 'en']);
+
+$oidc->authenticate();
+
+$profile = $oidc->getVerifiedClaims('profile_attributes');
+
+foreach($profile as $key=>$value) {
+    if(is_array($value)){
+            $v = implode(', ', $value);
+    }else{
+            $v = $value;
     }
+    $session[$key] = $v;
 }
+
+
+session_start();
+$_SESSION['attributes'] = $session;
+
+header("Location: ./attributes.php");
+
+?>
 ```
+<br>
+7. Create `.env` file with your OAuth client configuration parameters
 
-Returns a specific domain object, even if it doesn't belong to your registrar account.
-If you aren't sponsoring registrar for the domain, transfer_code is omitted from the response.
-
-### HTTP Request
-
-`GET /repp/v1/domains/:domain_name`
-
-### URL Parameters
-
-Parameter | Required | Description
---------- | ------- | -----------
-domain_name | Yes | Domain name
-
-## Register a new domain
-
-```shell
-curl --location --request POST 'https://testrar.internet.ee/repp/v1/domains' \
---header 'Authorization: Basic dGVzdDp0ZXN0MTIz' \
---header 'Content-Type: application/json' \
---data-raw '{
-    "domain": {
-        "name": "kasskoer.ee",
-        "registrant": "ATSAA:KARL",
-        "period": 1,
-        "period_unit": "y",
-        "admin_contacts": [
-            "ATSAA:KARL"
-        ],
-        "tech_contacts": [
-            "ATSAA:KARL"
-        ],
-        "nameservers_attributes": [
-            {
-                "hostname": "ns1.kreative.ee"
-            },
-            {
-                "hostname": "ns2.kreative.ee"
-            }
-        ]
-    }
-}'
+```conf
+ISSUER="https://test-auth.eeid.ee/hydra-public/"
+OAUTH_CLIENT_ID="<your-eeid-client-id>"
+OAUTH_CLIENT_SECRET="<your-eeid-secret>"
+CLIENT_REDIRECT_URI="http://localhost:8082/index.php"
+AUTHORIZATION_SERVER_AUTHORIZE_URL="https://test-auth.eeid.ee/hydra-public/oauth2/auth"
+AUTHORIZATION_SERVER_ACCESS_TOKEN_URL="https://test-auth.eeid.ee/hydra-public/oauth2/token"
+RESOURCE_OWNER_URL="https://test-auth.eeid.ee/hydra-public/userinfo"
+RESOURCE_SERVER_URL="https://test-auth.eeid.ee/hydra-public/userinfo"
+SCOPE="openid idcard mid smartid eidas"
 ```
+<br>
+Parameters like `OAUTH_CLIENT_ID`, `OAUTH_CLIENT_SECRET` and `SCOPE` have been defined after
+configuring the service in the [eeID manager](https://eeid.ee) (see [Getting Started](#getting-started)).
+<br>
+8. Add the `attributes.php` page. E.g:
 
-> The above command returns JSON structured like this:
+```php
+<?php
+    session_start();
+?>
+<!DOCTYPE html>
+<html lang="en">
 
-```json
-{
-    "code": 1000,
-    "message": "Command completed successfully",
-    "data": {
-        "domain": {
-            "name": "kasskoer.ee"
-        }
-    }
-}
+<head>
+
+   <meta charset="utf-8">
+   <meta http-equiv="X-UA-Compatible" content="IE=edge">
+   <meta name="viewport" content="width=device-width, initial-scale=1">
+   <meta name="description" content="">
+   <meta name="author" content="">
+
+   <title>OpenID Connect: Released Attributes</title>
+
+</head>
+
+<body>
+
+   <!-- Intro -->
+   <div class="banner">
+      <div class="container">
+
+         <h3>
+            Claims sent back from OpenID Connect
+         </h3>
+         <br/>
+      </div>
+   </div>
+
+   <!-- Claims -->
+   <div class="content-section-a" id="openAthensClaims">
+      <div class="container">
+         <div class="row">
+
+               <table class="table" style="width:80%;" border = "1">
+                 <?php foreach ($_SESSION['attributes'] as $key=>$value): ?>
+                      <tr>
+                          <td data-toggle="tooltip" title=<?php echo $key; ?>><?php echo $key; ?></td>
+                          <td data-toggle="tooltip" title=<?php echo $value; ?>><?php echo $value; ?></td>
+                      </tr>
+                 <?php endforeach; ?>
+
+               </table>
+         </div>
+      </div>
+   </div>
+</body>
+
+</html>
 ```
-
-Register a new domain
-
-### HTTP Request
-
-`POST /repp/v1/domains`
-
-### Payload Parameters
-
-Parameter | Required | Type | Description
---------- | ------- | ----- | -----------
-name | Yes | String | Domain name
-reserved_pw | No | String | Reserved password for domain
-transfer_code | No | String | Desired transfer code for domain
-registrant | Yes | String | Registrant contact code
-period_unit | Yes | String | Period unit. Can be year (y) or month (m)
-period | Yes | Integer | For how many period units to register domain
-admin_contacts | No | Array | Array of admin domain contact codes
-tech_contacts | No | Array | Array of tech domain contact codes
-nameservers_attributes | No | Array | Array of nameserver objects
-nameservers_attributes[hostname] | Yes | String | Hostname of nameserver
-nameservers_attributes[ipv4] | Yes | Array | Array of IPv4 attributes
-nameservers_attributes[ipv6] | Yes | Array | Array of IPv6 attributes
-dnskeys_attributes | No | Array | Array of DNSSEC key attributes
-dnskeys_attributes[flags] | Yes | String | 256 (KSK) or 257 (ZSK)
-dnskeys_attributes[protocol] | Yes | String | Key protocol (3)
-dnskeys_attributes[alg] | Yes | String | DNSSEC key algorithm (3,5,6,7,8,10,13,14)
-dnskeys_attributes[public_key] | Yes | String | DNSSEC public key
-
-<aside class="notice">
-Note — Wrap your payload attributes into "domain" object, as shown in example.
-</aside>
-
-## Change domain registrant / Auth code
-
-```shell
-curl --location --request PUT 'https://testrar.internet.ee/repp/v1/domains/kasskoer.ee' \
---header 'Authorization: Basic dGVzdDp0ZXN0MTIz' \
---header 'Content-Type: application/json' \
---data-raw '{
-    "domain": {
-        "registrant": {
-            "code": "ATSAA:LIZ"
-        },
-        "transfer_code": "123"
-    }
-}'
-```
-
-> The above command returns JSON structured like this:
-
-```json
-{
-    "code": 1000,
-    "message": "Command completed successfully",
-    "data": {
-        "domain": {
-            "name": "kasskoer.ee"
-        }
-    }
-}
-```
-
-Changes domain registrant or auth code
-
-### HTTP Request
-
-`PUT /repp/v1/domains/:domain_name`
-
-### URL Parameters
-Parameter | Required | Type | Description
---------- | ------- | ----- | -----------
-domain_name | Yes | String | Domain
-
-
-### Payload Parameters
-
-Parameter | Required | Type | Description
---------- | ------- | ----- | -----------
-registrant | Yes | Object | New registrant object
-registrant[code] | Yes | String | Contact ID of new registrant
-registrant[verified] | No | Boolean | Possible values are true / false. Defaults to false. Include it only if set to true.
-transfer_code | No | String | New EPP transfer code for domain
-
-<aside class="notice">
-Note — Wrap your payload attributes into "domain" object, as shown in example.
-</aside>
-
-## Get all contacts of specific domain
-
-```shell
-curl --location --request GET 'https://testrar.internet.ee/repp/v1/domains/kasskoer.ee/contacts' \
---header 'Authorization: Basic dGVzdDp0ZXN0MTIz' \
---data-raw ''
-```
-
-> The above command returns JSON structured like this:
-
-```json
-{
-    "code": 1000,
-    "message": "Command completed successfully",
-    "data": {
-        "admin_contacts": [
-            "1111111:65B7EB55"
-        ],
-        "tech_contacts": [
-            "1111111:0FEEDC3C",
-            "1111111:65B7EB55"
-        ]
-    }
-}
-```
-
-Views domain's admin and tech contacts.
-
-### URL Parameters
-
-Parameter | Required | Description
---------- | ------- | -----------
-domain_name | Yes | Domain name
-
-
-## Link new contact(s) to specific domain
-
-```shell
-curl --location --request POST 'https://testrar.internet.ee/repp/v1/domains/kasskoer.ee/contacts' \
---header 'Authorization: Basic dGVzdDp0ZXN0MTIz' \
---header 'Content-Type: application/json' \
---data-raw '{
-    "contacts": [
-        {
-            "code": "1111111:65B7EB55",
-            "type": "admin"
-        },
-        {
-            "code": "1111111:8E3736F2",
-            "type": "tech"
-        }
-    ]
-}'
-```
-
-> The above command returns JSON structured like this:
-
-```json
-{
-    "code": 1000,
-    "message": "Command completed successfully",
-    "data": {
-        "domain": {
-            "name": "kasskoer.ee"
-        }
-    }
-}
-```
-
-Adds contact(s) to domain.
-
-### HTTP Request
-
-`POST /repp/v1/domains/:domain_name/contacts`
-
-### URL Parameters
-Parameter | Required | Type | Description
---------- | ------- | ----- | -----------
-domain_name | Yes | String | Domain name
-
-### Payload Parameters
-
-Parameter | Required | Type | Description
---------- | ------- | ----- | -----------
-contacts | Yes | Array | Array of contact objects
-contacts[code] | Yes | String | Code of contact
-contacts[type] | Yes | String | Type of contact. Can be 'admin' or 'tech'
-
-## Remove contact(s) from specific domain
-
-```shell
-curl --location --request DELETE 'https://testrar.internet.ee/repp/v1/domains/kasskoer.ee/contacts' \
---header 'Authorization: Basic dGVzdDp0ZXN0MTIz' \
---header 'Content-Type: application/json' \
---data-raw '{
-    "contacts": [
-        {
-            "code": "1111111:65B7EB55",
-            "type": "admin"
-        },
-        {
-            "code": "1111111:8E3736F2",
-            "type": "tech"
-        }
-    ]
-}'
-```
-
-> The above command returns JSON structured like this:
-
-```json
-{
-    "code": 1000,
-    "message": "Command completed successfully",
-    "data": {
-        "domain": {
-            "name": "kasskoer.ee"
-        }
-    }
-}
-```
-
-Deletes contact(s) from domain.
-
-### HTTP Request
-
-`DELETE /repp/v1/domains/:domain_name/contacts`
-
-### URL Parameters
-Parameter | Required | Type | Description
---------- | ------- | ----- | -----------
-domain_name | Yes | String | Domain name
-
-### Payload Parameters
-
-Parameter | Required | Type | Description
---------- | ------- | ----- | -----------
-contacts | Yes | Array | Array of contact objects
-contacts[code] | Yes | String | Code of contact
-contacts[type] | Yes | String | Type of contact. Can be 'admin' or 'tech'
-
-## Renew a specific domain
-
-```shell
-curl --location --request POST 'https://testrar.internet.ee/repp/v1/domains/kasskoer.ee/renew' \
---header 'Authorization: Basic dGVzdDp0ZXN0MTIz' \
---header 'Content-Type: application/json' \
---data-raw '{
-    "renews": {
-        "period": 1,
-        "period_unit": "y",
-        "exp_date": "2021-04-20"
-    }
-}'
-```
-
-> The above command returns JSON structured like this:
-
-```json
-{
-    "code": 1000,
-    "message": "Command completed successfully",
-    "data": {
-        "domain": {
-            "name": "kasskoer.ee"
-        }
-    }
-}
-```
-
-Renews current domain for desired period.
-
-### HTTP Request
-
-`POST /repp/v1/domains/:domain_name/renew`
-
-### URL Parameters
-Parameter | Required | Type | Description
---------- | ------- | ----- | -----------
-domain_name | Yes | String | Domain name
-
-
-### Payload Parameters
-
-Parameter | Required | Type | Description
---------- | ------- | ----- | -----------
-period_unit | Yes | String | Period unit. Can be year (y) or month (m)
-period | Yes | Integer | For how many period units to register domain
-exp_date | Yes | String | Current expiry date for domain (yyyy-mm-dd)
-
-<aside class="notice">
-Note — Wrap your payload attributes into "renew" object, as shown in example.
-</aside>
-
-## Delete a specific domain
-
-```shell
-curl --location --request DELETE 'https://registry.test/repp/v1/domains/kanakotlet.ee' \
---header 'Authorization: Basic dGVzdDp0ZXN0MTIz' \
-
---header 'Content-Type: application/json' \
---data-raw '{
-    "domain": {
-        "delete": {
-            "verified": false
-        }
-    }
-}'
-```
-
-> The above command returns JSON structured like this:
-
-```json
-{
-    "code": 1000,
-    "message": "Command completed successfully",
-    "data": {
-        "domain": {
-            "name": "kanakotlet.ee"
-        }
-    }
-}
-```
-
-Deletes a specific domain
-
-### HTTP Request
-
-`DELETE /repp/v1/domains/:domain_name`
-
-### URL Parameters
-
-Parameter | Required | Description
---------- | ------- | -----------
-domain_name | Yes | Domain name
-
-### Required Headers
-
-Parameter | Required | Description
---------- | ------- | -----------
-Auth-Code | No | domain's EPP transfer code
-### Payload Parameters
-
-Parameter | Required | Type | Description
---------- | ------- | ----- | -----------
-delete | Yes | Hash | Hash holding verified flag
-delete[verified] | Yes | Boolean | Whether to ask registrant confirmation or not
-
-# Nameservers
-
-## Get domain's nameservers
-
-```shell
-curl --location --request GET 'https://testrar.internet.ee/repp/v1/domains/domeener.ee/nameservers' \
---header 'Authorization: Basic dGVzdDp0ZXN0MTIz' \
---data-raw ''
-```
-
-> The above command returns JSON structured like this:
-
-```json
-{
-    "code": 1000,
-    "message": "Command completed successfully",
-    "data": {
-        "nameservers": [
-            {
-                "hostname": "ns1.domeener.ee",
-                "ipv4": ["192.168.1.1"],
-                "ipv6": ["fe80::aede:48ff:fe00:1122"]
-            },
-            {
-                "hostname": "ns2.domeener.ee",
-                "ipv4": ["192.168.1.2"],
-                "ipv6": ["fe80::aede:48ff:fe00:1123"]
-            },
-        ]
-    }
-}
-```
-
-Gets a specific domain's nameservers
-
-### HTTP Request
-
-`GET /repp/v1/domains/:domain_name/nameservers`
-
-### URL Parameters
-
-Parameter | Required | Description
---------- | ------- | -----------
-domain_name | Yes | Domain name
-
-## Add new nameserver
-
-```shell
-curl --location --request POST 'https://testrar.internet.ee/repp/v1/domains/kotlet.ee/nameservers' \
---header 'Authorization: Basic dGVzdDp0ZXN0MTIz' \
---header 'Content-Type: application/json' \
---data-raw '{
-    "nameservers": [
-        {
-            "hostname": "ns1.domainer.ee",
-            "ipv4": ["192.168.1.1", "192.168.1.2"],
-            "ipv6": ["2620:119:35::35", "2620:119:35::36"]
-        },
-        {
-            "hostname": "ns2.domainer.ee",
-            "ipv4": ["192.168.1.3", "192.168.1.4"],
-            "ipv6": ["2620:119:35::37", "2620:119:35::38"]
-        }
-    ]
-}'
-```
-
-> The above command returns JSON structured like this:
-
-```json
-{
-    "code": 1000,
-    "message": "Command completed successfully",
-    "data": {
-        "domain": {
-            "name": "kotlet.ee"
-        }
-    }
-}
-```
-
-Add new nameserver(s) to specific domain
-
-### HTTP Request
-
-`POST /repp/v1/domains/:domain_name/nameservers`
-
-### URL Parameters
-
-Parameter | Required | Description
---------- | ------- | -----------
-domain_name | Yes | Domain name
-
-### Payload Parameters
-
-Parameter | Required | Type | Description
---------- | ------- | ----- | -----------
-nameservers | Yes | Array | Array of new nameserver objects
-nameservers[hostname] | Yes | Hostname of nameserver
-nameservers[ipv4] | No | Array | Array of IPv4 addresses
-nameservers[ipv6] | No | Array | Array of IPv6 addresses
-
-## Delete existing nameserver
-
-```shell
-curl --location --request DELETE 'https://testrar.internet.ee/repp/v1/domains/kotlet.ee/nameservers/ns3.domainer.ee' \
---header 'Authorization: Basic dGVzdDp0ZXN0MTIz' \
---data-raw ''
-```
-
-> The above command returns JSON structured like this:
-
-```json
-{
-    "code": 1000,
-    "message": "Command completed successfully",
-    "data": {
-        "domain": {
-            "name": "666.ee"
-        }
-    }
-}
-```
-
-Delete existing nameserver from domain.
-
-### HTTP Request
-
-`DELETE /repp/v1/domains/:domain_name/nameservers/:nameserver_hostname`
-
-### URL Parameters
-
-Parameter | Required | Description
---------- | ------- | -----------
-domain_name | Yes | Domain name
-nameserver_hostname | Yes | nameserver hostname to delete
-
-# DNSSEC
-
-## Get domain's DNSSEC keys
-
-```shell
-curl --location --request GET 'https://testrar.internet.ee/repp/v1/domains/666.ee/dnssec' \
---header 'Authorization: Basic dGVzdDp0ZXN0MTIz' \
---data-raw ''
-```
-
-> The above command returns JSON structured like this:
-
-```json
-{
-    "code": 1000,
-    "message": "Command completed successfully",
-    "data": {
-        "dns_keys": [
-            {
-                "flags": 257,
-                "protocol": 3,
-                "alg": 13,
-                "public_key": "pubkeyhere"
-            }
-        ]
-    }
-}
-```
-
-Gets a specific domain's DNSSEC keys
-
-### HTTP Request
-
-`GET /repp/v1/domains/:domain_name/dnssec`
-
-### URL Parameters
-
-Parameter | Required | Description
---------- | ------- | -----------
-domain_name | Yes | Domain name
-
-## Add new DNSSEC key
-
-```shell
-curl --location --request POST 'https://testrar.internet.ee/repp/v1/domains/666.ee/dnssec' \
---header 'Authorization: Basic dGVzdDp0ZXN0MTIz' \
---header 'Content-Type: application/json' \
---data-raw '{
-    "dns_keys": [
-        {
-            "flags": "257",
-            "protocol": "3",
-            "alg": "8",
-            "public_key": "AwEAAddt2AkLfYGKgiEZB5SmIF8EvrjxNMH6HtxWEA4RJ9Ao6LCWheg8"
-        },
-        {
-            "flags": "257",
-            "protocol": "3",
-            "alg": "13",
-            "public_key": "mdsswUyr3DPW132mOi8V9xESWE8jTo0dxCjjnopKl+GqJxpVXckHAeF+KkxLbxILfDLUT0rAK9iUzy1L53eKGQ=="
-        }
-    ]
-}'
-```
-
-> The above command returns JSON structured like this:
-
-```json
-{
-    "code": 1000,
-    "message": "Command completed successfully",
-    "data": {
-        "domain": {
-            "name": "666.ee"
-        }
-    }
-}
-```
-
-Add new DNSSEC key(s) to specific domain
-
-### HTTP Request
-
-`POST /repp/v1/domains/:domain_name/dnssec`
-
-### URL Parameters
-
-Parameter | Required | Description
---------- | ------- | -----------
-domain_name | Yes | Domain name
-
-### Payload Parameters
-
-Parameter | Required | Type | Description
---------- | ------- | ----- | -----------
-dns_keys | Yes | Array | Array of DNSSEC key objects
-dns_keys[flags] | Yes | String | 256 (KSK) or 257 (ZSK)
-dns_keys[protocol] | Yes | String | Key protocol (3)
-dns_keys[alg] | Yes | String | DNSSEC key algorithm (3,5,6,7,8,10,13,14)
-dns_keys[public_key] | Yes | String | DNSSEC public key
-
-## Delete DNSSEC key
-
-```shell
-curl --location --request DELETE 'https://testrar.internet.ee/repp/v1/domains/666.ee/dnssec' \
---header 'Authorization: Basic dGVzdDp0ZXN0MTIz' \
---header 'Content-Type: application/json' \
---data-raw '{
-    "dns_keys": [
-        {
-            "flags": "257",
-            "protocol": "3",
-            "alg": "8",
-            "public_key": "AwEAAddt2AkLfYGKgiEZB5SmIF8EvrjxNMH6HtxWEA4RJ9Ao6LCWheg8"
-        }
-    ]
-}'
-```
-
-> The above command returns JSON structured like this:
-
-```json
-{
-    "code": 1000,
-    "message": "Command completed successfully",
-    "data": {
-        "domain": {
-            "name": "666.ee"
-        }
-    }
-}
-```
-
-Deletes one or many DNSSEC key(s) for specific domain.
-
-### HTTP Request
-
-`DELETE /repp/v1/domains/:domain_name/dnssec`
-
-### URL Parameters
-
-Parameter | Required | Description
---------- | ------- | -----------
-domain_name | Yes | Domain name
-
-### Payload Parameters
-
-Parameter | Required | Type | Description
---------- | ------- | ----- | -----------
-dns_keys | Yes | Array | Array of DNSSEC key objects
-dns_keys[flags] | Yes | String | 256 (KSK) or 257 (ZSK) of existing DNSSEC key
-dns_keys[protocol] | Yes | String | Key protocol of existing DNSSEC key
-dns_keys[alg] | Yes | String | DNSSEC key algorithm of existing DNSSEC key
-dns_keys[public_key] | Yes | String | Public key of existing DNSSEC key
-
-# Statuses
-
-## Add clientHold to domain
-
-```shell
-curl --location --request PUT 'https://testrar.internet.ee/repp/v1/domains/biz.ee/statuses/clientHold' \
---header 'Authorization: Basic dGVzdDp0ZXN0MTIz' \
---data-raw ''
-```
-
-> The above command returns JSON structured like this:
-
-```json
-{
-    "code": 1000,
-    "message": "Command completed successfully",
-    "data": {
-        "domain": "biz.ee",
-        "status": "clientHold"
-    }
-}
-```
-
-Adds a clientHold status to a specific domain
-
-### HTTP Request
-
-`PUT /repp/v1/domains/:domain_name/statuses/clientHold`
-
-### URL Parameters
-
-Parameter | Required | Description
---------- | ------- | -----------
-domain_name | Yes | Domain name
-
-## Remove clientHold from domain
-
-```shell
-curl --location --request DELETE 'https://testrar.internet.ee/repp/v1/domains/biz.ee/statuses/clientHold' \
---header 'Authorization: Basic dGVzdDp0ZXN0MTIz' \
---data-raw ''
-```
-
-> The above command returns JSON structured like this:
-
-```json
-{
-    "code": 1000,
-    "message": "Command completed successfully",
-    "data": {}
-}
-```
-
-Removes clientHold status from specific domain
-
-### HTTP Request
-
-`DELETE /repp/v1/domains/:domain_name/statuses/clientHold`
-
-### URL Parameters
-
-Parameter | Required | Description
---------- | ------- | -----------
-domain_name | Yes | Domain name
-# Transfers
-
-## Get transfer info
-
-```shell
-curl --location --request GET 'https://testrar.internet.ee/repp/v1/domains/kotlet.ee/transfer_info' \
---header 'Auth-Code: 6699fb661ee3a2006a3d1e5833d7c5abv' \
---header 'Authorization: Basic dGVzdDp0ZXN0MTIz' \
---data-raw ''
-```
-
-> The above command returns JSON structured like this:
-
-```json
-{
-    "code": 1000,
-    "message": "Command completed successfully",
-    "data": {
-        "domain": "kotlet.ee",
-        "registrant": {
-            "code": "ATSAA:E36957D7",
-            "phone": "+372.xxx",
-            "email": "xxx",
-            "ident": "xxx",
-            "ident_type": "priv",
-            "name": "xxx",
-            "ident_country_code": "EE",
-            "city": null,
-            "street": null,
-            "zip": null,
-            "country_code": null,
-            "statuses": [
-                "ok",
-                "linked"
-            ]
-        },
-        "admin_contacts": [
-            {
-              "code": "ATSAA:E36957D7",
-              "phone": "+372.xxx",
-              "email": "xxx",
-              "ident": "xxx",
-              "ident_type": "priv",
-              "name": "xxx",
-              "ident_country_code": "EE",
-              "city": null,
-              "street": null,
-              "zip": null,
-              "country_code": null,
-              "statuses": [
-                "ok",
-                "linked"
-              ]
-            }
-        ],
-        "tech_contacts": [
-            {
-                "code": "ATSAA:E36957D7",
-                "phone": "+372.xxx",
-                "email": "xxx",
-                "ident": "xxx",
-                "ident_type": "priv",
-                "name": "xxx",
-                "ident_country_code": "EE",
-                "city": null,
-                "street": null,
-                "zip": null,
-                "country_code": null,
-                "statuses": [
-                    "ok",
-                    "linked"
-                ]
-            }
-        ]
-    }
-}
-```
-
-Gets a specific domain's transfer info
-
-### HTTP Request
-
-`GET /repp/v1/domains/:domain_name/transfer_info`
-
-### URL Parameters
-
-Parameter | Required | Description
---------- | ------- | -----------
-domain_name | Yes | Domain name
-
-### Required Headers
-
-Submit domain's EPP authorization code if domain doesn't belong to you (yet)
-
-Parameter | Required | Description
---------- | ------- | -----------
-Auth-Code | No | Queried domain's EPP authorization code
-
-## Transfer domain
-
-```shell
-curl --location --request POST 'https://testrar.internet.ee/repp/v1/domains/666.ee/transfer' \
---header 'Authorization: Basic dGVzdDp0ZXN0MTIz' \
---header 'Content-Type: application/json' \
---data-raw '{
-    "transfer": {
-        "transfer_code": "d79d865fdf589a1cd52ae95fde4e5d30"
-    }
-}'
-```
-
-> The above command returns JSON structured like this:
-
-```json
-{
-    "code": 1000,
-    "message": "Command completed successfully",
-    "data": {
-        "domain": {
-            "name": "666.ee",
-            "type": "domain_transfer"
-        }
-    }
-}
-```
-
-Transfers domain from another registrar to your account.
-
-### HTTP Request
-
-`POST /repp/v1/domains/:domain_name/transfer`
-
-### URL Parameters
-
-Parameter | Required | Description
---------- | ------- | -----------
-domain_name | Yes | Domain name
-
-### Payload Parameters
-
-Parameter | Required | Type | Description
---------- | ------- | ----- | -----------
-transfer | Yes | Object | Object holding transfer elements
-transfer[transfer_code] | Yes | String | EPP authorization code
-
-# Bulk actions
-
-## Bulk domain transfer
-
-```shell
-curl --location --request POST 'https://testrar.internet.ee/repp/v1/domains/transfer' \
---header 'Authorization: Basic dGVzdDp0ZXN0MTIz' \
---header 'Content-Type: application/json' \
---data-raw '{
-    "data": {
-        "domain_transfers": [
-            {
-                "domain_name": "domain1.ee",
-                "transfer_code": "a45e543ddabee202f95eebae5a7c917c"
-            },
-            {
-                "domain_name": "domain2.ee",
-                "transfer_code": "cce67ca63adc8c2938f199f10108881e"
-            }
-        ]
-    }
-}'
-```
-
-> The above command returns JSON structured like this:
-
-```json
-{
-    "code": 1000,
-    "message": "Command completed successfully",
-    "data": {
-        "success": [
-            {
-                "type": "domain_transfer",
-                "domain_name": "domain1.ee"
-            },
-            {
-                "type": "domain_transfer",
-                "domain_name": "domain2.ee"
-            }
-        ],
-        "failed": []
-    }
-}
-```
-
-Transfers multiple domains from another registrar to your account.
-
-### HTTP Request
-
-`POST /repp/v1/domains/transfer`
-
-### Payload Parameters
-
-Parameter | Required | Type | Description
---------- | ------- | ----- | -----------
-data | Yes | Object | Object holding domain_transfers array
-data[domain_transfers] | Yes | Array | Array of domain transfer objects
-data[domain_transfers][domain_name] | Yes | String | Domain name
-data[domain_transfers][transfer_code] | Yes | String | EPP authorization code
-
-## Bulk tech contact replace
-
-```shell
-curl --location --request PATCH 'https://testrar.internet.ee/repp/v1/domains/contacts' \
---header 'Authorization: Basic dGVzdDp0ZXN0MTIz' \
---header 'Content-Type: application/json' \
---data-raw '{
-    "current_contact_id": "ATSAA:B839862D",
-    "new_contact_id": "ATSAA:KARL"
-}'
-```
-
-> The above command returns JSON structured like this:
-
-```json
-{
-    "code": 1000,
-    "message": "Command completed successfully",
-    "data": {
-        "affected_domains": [],
-        "skipped_domains": []
-    }
-}
-```
-
-Cycles through every domain and replaces specific tech contact with another one.
-
-### HTTP Request
-
-`PATCH /repp/v1/domains/contacts`
-
-### Payload Parameters
-
-Parameter | Required | Type | Description
---------- | ------- | ----- | -----------
-current_contact_id | Yes | String | Tech contact ID you wish to replace
-new_contact_id | Yes | String | New contact ID to assign as tech contact
-
-## Bulk nameserver change
-
-```shell
-curl --location --request PUT 'https://testrar.internet.ee/repp/v1/registrar/nameservers' \
---header 'Authorization: Basic dGVzdDp0ZXN0MTIz' \
---header 'Content-Type: application/json' \
---data-raw '{
-    "data": {
-        "type": "nameserver",
-        "id": "ns1.domainer.ee",
-        "attributes": {
-            "hostname": "ns1.ams1.domainer.ee",
-            "ipv4": ["192.168.1.1"],
-            "ipv6": ["2620:119:35::36"]
-        }
-    }
-}'
-```
-> If you want to replace nameserver only for specific domains, submit scoped "domains" array like that:
-
-```shell
-curl --location --request PUT 'https://testrar.internet.ee/repp/v1/registrar/nameservers' \
---header 'Authorization: Basic dGVzdDp0ZXN0MTIz' \
---header 'Content-Type: application/json' \
---data-raw '{
-    "data": {
-        "type": "nameserver",
-        "id": "ns1.ams1.domainer.ee",
-        "domains": ["only.ee", "these.ee", "domains.ee"],
-        "attributes": {
-            "hostname": "ns2.ams1.domainer.ee",
-            "ipv4": ["192.168.1.1"],
-            "ipv6": ["2620:119:35::36"]
-        }
-    }
-}'
-```
-
-> Both commands above return JSON structured like this:
-
-```json
-{
-    "code": 1000,
-    "message": "Command completed successfully",
-    "data": {
-        "type": "nameserver",
-        "id": "ns1.ams1.domainer.ee",
-        "attributes": {
-            "hostname": "ns1.ams1.domainer.ee",
-            "ipv4": [
-                "192.168.1.1"
-            ],
-            "ipv6": [
-                "2620:119:35::36"
-            ]
-        },
-        "affected_domains": [
-            "only.ee",
-            "these.ee",
-            "domains.ee"
-        ],
-        "skipped_domains": []
-    }
-}
-```
-
-Cycles through every domain and replaces their specific nameserver with new data.
-The new new hostname of the nameserver must be different. It's not possible to change existing nameserver's IPv4 / IPv6 addresses with this request.
-
-### HTTP Request
-
-`PUT /repp/v1/registrar/nameservers`
-
-### Payload Parameters
-
-Parameter | Required | Type | Description
---------- | ------- | ----- | -----------
-data | Yes | Object | Object holding nameserver changes
-data[type] | Yes | String | Always set it as "nameserver"
-data[id] | Yes | String | Hostname of replacable nameserver
-data[domains] | No | Array | Array of domain names qualified for nameserver replacement.
-data[attributes] Yes | Object | Object holding new nameserver values
-data[attributes][hostname] | Yes | String | New hostname of nameserver
-data[attributes][ipv4] | No | Array | Array of nameserver's fixed IPv4 addresses
-data[attributes][ipv6] | No | Array | Array of nameserver's fixed IPv6 addresses
-
-<aside class="warning">
-Note - It's safer to use "domains" scope, although it's not required. If you don't submit "domains" array, we're going to take every domain in registrar's account to cycle, which can, from experience, deal pretty large damage.
-</aside>
-
-## Bulk domain renew
-
-```shell
-curl --location --request POST 'https://testrar.internet.ee/repp/v1/domains/renew/bulk' \
---header 'Authorization: Basic dGVzdDp0ZXN0MTIz' \
---header 'Content-Type: application/json' \
---data-raw '{
-    "domains": ["kotlet.ee", "kasskoer.ee"],
-    "renew_period": "1y"
-}'
-```
-
-> Command above returns JSON structured like this:
-
-```json
-{
-    "code": 1000,
-    "message": "Command completed successfully",
-    "data": {
-        "updated_domains": [
-            "kotlet.ee",
-            "kasskoer.ee"
-        ]
-    }
-}
-```
-
-Renews multiple domanins at once, for a fixed period.
-
-### HTTP Request
-
-`POST /repp/v1/domains/renew/bulk`
-
-### Payload Parameters
-
-Parameter | Required | Type | Description
---------- | ------- | ----- | -----------
-domains | Yes | Array | Array of domain names for renewal
-renew_period | Yes | String | Period for domain renew (3m, 6m, 9m, 1y ... 10y)
+<br>
+9. Go to `http://localhost:8082/index.php` in a browser. You will be sent to an eeID sign-in page.
+After signing in you will be sent back and then on the attributes page.
+
+![Claims](images/claims.png)
