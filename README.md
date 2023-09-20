@@ -4,6 +4,6 @@
 
 <p align="center">eeID documentation</p>
 
-<p align="center"><img src="static/showcase.png" width=700 alt="Screenshot of eeID documentation" ></p>
+<p align="center"><img src="source/images/showcase.png" width=700 alt="Screenshot of eeID documentation" ></p>
 
-<p align="center"><em>View the documentation at <a href="https://internetee.github.io/eeid-doc">internetee.github.io/eeid-doc</a>.</em></p>
+<p align="center"><em>View the documentation at <a href="https://internetee.github.io/eeID-DOC">internetee.github.io/eeid-doc</a>.</em></p>
