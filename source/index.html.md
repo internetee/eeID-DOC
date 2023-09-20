@@ -4,7 +4,7 @@ title: Estonian Internet Foundation's eeID Documentation
 
 toc_footers:
    - <a href='https://internet.ee'>Estonian Internet Foundation</a>
-   - <a href='https://github.com/internetee/eeID-manager'>Sign Up for eeID</a>
+   - <a href='https://eeid.ee'>Sign Up for eeID</a>
    - <a href='https://github.com/slatedocs/slate'>Powered by Slate</a>
 includes:
 
@@ -165,7 +165,7 @@ Optional query parameters:
 An example of an authentication request:
 
 ```shell
-HTTP GET https://auth.eeid.ee/hydra-public/oauth2/auth?client_id=oidc-b8ab3705-c25f-4271-b87d-ecf190aa4982-11
+GET https://auth.eeid.ee/hydra-public/oauth2/auth?client_id=oidc-b8ab3705-c25f-4271-b87d-ecf190aa4982-11
 &redirect_uri=https%3A%2F%2Feservice.institution.ee%2Fcallback
 &response_type=code
 &scope=openid%20idcard%20mid%20smartid%20eidas
@@ -179,7 +179,7 @@ The redirect request is a HTTP GET request which is used to redirect the user ba
 An example of a redirect request:
 
 ```shell
-HTTP GET https://eservice.institution.ee/callback?code=71ed5797c3d957817d31&
+GET https://eservice.institution.ee/callback?code=71ed5797c3d957817d31&
 state=OFfVLKu0kNbJ2EZk
 ```
 <br>
@@ -188,7 +188,7 @@ Request might contain other URL parameters, that client application must ignore.
 If eeID is unable to process an authentication request - there will be an error in the request. eeID transfers an error message (URL parameter `error`) and the description of the error (URL parameter `error_description`) in the redirect request:
 
 ```shell
-HTTP GET https://eservice.institution.ee/callback?error=invalid_scope&error_description=
+GET https://eservice.institution.ee/callback?error=invalid_scope&error_description=
 The+requested+scope+is+invalid%2C+unknown%2C+or+malformed.+The+OAuth+2.0+Client+is+not+allowed+to+request+scope+%27invalid_scope%27.
 &state=0b60fe50138f8fdd56afd2a6ab7a40f9
 ```
@@ -202,7 +202,7 @@ The identity token request is an HTTP POST request which is used by the client a
 An example of an identity token request:
 
 ```shell
-HTTP POST https://auth.eeid.ee/hydra-public/oauth2/token
+POST https://auth.eeid.ee/hydra-public/oauth2/token
 Authorization: Basic czZCaGRSa3F0MzpnWDFmQmF0M2JW
 Content_Type: application/x-www-form-urlencoded
 ```
@@ -243,14 +243,14 @@ User info request enables requesting information about an authenticated user bas
 Example 1 - transferring an access certificate in the `Authorization` header:
 
 ```shell
-HTTP GET https://auth.eeid.ee/hydra-public/userinfo
+GET https://auth.eeid.ee/hydra-public/userinfo
 Auhtorization: Bearer AT-20-qWuioSEtFhYVdW89JJ4yWvtI5SaNWep0
 ```
 <br>
 Example 2 – transferring of access certificate as an `access_token` parameter:
 
 ```shell
-HTTP GET https://auth.eeid.ee/hydra-public/userinfo?access_token=AT-20-qWuioSEtFhYVdW89JJ4yWvtI5SaNWep0
+GET https://auth.eeid.ee/hydra-public/userinfo?access_token=AT-20-qWuioSEtFhYVdW89JJ4yWvtI5SaNWep0
 ```
 <br>
 The valid access token response is provided in the JSON format. Example:
