@@ -371,6 +371,9 @@
                   <li>
                     <a href="#php-openid-connect-example" class="toc-h2 toc-link" data-title="PHP OpenID Connect example">PHP OpenID Connect example</a>
                   </li>
+                  <li>
+                    <a href="#rails-on-rails-with-omniauth-tara" class="toc-h2 toc-link" data-title="Rails on Rails with OmniAuth-Tara">Rails on Rails with OmniAuth-Tara</a>
+                  </li>
               </ul>
           </li>
       </ul>
@@ -392,6 +395,8 @@
 <li>EU-citizen cross-border authentication (i.e. via eIDAS-Node)</li>
 <li>FIDO2 Web Authentication (WebAuthn)</li>
 </ul>
+
+<p>eeID service is based on <a href="https://www.ria.ee/en">Estonian Information System Authorities</a> solution TARA - see the technical specifications <a href="https://e-gov.github.io/TARA-Doku/TechnicalSpecification">here</a>.</p>
 <h1 id='openid-connect'>OpenID Connect</h1>
 <p>The eeID authentication service is based on the OpenID Connect protocol, which is built on top of the OAuth 2.0 authorization framework. It&#39;s designed to provide a secure and standardized way to authenticate users and obtain their basic profile information. OIDC is commonly used in applications that require user authentication, such as web and mobile applications.</p>
 
@@ -1237,7 +1242,321 @@ configuring the service in the <a href="https://eeid.ee">eeID manager</a> (see <
 After signing in you will be sent back and then on the attributes page.</p>
 
 <p><img src="images/claims-a93acf58.png" alt="Claims" /></p>
+<h2 id='rails-on-rails-with-omniauth-tara'>Rails on Rails with OmniAuth-Tara</h2>
+<p>In this example, we will make use of <a href="https://github.com/internetee/omniauth-tara">OmniAuth-Tara</a> gem, which contains the <a href="https://e-gov.github.io/TARA-Doku/TechnicalSpecification">Tara</a> strategy for OmniAuth library that standardizes multi-provider authentication for web applications.</p>
+<h3 id='getting-started-2'>Getting Started</h3>
+<p>Start by generating your Rails application with Bootstrap using ESBuild to build both the JavaScript and CSS files. From the terminal, run the command to do so:</p>
+<div class="highlight"><pre class="highlight shell tab-shell"><code>rails new eeid_demo <span class="nt">-T</span> <span class="nt">-j</span> esbuild <span class="nt">--css</span> bootstrap
+</code></pre></div>
+<p><br>
+Create a partial named <code>_navigation.html.erb</code> to hold your navigation code. The partial should be located in the <code>app/views/layouts</code> directory. Enter the code below into an IDE. It uses Bootstrap to create a navigation bar for your application.</p>
+<div class="highlight"><pre class="highlight erb tab-erb"><code><span class="nt">&lt;nav</span> <span class="na">class=</span><span class="s">"navbar navbar-expand-lg bg-body-tertiary"</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"container-fluid"</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;a</span> <span class="na">class=</span><span class="s">"navbar-brand"</span> <span class="na">href=</span><span class="s">"#"</span><span class="nt">&gt;</span>eeID Demo<span class="nt">&lt;/a&gt;</span>
+    <span class="nt">&lt;button</span> <span class="na">class=</span><span class="s">"navbar-toggler"</span> <span class="na">type=</span><span class="s">"button"</span> <span class="na">data-bs-toggle=</span><span class="s">"collapse"</span> <span class="na">data-bs-target=</span><span class="s">"#navbarNav"</span> <span class="na">aria-controls=</span><span class="s">"navbarNav"</span> <span class="na">aria-expanded=</span><span class="s">"false"</span> <span class="na">aria-label=</span><span class="s">"Toggle navigation"</span><span class="nt">&gt;</span>
+      <span class="nt">&lt;span</span> <span class="na">class=</span><span class="s">"navbar-toggler-icon"</span><span class="nt">&gt;&lt;/span&gt;</span>
+    <span class="nt">&lt;/button&gt;</span>
+    <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"collapse navbar-collapse"</span> <span class="na">id=</span><span class="s">"navbarNav"</span><span class="nt">&gt;</span>
+      <span class="nt">&lt;ul</span> <span class="na">class=</span><span class="s">"navbar-nav"</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;li</span> <span class="na">class=</span><span class="s">"nav-item"</span><span class="nt">&gt;</span>
+          <span class="cp">&lt;%=</span> <span class="n">link_to</span> <span class="s1">'Home'</span><span class="p">,</span> <span class="n">root_path</span><span class="p">,</span> <span class="ss">class: </span><span class="s1">'nav-link active'</span> <span class="cp">%&gt;</span>
+        <span class="nt">&lt;/li&gt;</span>
+      <span class="nt">&lt;/ul&gt;</span>
+    <span class="nt">&lt;/div&gt;</span>
+  <span class="nt">&lt;/div&gt;</span>
+<span class="nt">&lt;/nav&gt;</span>
+</code></pre></div>
+<p><br>
+For the navigation to be used, we need to render it in the application layout. Change application layout to look like this:</p>
+<div class="highlight"><pre class="highlight erb tab-erb"><code><span class="cp">&lt;!DOCTYPE html&gt;</span>
+<span class="nt">&lt;html&gt;</span>
+  <span class="nt">&lt;head&gt;</span>
+    <span class="nt">&lt;title&gt;</span>eeID Demo<span class="nt">&lt;/title&gt;</span>
+    <span class="nt">&lt;meta</span> <span class="na">name=</span><span class="s">"viewport"</span> <span class="na">content=</span><span class="s">"width=device-width,initial-scale=1"</span><span class="nt">&gt;</span>
+    <span class="cp">&lt;%=</span> <span class="n">csrf_meta_tags</span> <span class="cp">%&gt;</span>
+    <span class="cp">&lt;%=</span> <span class="n">csp_meta_tag</span> <span class="cp">%&gt;</span>
 
+    <span class="cp">&lt;%=</span> <span class="n">stylesheet_link_tag</span> <span class="s2">"application"</span><span class="p">,</span> <span class="s2">"data-turbo-track"</span><span class="p">:</span> <span class="s2">"reload"</span> <span class="cp">%&gt;</span>
+    <span class="cp">&lt;%=</span> <span class="n">javascript_include_tag</span> <span class="s2">"application"</span><span class="p">,</span> <span class="s2">"data-turbo-track"</span><span class="p">:</span> <span class="s2">"reload"</span><span class="p">,</span> <span class="ss">defer: </span><span class="kp">true</span> <span class="cp">%&gt;</span>
+  <span class="nt">&lt;/head&gt;</span>
+
+  <span class="nt">&lt;body&gt;</span>
+    <span class="cp">&lt;%=</span> <span class="n">render</span> <span class="s2">"layouts/navigation"</span> <span class="cp">%&gt;</span>
+    <span class="cp">&lt;%</span> <span class="n">flash</span><span class="p">.</span><span class="nf">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="o">|</span> <span class="cp">%&gt;</span>
+      <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"</span><span class="cp">&lt;%=</span> <span class="n">flash_class</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="cp">%&gt;</span><span class="s">"</span><span class="nt">&gt;</span>
+        <span class="cp">&lt;%=</span> <span class="n">value</span> <span class="cp">%&gt;</span>
+      <span class="nt">&lt;/div&gt;</span>
+    <span class="cp">&lt;%</span> <span class="k">end</span> <span class="cp">%&gt;</span>
+    <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"container-fluid"</span><span class="nt">&gt;</span>
+      <span class="cp">&lt;%=</span> <span class="k">yield</span> <span class="cp">%&gt;</span>
+    <span class="nt">&lt;/div&gt;</span>
+  <span class="nt">&lt;/body&gt;</span>
+<span class="nt">&lt;/html&gt;</span>
+</code></pre></div>
+<p><br>
+In order to display flash messages with the Bootstrap alert styles, extend <code>application_helper.rb</code> with the following method:</p>
+<div class="highlight"><pre class="highlight ruby tab-ruby"><code><span class="k">def</span> <span class="nf">flash_class</span><span class="p">(</span><span class="n">level</span><span class="p">)</span>
+  <span class="n">flash_classes</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="ss">notice: </span><span class="s1">'alert alert-info'</span><span class="p">,</span>
+    <span class="ss">success: </span><span class="s1">'alert alert-success'</span><span class="p">,</span>
+    <span class="ss">error: </span><span class="s1">'alert alert-error'</span><span class="p">,</span>
+    <span class="ss">alert: </span><span class="s1">'alert alert-error'</span>
+  <span class="p">}</span>
+
+  <span class="n">flash_classes</span><span class="p">[</span><span class="n">level</span><span class="p">.</span><span class="nf">to_sym</span><span class="p">]</span>
+<span class="k">end</span>
+</code></pre></div>
+<p><br>
+Generate a <code>PagesController</code> with an index action by entering the command below into your terminal.</p>
+<div class="highlight"><pre class="highlight shell tab-shell"><code>rails generate controller Pages index
+</code></pre></div>
+<p><br>
+In the index view generated, edit it to look like this:</p>
+<div class="highlight"><pre class="highlight erb tab-erb"><code><span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"jumbotron"</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;h1&gt;</span>Welcome to eeID Demo!<span class="nt">&lt;/h1&gt;</span>
+<span class="nt">&lt;/div&gt;</span>
+</code></pre></div>
+<p><br>
+Open routes file to add our <code>root_path</code>:</p>
+<div class="highlight"><pre class="highlight shell tab-shell"><code><span class="c"># config/routes.rb</span>
+
+Rails.application.routes.draw <span class="k">do
+  </span>root to: <span class="s1">'pages#index'</span>
+end
+</code></pre></div><h3 id='setting-up-omniauth-tara'>Setting Up OmniAuth-Tara</h3>
+<p>We need to create a new eeID service application. Go to <a href="https://eeid.ee">eeID manager</a> to create one. Enter all the necessary details:</p>
+
+<p><img src="images/demo_service-77f26a45.png" alt="Demo Service" /></p>
+
+<p>For the callback URL, enter your website&#39;s address plus <code>auth/tara/callback</code>. If you happen to be on a local machine, your callback URL should be this: <code>http://127.0.0.1:3000/auth/tara/callback</code></p>
+
+<p>After submitting you will be redirected to the service information page. Copy the <code>Client ID</code> and <code>Client Secret</code> and paste them in a safe place — we will make use of them shortly.
+The callback URL is the URL where a user will be redirected to inside the app after successful authentication and approved authorization (the request will also contain the user’s token). All OmniAuth strategies expect the callback URL to equal <code>/auth/:provider/callback</code>. <code>:provider</code> takes the name of the strategy. In our case, the strategy will be <code>tara</code> as you will list in the initializer.</p>
+
+<p>Open up Gemfile to add the necessary gems:</p>
+<div class="highlight"><pre class="highlight ruby tab-ruby"><code><span class="c1"># Gemfile</span>
+<span class="o">...</span>
+<span class="n">gem</span> <span class="s1">'omniauth'</span><span class="p">,</span> <span class="s1">'&gt;=2.0.0'</span>
+<span class="n">gem</span> <span class="s1">'omniauth-rails_csrf_protection'</span>
+<span class="n">gem</span> <span class="s1">'omniauth-tara'</span><span class="p">,</span> <span class="ss">github: </span><span class="s1">'internetee/omniauth-tara'</span>
+</code></pre></div>
+<p><br>
+Now create an initializer for OmniAuth in your config/initializers directory. This will hold the configuration for OmniAuth:</p>
+<div class="highlight"><pre class="highlight ruby tab-ruby"><code><span class="c1"># config/initializers/omniauth.rb</span>
+
+<span class="c1"># Block GET requests to avoid exposing self to CVE-2015-9284</span>
+<span class="no">OmniAuth</span><span class="p">.</span><span class="nf">config</span><span class="p">.</span><span class="nf">allowed_request_methods</span> <span class="o">=</span> <span class="p">[</span><span class="ss">:post</span><span class="p">]</span>
+
+<span class="no">Rails</span><span class="p">.</span><span class="nf">application</span><span class="p">.</span><span class="nf">config</span><span class="p">.</span><span class="nf">middleware</span><span class="p">.</span><span class="nf">use</span> <span class="no">OmniAuth</span><span class="o">::</span><span class="no">Builder</span> <span class="k">do</span>
+  <span class="n">provider</span> <span class="s1">'tara'</span><span class="p">,</span> <span class="p">{</span>
+    <span class="ss">name: </span><span class="s1">'tara'</span><span class="p">,</span>
+    <span class="ss">scope: </span><span class="no">ENV</span><span class="p">[</span><span class="s1">'SCOPES'</span><span class="p">].</span><span class="nf">split</span><span class="p">(</span><span class="s1">','</span><span class="p">),</span>
+    <span class="ss">state: </span><span class="no">SecureRandom</span><span class="p">.</span><span class="nf">hex</span><span class="p">(</span><span class="mi">10</span><span class="p">),</span>
+    <span class="ss">client_signing_alg: :RS256</span><span class="p">,</span>
+    <span class="ss">send_scope_to_token_endpoint: </span><span class="kp">false</span><span class="p">,</span>
+    <span class="ss">send_nonce: </span><span class="kp">true</span><span class="p">,</span>
+    <span class="ss">issuer: </span><span class="no">ENV</span><span class="p">[</span><span class="s1">'ISSUER'</span><span class="p">],</span>
+    <span class="ss">discovery: </span><span class="kp">true</span><span class="p">,</span>
+
+    <span class="ss">client_options: </span><span class="p">{</span>
+      <span class="ss">identifier: </span><span class="no">ENV</span><span class="p">[</span><span class="s1">'IDENTIFIER'</span><span class="p">],</span>
+      <span class="ss">secret: </span><span class="no">ENV</span><span class="p">[</span><span class="s1">'SECRET'</span><span class="p">],</span>
+      <span class="ss">redirect_uri: </span><span class="no">ENV</span><span class="p">[</span><span class="s1">'REDIRECT_URL'</span><span class="p">],</span>
+    <span class="p">},</span>
+  <span class="p">}</span>
+<span class="k">end</span>
+</code></pre></div>
+<p><br>
+We need to keep all the necesary private data safe as we do not want to push them to a public repository when we commit our code. We will make use of a <a href="https://github.com/bkeepers/dotenv">special gem</a> for this. Open Gemfile again and add the gem below. Add it to Gemfile like so:</p>
+<div class="highlight"><pre class="highlight ruby tab-ruby"><code><span class="c1"># Gemfile</span>
+<span class="o">...</span>
+<span class="n">group</span> <span class="ss">:development</span><span class="p">,</span> <span class="ss">:test</span> <span class="k">do</span>
+  <span class="o">...</span>
+  <span class="n">gem</span> <span class="s1">'dotenv-rails'</span>
+<span class="o">...</span>
+</code></pre></div>
+<p><br>
+To install the gems, run:</p>
+<div class="highlight"><pre class="highlight shell tab-shell"><code>bundle <span class="nb">install</span>
+</code></pre></div>
+<p><br>
+In the home directory create a file called <code>.env</code>.</p>
+<div class="highlight"><pre class="highlight ruby tab-ruby"><code><span class="c1"># .env</span>
+
+<span class="no">ISSUER</span><span class="o">=</span><span class="s2">"https://test-auth.eeid.ee/hydra-public/"</span>
+<span class="no">IDENTIFIER</span><span class="o">=</span><span class="s2">"&lt;your-eeid-client-id&gt;"</span>
+<span class="no">SECRET</span><span class="o">=</span><span class="s2">"&lt;your-eeid-secret&gt;"</span>
+<span class="no">REDIRECT_URL</span><span class="o">=</span><span class="s2">"http://localhost:3000/auth/tara/callback"</span>
+<span class="no">SCOPES</span><span class="o">=</span><span class="s2">"openid,idcard,mid,smartid"</span>
+</code></pre></div>
+<p><br>
+Open <code>.gitignore</code> and add the file we just created.</p>
+<div class="highlight"><pre class="highlight ruby tab-ruby"><code><span class="c1"># .gitignore</span>
+<span class="o">...</span>
+<span class="c1"># Ignore .env used for storing id and secret</span>
+<span class="p">.</span><span class="nf">env</span>
+</code></pre></div>
+<p><br>
+Time to work on our routes. Open up the routes file and add the route below:</p>
+<div class="highlight"><pre class="highlight ruby tab-ruby"><code><span class="c1"># config/routes.rb</span>
+
+<span class="no">Rails</span><span class="p">.</span><span class="nf">application</span><span class="p">.</span><span class="nf">routes</span><span class="p">.</span><span class="nf">draw</span> <span class="k">do</span>
+  <span class="o">...</span>
+  <span class="n">get</span> <span class="s1">'/auth/:provider/callback'</span><span class="p">,</span> <span class="ss">to: </span><span class="s1">'sessions#create'</span>
+  <span class="o">...</span>
+<span class="k">end</span>
+</code></pre></div>
+<p><br>
+We need to add the link for eeID sign-in to navigation and to show this link only when the user is not signed in. Open navigation file and change it to look like this:</p>
+<div class="highlight"><pre class="highlight erb tab-erb"><code><span class="nt">&lt;nav</span> <span class="na">class=</span><span class="s">"navbar navbar-expand-lg bg-body-tertiary"</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"container-fluid"</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;a</span> <span class="na">class=</span><span class="s">"navbar-brand"</span> <span class="na">href=</span><span class="s">"#"</span><span class="nt">&gt;</span>eeID Demo<span class="nt">&lt;/a&gt;</span>
+    <span class="nt">&lt;button</span> <span class="na">class=</span><span class="s">"navbar-toggler"</span> <span class="na">type=</span><span class="s">"button"</span> <span class="na">data-bs-toggle=</span><span class="s">"collapse"</span> <span class="na">data-bs-target=</span><span class="s">"#navbarNav"</span> <span class="na">aria-controls=</span><span class="s">"navbarNav"</span> <span class="na">aria-expanded=</span><span class="s">"false"</span> <span class="na">aria-label=</span><span class="s">"Toggle navigation"</span><span class="nt">&gt;</span>
+      <span class="nt">&lt;span</span> <span class="na">class=</span><span class="s">"navbar-toggler-icon"</span><span class="nt">&gt;&lt;/span&gt;</span>
+    <span class="nt">&lt;/button&gt;</span>
+    <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"collapse navbar-collapse"</span> <span class="na">id=</span><span class="s">"navbarNav"</span><span class="nt">&gt;</span>
+      <span class="nt">&lt;ul</span> <span class="na">class=</span><span class="s">"navbar-nav"</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;li</span> <span class="na">class=</span><span class="s">"nav-item"</span><span class="nt">&gt;</span>
+          <span class="cp">&lt;%=</span> <span class="n">link_to</span> <span class="s1">'Home'</span><span class="p">,</span> <span class="n">root_path</span><span class="p">,</span> <span class="ss">class: </span><span class="s1">'nav-link active'</span> <span class="cp">%&gt;</span>
+        <span class="nt">&lt;/li&gt;</span>
+        <span class="cp">&lt;%</span> <span class="k">if</span> <span class="n">current_user</span> <span class="cp">%&gt;</span>
+          <span class="nt">&lt;li</span> <span class="na">class=</span><span class="s">"nav-item nav-link"</span><span class="nt">&gt;</span>Signed in as <span class="cp">&lt;%=</span> <span class="n">current_user</span><span class="p">.</span><span class="nf">first_name</span> <span class="cp">%&gt;</span><span class="nt">&lt;/li&gt;</span>
+        <span class="cp">&lt;%</span> <span class="k">else</span> <span class="cp">%&gt;</span>
+          <span class="nt">&lt;li</span> <span class="na">class=</span><span class="s">"nav-item"</span><span class="nt">&gt;</span><span class="cp">&lt;%=</span> <span class="n">button_to</span> <span class="s1">'Sign in with eeID'</span><span class="p">,</span> <span class="s1">'/auth/tara'</span><span class="p">,</span> <span class="ss">class: </span><span class="s1">'nav-link'</span><span class="p">,</span> <span class="ss">data: </span><span class="p">{</span> <span class="ss">turbo: </span><span class="kp">false</span> <span class="p">}</span> <span class="cp">%&gt;</span><span class="nt">&lt;/li&gt;</span>
+        <span class="cp">&lt;%</span> <span class="k">end</span> <span class="cp">%&gt;</span>
+      <span class="nt">&lt;/ul&gt;</span>
+    <span class="nt">&lt;/div&gt;</span>
+  <span class="nt">&lt;/div&gt;</span>
+<span class="nt">&lt;/nav&gt;</span>
+</code></pre></div><h3 id='creating-sessions'>Creating Sessions</h3>
+<p>We&#39;ll need a session controller to handle the logging in of users. Create a file for that in controllers directory. The <code>create</code> action helps create a session for users so they can be logged into your application. Without this, users have no means of logging in.</p>
+<div class="highlight"><pre class="highlight ruby tab-ruby"><code><span class="c1"># app/controllers/sessions_controller.rb</span>
+
+<span class="k">class</span> <span class="nc">SessionsController</span> <span class="o">&lt;</span> <span class="no">ApplicationController</span>
+  <span class="k">def</span> <span class="nf">create</span>
+    <span class="vi">@user</span> <span class="o">=</span> <span class="no">User</span><span class="p">.</span><span class="nf">find_or_create_from_auth_hash</span><span class="p">(</span><span class="n">auth_hash</span><span class="p">)</span>
+    <span class="n">session</span><span class="p">[</span><span class="ss">:user_id</span><span class="p">]</span> <span class="o">=</span> <span class="vi">@user</span><span class="p">.</span><span class="nf">id</span>
+    <span class="n">flash</span><span class="p">[</span><span class="ss">:success</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'Sucessfully logged in!'</span>
+    <span class="n">redirect_to</span> <span class="n">root_path</span>
+  <span class="k">end</span>
+
+  <span class="kp">protected</span>
+
+  <span class="k">def</span> <span class="nf">auth_hash</span>
+    <span class="n">request</span><span class="p">.</span><span class="nf">env</span><span class="p">[</span><span class="s1">'omniauth.auth'</span><span class="p">]</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</code></pre></div>
+<p><br>
+We&#39;ll need a <code>current_user</code> method at this point. This will help us check if a user is logged in or out.
+Open <code>app/controllers/application_controller.rb</code> and add the following:</p>
+<div class="highlight"><pre class="highlight ruby tab-ruby"><code><span class="c1"># app/controllers/application_controller.rb</span>
+
+<span class="k">class</span> <span class="nc">ApplicationController</span> <span class="o">&lt;</span> <span class="no">ActionController</span><span class="o">::</span><span class="no">Base</span>
+  <span class="o">...</span>
+  <span class="k">def</span> <span class="nf">current_user</span>
+    <span class="vi">@current_user</span> <span class="o">||=</span> <span class="no">User</span><span class="p">.</span><span class="nf">find</span><span class="p">(</span><span class="n">session</span><span class="p">[</span><span class="ss">:user_id</span><span class="p">])</span> <span class="k">if</span> <span class="n">session</span><span class="p">[</span><span class="ss">:user_id</span><span class="p">]</span>
+  <span class="k">end</span>
+
+  <span class="n">helper_method</span> <span class="ss">:current_user</span>
+  <span class="o">...</span>
+<span class="k">end</span>
+</code></pre></div><h3 id='user-model'>User Model</h3>
+<p>Now generate a model for Users. Run this command to do so:</p>
+<div class="highlight"><pre class="highlight shell tab-shell"><code>rails generate model User provider:string uid:string first_name:string last_name:string token:string
+</code></pre></div>
+<p><br>
+That should generate a migration file that looks like this:</p>
+<div class="highlight"><pre class="highlight ruby tab-ruby"><code><span class="k">class</span> <span class="nc">CreateUsers</span> <span class="o">&lt;</span> <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Migration</span><span class="p">[</span><span class="mf">7.0</span><span class="p">]</span>
+  <span class="k">def</span> <span class="nf">change</span>
+    <span class="n">create_table</span> <span class="ss">:users</span> <span class="k">do</span> <span class="o">|</span><span class="n">t</span><span class="o">|</span>
+      <span class="n">t</span><span class="p">.</span><span class="nf">string</span> <span class="ss">:provider</span>
+      <span class="n">t</span><span class="p">.</span><span class="nf">string</span> <span class="ss">:uid</span>
+      <span class="n">t</span><span class="p">.</span><span class="nf">string</span> <span class="ss">:first_name</span>
+      <span class="n">t</span><span class="p">.</span><span class="nf">string</span> <span class="ss">:last_name</span>
+      <span class="n">t</span><span class="p">.</span><span class="nf">string</span> <span class="ss">:token</span>
+
+      <span class="n">t</span><span class="p">.</span><span class="nf">timestamps</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</code></pre></div>
+<p><br>
+Now migrate database by running:</p>
+<div class="highlight"><pre class="highlight shell tab-shell"><code>rake db:migrate
+</code></pre></div>
+<p><br>
+Open up User model and make it look like this:</p>
+<div class="highlight"><pre class="highlight ruby tab-ruby"><code><span class="c1"># app/models/user.rb</span>
+
+<span class="k">class</span> <span class="nc">User</span> <span class="o">&lt;</span> <span class="no">ApplicationRecord</span>
+  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">find_or_create_from_auth_hash</span><span class="p">(</span><span class="n">auth_hash</span><span class="p">)</span>
+    <span class="n">user</span> <span class="o">=</span> <span class="n">where</span><span class="p">(</span><span class="ss">provider: </span><span class="n">auth_hash</span><span class="p">.</span><span class="nf">provider</span><span class="p">,</span> <span class="ss">uid: </span><span class="n">auth_hash</span><span class="p">.</span><span class="nf">uid</span><span class="p">).</span><span class="nf">first_or_create</span>
+    <span class="n">user</span><span class="p">.</span><span class="nf">update</span><span class="p">(</span>
+      <span class="ss">first_name: </span><span class="n">auth_hash</span><span class="p">.</span><span class="nf">info</span><span class="p">.</span><span class="nf">first_name</span><span class="p">,</span>
+      <span class="ss">last_name: </span><span class="n">auth_hash</span><span class="p">.</span><span class="nf">info</span><span class="p">.</span><span class="nf">last_name</span><span class="p">,</span>
+      <span class="ss">token: </span><span class="n">auth_hash</span><span class="p">.</span><span class="nf">credentials</span><span class="p">.</span><span class="nf">token</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">user</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</code></pre></div>
+<p><br>
+The code above stores some information belonging to the user. This includes the <code>first_name</code>, <code>last_name</code> and <code>token</code> of the user.</p>
+<h3 id='deleting-sessions'>Deleting Sessions</h3>
+<p>In our application, we want to provide users the ability to log out. We will need a <code>destroy</code> action in <code>SessionsController</code> for this to work. Then a link will be added to navigation.</p>
+
+<p>Add the <code>destroy</code> action to <code>SessionsController</code>:</p>
+<div class="highlight"><pre class="highlight ruby tab-ruby"><code><span class="c1"># app/controllers/sessions_controller.rb</span>
+
+<span class="k">class</span> <span class="nc">SessionsController</span> <span class="o">&lt;</span> <span class="no">ApplicationController</span>  
+  <span class="o">...</span>
+  <span class="k">def</span> <span class="nf">destroy</span>
+    <span class="k">if</span> <span class="n">current_user</span>
+      <span class="n">session</span><span class="p">.</span><span class="nf">delete</span><span class="p">(</span><span class="ss">:user_id</span><span class="p">)</span>
+      <span class="n">flash</span><span class="p">[</span><span class="ss">:success</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"Sucessfully logged out!"</span>
+    <span class="k">end</span>
+    <span class="n">redirect_to</span> <span class="n">root_path</span>
+  <span class="k">end</span>
+  <span class="o">...</span>
+<span class="k">end</span>
+</code></pre></div>
+<p><br>
+Then add this link for logging out to navigation, so our navigation looks like this:</p>
+<div class="highlight"><pre class="highlight erb tab-erb"><code><span class="nt">&lt;nav</span> <span class="na">class=</span><span class="s">"navbar navbar-expand-lg bg-body-tertiary"</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"container-fluid"</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;a</span> <span class="na">class=</span><span class="s">"navbar-brand"</span> <span class="na">href=</span><span class="s">"#"</span><span class="nt">&gt;</span>eeID Demo<span class="nt">&lt;/a&gt;</span>
+    <span class="nt">&lt;button</span> <span class="na">class=</span><span class="s">"navbar-toggler"</span> <span class="na">type=</span><span class="s">"button"</span> <span class="na">data-bs-toggle=</span><span class="s">"collapse"</span> <span class="na">data-bs-target=</span><span class="s">"#navbarNav"</span> <span class="na">aria-controls=</span><span class="s">"navbarNav"</span> <span class="na">aria-expanded=</span><span class="s">"false"</span> <span class="na">aria-label=</span><span class="s">"Toggle navigation"</span><span class="nt">&gt;</span>
+      <span class="nt">&lt;span</span> <span class="na">class=</span><span class="s">"navbar-toggler-icon"</span><span class="nt">&gt;&lt;/span&gt;</span>
+    <span class="nt">&lt;/button&gt;</span>
+    <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"collapse navbar-collapse"</span> <span class="na">id=</span><span class="s">"navbarNav"</span><span class="nt">&gt;</span>
+      <span class="nt">&lt;ul</span> <span class="na">class=</span><span class="s">"navbar-nav"</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;li</span> <span class="na">class=</span><span class="s">"nav-item"</span><span class="nt">&gt;</span>
+          <span class="cp">&lt;%=</span> <span class="n">link_to</span> <span class="s1">'Home'</span><span class="p">,</span> <span class="n">root_path</span><span class="p">,</span> <span class="ss">class: </span><span class="s1">'nav-link active'</span> <span class="cp">%&gt;</span>
+        <span class="nt">&lt;/li&gt;</span>
+        <span class="cp">&lt;%</span> <span class="k">if</span> <span class="n">current_user</span> <span class="cp">%&gt;</span>
+          <span class="nt">&lt;li</span> <span class="na">class=</span><span class="s">"nav-item nav-link"</span><span class="nt">&gt;</span>Signed in as <span class="cp">&lt;%=</span> <span class="n">current_user</span><span class="p">.</span><span class="nf">first_name</span> <span class="cp">%&gt;</span><span class="nt">&lt;/li&gt;</span>
+          <span class="nt">&lt;li</span> <span class="na">class=</span><span class="s">"nav-item"</span><span class="nt">&gt;</span><span class="cp">&lt;%=</span> <span class="n">button_to</span> <span class="s1">'Log Out'</span><span class="p">,</span> <span class="n">logout_path</span><span class="p">,</span> <span class="ss">method: :delete</span><span class="p">,</span> <span class="ss">class: </span><span class="s1">'nav-link'</span><span class="p">,</span> <span class="ss">data: </span><span class="p">{</span> <span class="ss">turbo: </span><span class="kp">false</span> <span class="p">}</span> <span class="cp">%&gt;</span><span class="nt">&lt;/li&gt;</span>
+        <span class="cp">&lt;%</span> <span class="k">else</span> <span class="cp">%&gt;</span>
+          <span class="nt">&lt;li</span> <span class="na">class=</span><span class="s">"nav-item"</span><span class="nt">&gt;</span><span class="cp">&lt;%=</span> <span class="n">button_to</span> <span class="s1">'Sign in with eeID'</span><span class="p">,</span> <span class="s1">'/auth/tara'</span><span class="p">,</span> <span class="ss">class: </span><span class="s1">'nav-link'</span><span class="p">,</span> <span class="ss">data: </span><span class="p">{</span> <span class="ss">turbo: </span><span class="kp">false</span> <span class="p">}</span> <span class="cp">%&gt;</span><span class="nt">&lt;/li&gt;</span>
+        <span class="cp">&lt;%</span> <span class="k">end</span> <span class="cp">%&gt;</span>
+      <span class="nt">&lt;/ul&gt;</span>
+    <span class="nt">&lt;/div&gt;</span>
+  <span class="nt">&lt;/div&gt;</span>
+<span class="nt">&lt;/nav&gt;</span>
+</code></pre></div>
+<p><br>
+Open up <code>config/routes.rb</code> to update our routes with the action we just created.</p>
+<div class="highlight"><pre class="highlight ruby tab-ruby"><code><span class="no">Rails</span><span class="p">.</span><span class="nf">application</span><span class="p">.</span><span class="nf">routes</span><span class="p">.</span><span class="nf">draw</span> <span class="k">do</span>
+  <span class="o">...</span>
+  <span class="n">delete</span> <span class="s1">'/logout'</span><span class="p">,</span> <span class="ss">to: </span><span class="s1">'sessions#destroy'</span>
+  <span class="o">...</span>
+<span class="k">end</span>
+</code></pre></div>
+<p><br>
+Start up rails server and point browser to <a href="http://localhost:3000">http://localhost:3000</a>.</p>
+<div class="highlight"><pre class="highlight shell tab-shell"><code>bin/dev
+</code></pre></div>
       </div>
     </div>
   </body>
