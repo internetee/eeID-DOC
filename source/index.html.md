@@ -22,6 +22,8 @@ Welcome to the Estonian Internet Foundation's eeID documentation! This document 
 - EU-citizen cross-border authentication (i.e. via eIDAS-Node)
 - FIDO2 Web Authentication (WebAuthn)
 
+eeID service is based on [Estonian Information System Authorities](https://www.ria.ee/en) solution TARA - see the technical specifications [here](https://e-gov.github.io/TARA-Doku/TechnicalSpecification).
+
 # OpenID Connect
 
 The eeID authentication service is based on the OpenID Connect protocol, which is built on top of the OAuth 2.0 authorization framework. It's designed to provide a secure and standardized way to authenticate users and obtain their basic profile information. OIDC is commonly used in applications that require user authentication, such as web and mobile applications.
@@ -750,3 +752,384 @@ configuring the service in the [eeID manager](https://eeid.ee) (see [Getting Sta
 After signing in you will be sent back and then on the attributes page.
 
 ![Claims](images/claims.png)
+
+## Rails on Rails with OmniAuth-Tara
+
+In this example, we will make use of [OmniAuth-Tara](https://github.com/internetee/omniauth-tara) gem, which contains the [Tara](https://e-gov.github.io/TARA-Doku/TechnicalSpecification) strategy for OmniAuth library that standardizes multi-provider authentication for web applications.
+
+### Getting Started
+
+Start by generating your Rails application with Bootstrap using ESBuild to build both the JavaScript and CSS files. From the terminal, run the command to do so:
+
+```shell
+rails new eeid_demo -T -j esbuild --css bootstrap
+```
+<br>
+Create a partial named `_navigation.html.erb` to hold your navigation code. The partial should be located in the `app/views/layouts` directory. Enter the code below into an IDE. It uses Bootstrap to create a navigation bar for your application.
+
+```erb
+<nav class="navbar navbar-expand-lg bg-body-tertiary">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="#">eeID Demo</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav">
+        <li class="nav-item">
+          <%= link_to 'Home', root_path, class: 'nav-link active' %>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+```
+<br>
+For the navigation to be used, we need to render it in the application layout. Change application layout to look like this:
+
+```erb
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>eeID Demo</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+    <%= javascript_include_tag "application", "data-turbo-track": "reload", defer: true %>
+  </head>
+
+  <body>
+    <%= render "layouts/navigation" %>
+    <% flash.each do |key, value| %>
+      <div class="<%= flash_class(key) %>">
+        <%= value %>
+      </div>
+    <% end %>
+    <div class="container-fluid">
+      <%= yield %>
+    </div>
+  </body>
+</html>
+```
+<br>
+In order to display flash messages with the Bootstrap alert styles, extend `application_helper.rb` with the following method:
+
+```ruby
+def flash_class(level)
+  flash_classes = {
+    notice: 'alert alert-info',
+    success: 'alert alert-success',
+    error: 'alert alert-error',
+    alert: 'alert alert-error'
+  }
+
+  flash_classes[level.to_sym]
+end
+```
+<br>
+Generate a `PagesController` with an index action by entering the command below into your terminal.
+
+```shell
+rails generate controller Pages index
+```
+<br>
+In the index view generated, edit it to look like this:
+
+```erb
+<div class="jumbotron">
+  <h1>Welcome to eeID Demo!</h1>
+</div>
+```
+<br>
+Open routes file to add our `root_path`:
+
+```shell
+# config/routes.rb
+
+Rails.application.routes.draw do
+  root to: 'pages#index'
+end
+```
+
+### Setting Up OmniAuth-Tara
+
+We need to create a new eeID service application. Go to [eeID manager](https://eeid.ee) to create one. Enter all the necessary details:
+
+![Demo Service](images/demo_service.png)
+
+For the callback URL, enter your website's address plus `auth/tara/callback`. If you happen to be on a local machine, your callback URL should be this: `http://127.0.0.1:3000/auth/tara/callback`
+
+After submitting you will be redirected to the service information page. Copy the `Client ID` and `Client Secret` and paste them in a safe place — we will make use of them shortly.
+The callback URL is the URL where a user will be redirected to inside the app after successful authentication and approved authorization (the request will also contain the user’s token). All OmniAuth strategies expect the callback URL to equal `/auth/:provider/callback`. `:provider` takes the name of the strategy. In our case, the strategy will be `tara` as you will list in the initializer.
+
+Open up Gemfile to add the necessary gems:
+
+```ruby
+# Gemfile
+...
+gem 'omniauth', '>=2.0.0'
+gem 'omniauth-rails_csrf_protection'
+gem 'omniauth-tara', github: 'internetee/omniauth-tara'
+```
+<br>
+Now create an initializer for OmniAuth in your config/initializers directory. This will hold the configuration for OmniAuth:
+
+```ruby
+# config/initializers/omniauth.rb
+
+# Block GET requests to avoid exposing self to CVE-2015-9284
+OmniAuth.config.allowed_request_methods = [:post]
+
+Rails.application.config.middleware.use OmniAuth::Builder do
+  provider 'tara', {
+    name: 'tara',
+    scope: ENV['SCOPES'].split(','),
+    state: SecureRandom.hex(10),
+    client_signing_alg: :RS256,
+    send_scope_to_token_endpoint: false,
+    send_nonce: true,
+    issuer: ENV['ISSUER'],
+    discovery: true,
+
+    client_options: {
+      identifier: ENV['IDENTIFIER'],
+      secret: ENV['SECRET'],
+      redirect_uri: ENV['REDIRECT_URL'],
+    },
+  }
+end
+```
+<br>
+We need to keep all the necesary private data safe as we do not want to push them to a public repository when we commit our code. We will make use of a [special gem](https://github.com/bkeepers/dotenv) for this. Open Gemfile again and add the gem below. Add it to Gemfile like so:
+
+```ruby
+# Gemfile
+...
+group :development, :test do
+  ...
+  gem 'dotenv-rails'
+...
+```
+<br>
+To install the gems, run:
+
+```shell
+bundle install
+```
+<br>
+In the home directory create a file called `.env`.
+
+```ruby
+# .env
+
+ISSUER="https://test-auth.eeid.ee/hydra-public/"
+IDENTIFIER="<your-eeid-client-id>"
+SECRET="<your-eeid-secret>"
+REDIRECT_URL="http://localhost:3000/auth/tara/callback"
+SCOPES="openid,idcard,mid,smartid"
+```
+<br>
+Open `.gitignore` and add the file we just created.
+
+```ruby
+# .gitignore
+...
+# Ignore .env used for storing id and secret
+.env
+```
+<br>
+Time to work on our routes. Open up the routes file and add the route below:
+
+```ruby
+# config/routes.rb
+
+Rails.application.routes.draw do
+  ...
+  get '/auth/:provider/callback', to: 'sessions#create'
+  ...
+end
+```
+<br>
+We need to add the link for eeID sign-in to navigation and to show this link only when the user is not signed in. Open navigation file and change it to look like this:
+
+```erb
+<nav class="navbar navbar-expand-lg bg-body-tertiary">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="#">eeID Demo</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav">
+        <li class="nav-item">
+          <%= link_to 'Home', root_path, class: 'nav-link active' %>
+        </li>
+        <% if current_user %>
+          <li class="nav-item nav-link">Signed in as <%= current_user.first_name %></li>
+        <% else %>
+          <li class="nav-item"><%= button_to 'Sign in with eeID', '/auth/tara', class: 'nav-link', data: { turbo: false } %></li>
+        <% end %>
+      </ul>
+    </div>
+  </div>
+</nav>
+```
+
+### Creating Sessions
+
+We'll need a session controller to handle the logging in of users. Create a file for that in controllers directory. The `create` action helps create a session for users so they can be logged into your application. Without this, users have no means of logging in.
+
+```ruby
+# app/controllers/sessions_controller.rb
+
+class SessionsController < ApplicationController
+  def create
+    @user = User.find_or_create_from_auth_hash(auth_hash)
+    session[:user_id] = @user.id
+    flash[:success] = 'Sucessfully logged in!'
+    redirect_to root_path
+  end
+
+  protected
+
+  def auth_hash
+    request.env['omniauth.auth']
+  end
+end
+```
+<br>
+We'll need a `current_user` method at this point. This will help us check if a user is logged in or out.
+Open `app/controllers/application_controller.rb` and add the following:
+
+```ruby
+# app/controllers/application_controller.rb
+
+class ApplicationController < ActionController::Base
+  ...
+  def current_user
+    @current_user ||= User.find(session[:user_id]) if session[:user_id]
+  end
+
+  helper_method :current_user
+  ...
+end
+```
+
+### User Model
+
+Now generate a model for Users. Run this command to do so:
+
+```shell
+rails generate model User provider:string uid:string first_name:string last_name:string token:string
+```
+<br>
+That should generate a migration file that looks like this:
+
+```ruby
+class CreateUsers < ActiveRecord::Migration[7.0]
+  def change
+    create_table :users do |t|
+      t.string :provider
+      t.string :uid
+      t.string :first_name
+      t.string :last_name
+      t.string :token
+
+      t.timestamps
+    end
+  end
+end
+```
+<br>
+Now migrate database by running:
+
+```shell
+rake db:migrate
+```
+<br>
+Open up User model and make it look like this:
+
+```ruby
+# app/models/user.rb
+
+class User < ApplicationRecord
+  def self.find_or_create_from_auth_hash(auth_hash)
+    user = where(provider: auth_hash.provider, uid: auth_hash.uid).first_or_create
+    user.update(
+      first_name: auth_hash.info.first_name,
+      last_name: auth_hash.info.last_name,
+      token: auth_hash.credentials.token,
+    )
+    user
+  end
+end
+```
+<br>
+The code above stores some information belonging to the user. This includes the `first_name`, `last_name` and `token` of the user.
+
+### Deleting Sessions
+
+In our application, we want to provide users the ability to log out. We will need a `destroy` action in `SessionsController` for this to work. Then a link will be added to navigation.
+
+Add the `destroy` action to `SessionsController`:
+
+```ruby
+# app/controllers/sessions_controller.rb
+
+class SessionsController < ApplicationController  
+  ...
+  def destroy
+    if current_user
+      session.delete(:user_id)
+      flash[:success] = "Sucessfully logged out!"
+    end
+    redirect_to root_path
+  end
+  ...
+end
+```
+<br>
+Then add this link for logging out to navigation, so our navigation looks like this:
+
+```erb
+<nav class="navbar navbar-expand-lg bg-body-tertiary">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="#">eeID Demo</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav">
+        <li class="nav-item">
+          <%= link_to 'Home', root_path, class: 'nav-link active' %>
+        </li>
+        <% if current_user %>
+          <li class="nav-item nav-link">Signed in as <%= current_user.first_name %></li>
+          <li class="nav-item"><%= button_to 'Log Out', logout_path, method: :delete, class: 'nav-link', data: { turbo: false } %></li>
+        <% else %>
+          <li class="nav-item"><%= button_to 'Sign in with eeID', '/auth/tara', class: 'nav-link', data: { turbo: false } %></li>
+        <% end %>
+      </ul>
+    </div>
+  </div>
+</nav>
+```
+<br>
+Open up `config/routes.rb` to update our routes with the action we just created.
+
+```ruby
+Rails.application.routes.draw do
+  ...
+  delete '/logout', to: 'sessions#destroy'
+  ...
+end
+```
+<br>
+Start up rails server and point browser to [http://localhost:3000](http://localhost:3000).
+
+```shell
+bin/dev
+```
+
