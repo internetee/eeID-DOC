@@ -225,7 +225,7 @@ Element        | Description
 `code` | The authorization code received from the authentication service
 `redirect_url`| The redirect URL sent in the authorisation request
 
-The server verifies that the access token is requested by the right application and issues the access token included in the response body. The response body uses JSON format consisting four elements:
+The server verifies that the identity token is requested by the right application and issues the identity token included in the response body. The response body uses JSON format consisting four elements:
 
 Element        | Description
 -------------- | --------------
@@ -234,13 +234,63 @@ Element        | Description
 `expires_in`| The validity period of the OAuth 2.0 access token
 `id_token` | Identity token. Presented in [JWS Compact Serialization](https://tools.ietf.org/html/rfc7515#section-3.1) form
 
-Response body might contain other fields, that client application must ignore. The identity token is a certificate of the fact of authentication issued by eeID. The identity token is issued in [JSON Web Token](https://jwt.io/), JWT format. The identity token is always [signed](https://tools.ietf.org/html/rfc7515#section-5.2).
+The identity token is a certificate of the fact of authentication issued by eeID. The identity token is issued in [JSON Web Token](https://jwt.io/), JWT format. The identity token is always [signed](https://tools.ietf.org/html/rfc7515#section-5.2). Example:
 
-The client application must obtain the identity token immediately or within 30 seconds (before the expiry time of the identity token).
+```json
+{
+  "jti": "0c597356-3771-4315-a129-c7bc1f02a1b2",
+  "iss": "https://auth.eeid.ee",
+  "aud": "oidc-b8ab3705-c25f-4271-b87d-ecf190aa4982-12",
+  "exp": 1530295852,
+  "iat": 1530267052,
+  "nbf": 1530266752,
+  "sub": "EE60001019906",
+  "profile_attributes": {
+    "date_of_birth": "2000-01-01",
+    "family_name": "O’CONNEŽ-ŠUSLIK TESTNUMBER",
+    "given_name": "MARY ÄNN"
+  },
+  "amr": [
+    "mID"
+  ],
+  "state": "1OnH3qwltWy81fKqcmjYTqnco9yVQ2gGZXws/DBLNvQ=",
+  "nonce": "",
+  "at_hash": "X0MVjwrmMQs/IBzfU2osvw=="
+}
+```
+<br>
+The following claims are presented in the identity token:
+
+| JSON element (claim)             | Description
+| --------------------------- | ----------------
+| `jti` | Identity token identifier
+| `iss` | Issuer of the certificate
+| `aud` | ID of a client application that requested authentication (the value of `client_id` field specified upon directing the user to the authentication process)
+| `exp` | `1530295852` - expiration time of the certificate (in Unix epoch format)
+| `iat` | `1530295852` - time of issue of the certificate (in Unix epoch format)
+| `nbf` | `1530295852` - validity start time of the certificate (in Unix epoch format)
+| `sub` | The identifier of the authenticated user (personal identification code or eIDAS identifier) with the prefix of the country code of the citizen (country codes based on [the ISO 3166-1 alpha-2 standard](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2#:~:text=ISO%203166%2D1%20alpha%2D2%20codes%20are%20two%2Dletter,special%20areas%20of%20geographical%20interest.)).
+| `profile_attributes` | The data of the authenticated user, including the eIDAS attributes
+| `profile_attributes.date_of_birth` | `2000-01-01` - the date of birth of the authenticated user in the ISO_8601 format.
+| `profile_attributes.given_name` | The first name of the authenticated user
+| `profile_attributes.family_name` | The surname of the authenticated user
+| `amr` | The authentication method used for user authentication. Example values: `mID` - Mobile-ID, `idcard` - Estonian ID card, `eIDAS` - cross-border, `smartid` - Smart-ID
+| `acr` | `high` - level of authentication based on the eIDAS LoA (level of assurance). Possible values: `low`, `substantial`, `high`
+| `state` | The authentication request's `state` parameter value
+| `nonce` | The authentication request's `nonce` parameter value. Value is present only in case the `nonce` parameter was sent in the authentication request
+| `at_hash` | The access token hash (not used)
+| `email` | The user's e-mail address (if present)
+| `email_verified` | `false` - the e-mail address of the user has not been verified
+| `phone_number` | `+37200000766` - the phone number is presented in E.164 format and prefixed by a country code (if present)
+| `phone_number_verified` | `true` - the ownership of the phone number to the authenticating user has been confirmed
+
+Identity token might consist of other OpenID Connect protocol based fields that are not supported by eeID.
+
+The client application must obtain the identity token immediately or within `30` seconds (before the expiry time of the identity token).
 
 ## User info request
 
-User info request enables requesting information about an authenticated user based on a valid OAuth 2.0 access token. The request must be done by using the HTTP GET method. The access token must be presented to the user info endpoint in the HTTP header by using [the Bearer Token method](https://tools.ietf.org/html/rfc6750#section-2.1) or as a [URLi parameter](https://tools.ietf.org/html/rfc6750#section-2.3).
+User info request enables requesting information about an authenticated user based on a valid `OAuth 2.0` access token. The request must be done by using the HTTP GET method. The access token must be presented to the user info endpoint in the HTTP header by using [the Bearer Token method](https://tools.ietf.org/html/rfc6750#section-2.1) or as a [URLi parameter](https://tools.ietf.org/html/rfc6750#section-2.3).
 
 Example 1 - transferring an access certificate in the `Authorization` header:
 
@@ -259,19 +309,13 @@ The valid access token response is provided in the JSON format. Example:
 
 ```json
 {
-   "acr": "high",
-   "amr": [
-      "smartid"
-   ],
-   "profile_attributes": {
-      "authentication_type": "SMART_ID",
-      "date_of_birth": "2000-01-01",
-      "family_name": "O’CONNEŽ-ŠUSLIK TESTNUMBER",
-      "given_name": "MARY ÄNN",
-   },
-   "sub": "EE60001019906",
-   "auth_time": 1694591147,
-   "state": "2093077beb6d063ea65e61fa4c9b2814"
+  "acr": "high",
+  "auth_time": 1694591147,
+  "authentication_type": "SMART_ID",
+  "date_of_birth": "2000-01-01",
+  "family_name": "O’CONNEŽ-ŠUSLIK TESTNUMBER",
+  "given_name": "MARY ÄNN",
+  "sub": "EE60001019906",
 }
 ```
 <br>
@@ -279,18 +323,13 @@ The claims included in the response are issued based on the identity token.
 
 | JSON element (claim)        | Description
 | --------------------------- | ----------------
-| `auth_time` | The time of successful authentication of the user.
-| `sub` | The identifier of the authenticated user (personal identification code or eIDAS identifier) with the prefix of the country code of the citizen (country codes based on [the ISO 3166-1 alpha-2 standard](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2#:~:text=ISO%203166%2D1%20alpha%2D2%20codes%20are%20two%2Dletter,special%20areas%20of%20geographical%20interest.)).
-| `amr` | The authentication method used for user authentication. Example values: `mID` - Mobile-ID, `idcard` - Estonian ID card, `smartid` - Smart-ID.
-| `state` | The authentication request’s state parameter value.
-| `acr` | `high` - level of authentication based on the eIDAS LoA (level of assurance). Possible values: `low`, `substantial`, `high`.
-| `aud` | The ID of a client application that requested authentication.
-| `iat` | The time of issue of the certificate (in Unix epoch format).
-| `iss` | Issuer of the certificate.
-| `profile_attributes` | Data of the authenticated user, including the eIDAS attributes
-| `profile_attributes.date_of_birth` | The date of birth of the authenticated user in the ISO_8601 format.
-| `profile_attributes.given_name` | The first name of the authenticated user.
-| `profile_attributes.family_name` | The surname of the authenticated user.
+| `auth_time` | The time of successful authentication of the user
+| `sub` | The identifier of the authenticated user (personal identification code or eIDAS identifier) with the prefix of the country code of the citizen (country codes based on [the ISO 3166-1 alpha-2 standard](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2#:~:text=ISO%203166%2D1%20alpha%2D2%20codes%20are%20two%2Dletter,special%20areas%20of%20geographical%20interest.))
+| `authentication_type` | The authentication method used for user authentication. Example values: `MOBILE_ID` - Mobile-ID, `ID_CARD` - Estonian ID card, `SMART_ID` - Smart-ID, `WEBAUTHN` - Fido Webauthn
+| `acr` | `high` - level of authentication based on the eIDAS LoA (level of assurance). Possible values: `low`, `substantial`, `high`
+| `date_of_birth` | The date of birth of the authenticated user in the ISO_8601 format
+| `given_name` | The first name of the authenticated user
+| `family_name` | The surname of the authenticated user
 
 Response body might contain other fields, that client application may ignore.
 
@@ -299,8 +338,8 @@ about the error are returned:
 
 ```json
 {
-   "error": "invalid_token",
-   "error_description": "Token expired. Access token expired at '2022-10-07 14:55:34 +0000 UTC'."
+  "error": "invalid_token",
+  "error_description": "Token expired. Access token expired at '2022-10-07 14:55:34 +0000 UTC'."
 }
 ```
 
@@ -534,7 +573,7 @@ spring:
 <br>
 This triggers Spring Boot to register a client. The client registration gets the id `eeid` which is part of the (default) `redirect-uri`.
 The remaining properties, `client-id`, `client-secret` and `scope` have been defined when
-configuring the client in the [eeID manager](https://eeid.ee) (see [Getting Started](#getting-started)).
+configuring the client in the [eeID manager](https://eeid.ee) (see [Getting Started](#getting-started)). Make sure you configured correct callback url which is in our case must be `http://localhost:8080/login/oauth2/callback/eeid`.
 You can choose any descriptive `client-name`. This is the string that is used in the default
 login page setup at `/login`.
 <br>
@@ -684,8 +723,6 @@ OAUTH_CLIENT_SECRET="<your-eeid-secret>"
 CLIENT_REDIRECT_URI="http://localhost:8082/index.php"
 AUTHORIZATION_SERVER_AUTHORIZE_URL="https://test-auth.eeid.ee/hydra-public/oauth2/auth"
 AUTHORIZATION_SERVER_ACCESS_TOKEN_URL="https://test-auth.eeid.ee/hydra-public/oauth2/token"
-RESOURCE_OWNER_URL="https://test-auth.eeid.ee/hydra-public/userinfo"
-RESOURCE_SERVER_URL="https://test-auth.eeid.ee/hydra-public/userinfo"
 SCOPE="openid idcard mid smartid eidas"
 ```
 <br>
