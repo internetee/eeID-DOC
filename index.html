@@ -659,7 +659,7 @@ The client secret code must be provided in the identity token request. For this 
 </tr>
 </tbody></table>
 
-<p>The server verifies that the access token is requested by the right application and issues the access token included in the response body. The response body uses JSON format consisting four elements:</p>
+<p>The server verifies that the identity token is requested by the right application and issues the identity token included in the response body. The response body uses JSON format consisting four elements:</p>
 
 <table><thead>
 <tr>
@@ -685,11 +685,124 @@ The client secret code must be provided in the identity token request. For this 
 </tr>
 </tbody></table>
 
-<p>Response body might contain other fields, that client application must ignore. The identity token is a certificate of the fact of authentication issued by eeID. The identity token is issued in <a href="https://jwt.io/">JSON Web Token</a>, JWT format. The identity token is always <a href="https://tools.ietf.org/html/rfc7515#section-5.2">signed</a>.</p>
+<p>The identity token is a certificate of the fact of authentication issued by eeID. The identity token is issued in <a href="https://jwt.io/">JSON Web Token</a>, JWT format. The identity token is always <a href="https://tools.ietf.org/html/rfc7515#section-5.2">signed</a>. Example:</p>
+<div class="highlight"><pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"jti"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0c597356-3771-4315-a129-c7bc1f02a1b2"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"iss"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://auth.eeid.ee"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"aud"</span><span class="p">:</span><span class="w"> </span><span class="s2">"oidc-b8ab3705-c25f-4271-b87d-ecf190aa4982-12"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"exp"</span><span class="p">:</span><span class="w"> </span><span class="mi">1530295852</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"iat"</span><span class="p">:</span><span class="w"> </span><span class="mi">1530267052</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"nbf"</span><span class="p">:</span><span class="w"> </span><span class="mi">1530266752</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"sub"</span><span class="p">:</span><span class="w"> </span><span class="s2">"EE60001019906"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"profile_attributes"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"date_of_birth"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2000-01-01"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"family_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"O’CONNEŽ-ŠUSLIK TESTNUMBER"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"given_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"MARY ÄNN"</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="nl">"amr"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="s2">"mID"</span><span class="w">
+  </span><span class="p">],</span><span class="w">
+  </span><span class="nl">"state"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1OnH3qwltWy81fKqcmjYTqnco9yVQ2gGZXws/DBLNvQ="</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"nonce"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"at_hash"</span><span class="p">:</span><span class="w"> </span><span class="s2">"X0MVjwrmMQs/IBzfU2osvw=="</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<p><br>
+The following claims are presented in the identity token:</p>
 
-<p>The client application must obtain the identity token immediately or within 30 seconds (before the expiry time of the identity token).</p>
+<table><thead>
+<tr>
+<th>JSON element (claim)</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>jti</code></td>
+<td>Identity token identifier</td>
+</tr>
+<tr>
+<td><code>iss</code></td>
+<td>Issuer of the certificate</td>
+</tr>
+<tr>
+<td><code>aud</code></td>
+<td>ID of a client application that requested authentication (the value of <code>client_id</code> field specified upon directing the user to the authentication process)</td>
+</tr>
+<tr>
+<td><code>exp</code></td>
+<td><code>1530295852</code> - expiration time of the certificate (in Unix epoch format)</td>
+</tr>
+<tr>
+<td><code>iat</code></td>
+<td><code>1530295852</code> - time of issue of the certificate (in Unix epoch format)</td>
+</tr>
+<tr>
+<td><code>nbf</code></td>
+<td><code>1530295852</code> - validity start time of the certificate (in Unix epoch format)</td>
+</tr>
+<tr>
+<td><code>sub</code></td>
+<td>The identifier of the authenticated user (personal identification code or eIDAS identifier) with the prefix of the country code of the citizen (country codes based on <a href="https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2#:~:text=ISO%203166%2D1%20alpha%2D2%20codes%20are%20two%2Dletter,special%20areas%20of%20geographical%20interest.">the ISO 3166-1 alpha-2 standard</a>).</td>
+</tr>
+<tr>
+<td><code>profile_attributes</code></td>
+<td>The data of the authenticated user, including the eIDAS attributes</td>
+</tr>
+<tr>
+<td><code>profile_attributes.date_of_birth</code></td>
+<td><code>2000-01-01</code> - the date of birth of the authenticated user in the ISO_8601 format.</td>
+</tr>
+<tr>
+<td><code>profile_attributes.given_name</code></td>
+<td>The first name of the authenticated user</td>
+</tr>
+<tr>
+<td><code>profile_attributes.family_name</code></td>
+<td>The surname of the authenticated user</td>
+</tr>
+<tr>
+<td><code>amr</code></td>
+<td>The authentication method used for user authentication. Example values: <code>mID</code> - Mobile-ID, <code>idcard</code> - Estonian ID card, <code>eIDAS</code> - cross-border, <code>smartid</code> - Smart-ID</td>
+</tr>
+<tr>
+<td><code>acr</code></td>
+<td><code>high</code> - level of authentication based on the eIDAS LoA (level of assurance). Possible values: <code>low</code>, <code>substantial</code>, <code>high</code></td>
+</tr>
+<tr>
+<td><code>state</code></td>
+<td>The authentication request&#39;s <code>state</code> parameter value</td>
+</tr>
+<tr>
+<td><code>nonce</code></td>
+<td>The authentication request&#39;s <code>nonce</code> parameter value. Value is present only in case the <code>nonce</code> parameter was sent in the authentication request</td>
+</tr>
+<tr>
+<td><code>at_hash</code></td>
+<td>The access token hash (not used)</td>
+</tr>
+<tr>
+<td><code>email</code></td>
+<td>The user&#39;s e-mail address (if present)</td>
+</tr>
+<tr>
+<td><code>email_verified</code></td>
+<td><code>false</code> - the e-mail address of the user has not been verified</td>
+</tr>
+<tr>
+<td><code>phone_number</code></td>
+<td><code>+37200000766</code> - the phone number is presented in E.164 format and prefixed by a country code (if present)</td>
+</tr>
+<tr>
+<td><code>phone_number_verified</code></td>
+<td><code>true</code> - the ownership of the phone number to the authenticating user has been confirmed</td>
+</tr>
+</tbody></table>
+
+<p>Identity token might consist of other OpenID Connect protocol based fields that are not supported by eeID.</p>
+
+<p>The client application must obtain the identity token immediately or within <code>30</code> seconds (before the expiry time of the identity token).</p>
 <h2 id='user-info-request'>User info request</h2>
-<p>User info request enables requesting information about an authenticated user based on a valid OAuth 2.0 access token. The request must be done by using the HTTP GET method. The access token must be presented to the user info endpoint in the HTTP header by using <a href="https://tools.ietf.org/html/rfc6750#section-2.1">the Bearer Token method</a> or as a <a href="https://tools.ietf.org/html/rfc6750#section-2.3">URLi parameter</a>.</p>
+<p>User info request enables requesting information about an authenticated user based on a valid <code>OAuth 2.0</code> access token. The request must be done by using the HTTP GET method. The access token must be presented to the user info endpoint in the HTTP header by using <a href="https://tools.ietf.org/html/rfc6750#section-2.1">the Bearer Token method</a> or as a <a href="https://tools.ietf.org/html/rfc6750#section-2.3">URLi parameter</a>.</p>
 
 <p>Example 1 - transferring an access certificate in the <code>Authorization</code> header:</p>
 <div class="highlight"><pre class="highlight shell tab-shell"><code>GET https://auth.eeid.ee/hydra-public/userinfo
@@ -702,19 +815,13 @@ Example 2 – transferring of access certificate as an <code>access_token</code>
 <p><br>
 The valid access token response is provided in the JSON format. Example:</p>
 <div class="highlight"><pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
-   </span><span class="nl">"acr"</span><span class="p">:</span><span class="w"> </span><span class="s2">"high"</span><span class="p">,</span><span class="w">
-   </span><span class="nl">"amr"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
-      </span><span class="s2">"smartid"</span><span class="w">
-   </span><span class="p">],</span><span class="w">
-   </span><span class="nl">"profile_attributes"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-      </span><span class="nl">"authentication_type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"SMART_ID"</span><span class="p">,</span><span class="w">
-      </span><span class="nl">"date_of_birth"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2000-01-01"</span><span class="p">,</span><span class="w">
-      </span><span class="nl">"family_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"O’CONNEŽ-ŠUSLIK TESTNUMBER"</span><span class="p">,</span><span class="w">
-      </span><span class="nl">"given_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"MARY ÄNN"</span><span class="p">,</span><span class="w">
-   </span><span class="p">},</span><span class="w">
-   </span><span class="nl">"sub"</span><span class="p">:</span><span class="w"> </span><span class="s2">"EE60001019906"</span><span class="p">,</span><span class="w">
-   </span><span class="nl">"auth_time"</span><span class="p">:</span><span class="w"> </span><span class="mi">1694591147</span><span class="p">,</span><span class="w">
-   </span><span class="nl">"state"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2093077beb6d063ea65e61fa4c9b2814"</span><span class="w">
+  </span><span class="nl">"acr"</span><span class="p">:</span><span class="w"> </span><span class="s2">"high"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"auth_time"</span><span class="p">:</span><span class="w"> </span><span class="mi">1694591147</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"authentication_type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"SMART_ID"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"date_of_birth"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2000-01-01"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"family_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"O’CONNEŽ-ŠUSLIK TESTNUMBER"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"given_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"MARY ÄNN"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"sub"</span><span class="p">:</span><span class="w"> </span><span class="s2">"EE60001019906"</span><span class="p">,</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <p><br>
@@ -728,51 +835,31 @@ The claims included in the response are issued based on the identity token.</p>
 </thead><tbody>
 <tr>
 <td><code>auth_time</code></td>
-<td>The time of successful authentication of the user.</td>
+<td>The time of successful authentication of the user</td>
 </tr>
 <tr>
 <td><code>sub</code></td>
-<td>The identifier of the authenticated user (personal identification code or eIDAS identifier) with the prefix of the country code of the citizen (country codes based on <a href="https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2#:~:text=ISO%203166%2D1%20alpha%2D2%20codes%20are%20two%2Dletter,special%20areas%20of%20geographical%20interest.">the ISO 3166-1 alpha-2 standard</a>).</td>
+<td>The identifier of the authenticated user (personal identification code or eIDAS identifier) with the prefix of the country code of the citizen (country codes based on <a href="https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2#:~:text=ISO%203166%2D1%20alpha%2D2%20codes%20are%20two%2Dletter,special%20areas%20of%20geographical%20interest.">the ISO 3166-1 alpha-2 standard</a>)</td>
 </tr>
 <tr>
-<td><code>amr</code></td>
-<td>The authentication method used for user authentication. Example values: <code>mID</code> - Mobile-ID, <code>idcard</code> - Estonian ID card, <code>smartid</code> - Smart-ID.</td>
-</tr>
-<tr>
-<td><code>state</code></td>
-<td>The authentication request’s state parameter value.</td>
+<td><code>authentication_type</code></td>
+<td>The authentication method used for user authentication. Example values: <code>MOBILE_ID</code> - Mobile-ID, <code>ID_CARD</code> - Estonian ID card, <code>SMART_ID</code> - Smart-ID, <code>WEBAUTHN</code> - Fido Webauthn</td>
 </tr>
 <tr>
 <td><code>acr</code></td>
-<td><code>high</code> - level of authentication based on the eIDAS LoA (level of assurance). Possible values: <code>low</code>, <code>substantial</code>, <code>high</code>.</td>
+<td><code>high</code> - level of authentication based on the eIDAS LoA (level of assurance). Possible values: <code>low</code>, <code>substantial</code>, <code>high</code></td>
 </tr>
 <tr>
-<td><code>aud</code></td>
-<td>The ID of a client application that requested authentication.</td>
+<td><code>date_of_birth</code></td>
+<td>The date of birth of the authenticated user in the ISO_8601 format</td>
 </tr>
 <tr>
-<td><code>iat</code></td>
-<td>The time of issue of the certificate (in Unix epoch format).</td>
+<td><code>given_name</code></td>
+<td>The first name of the authenticated user</td>
 </tr>
 <tr>
-<td><code>iss</code></td>
-<td>Issuer of the certificate.</td>
-</tr>
-<tr>
-<td><code>profile_attributes</code></td>
-<td>Data of the authenticated user, including the eIDAS attributes</td>
-</tr>
-<tr>
-<td><code>profile_attributes.date_of_birth</code></td>
-<td>The date of birth of the authenticated user in the ISO_8601 format.</td>
-</tr>
-<tr>
-<td><code>profile_attributes.given_name</code></td>
-<td>The first name of the authenticated user.</td>
-</tr>
-<tr>
-<td><code>profile_attributes.family_name</code></td>
-<td>The surname of the authenticated user.</td>
+<td><code>family_name</code></td>
+<td>The surname of the authenticated user</td>
 </tr>
 </tbody></table>
 
@@ -781,8 +868,8 @@ The claims included in the response are issued based on the identity token.</p>
 <p>In case the access token presented to the user information endpoint is missing or is expired, an error code and a brief description 
 about the error are returned:</p>
 <div class="highlight"><pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
-   </span><span class="nl">"error"</span><span class="p">:</span><span class="w"> </span><span class="s2">"invalid_token"</span><span class="p">,</span><span class="w">
-   </span><span class="nl">"error_description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Token expired. Access token expired at '2022-10-07 14:55:34 +0000 UTC'."</span><span class="w">
+  </span><span class="nl">"error"</span><span class="p">:</span><span class="w"> </span><span class="s2">"invalid_token"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"error_description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Token expired. Access token expired at '2022-10-07 14:55:34 +0000 UTC'."</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div><h1 id='protection'>Protection</h1>
 <p>The client application must implement protective measures against false request attacks (cross-site request forgery, CSRF). 
@@ -1042,7 +1129,7 @@ Spring Security creates a default login page at <code>/login</code> that lists a
 <p><br>
 This triggers Spring Boot to register a client. The client registration gets the id <code>eeid</code> which is part of the (default) <code>redirect-uri</code>.
 The remaining properties, <code>client-id</code>, <code>client-secret</code> and <code>scope</code> have been defined when
-configuring the client in the <a href="https://eeid.ee">eeID manager</a> (see <a href="#getting-started">Getting Started</a>).
+configuring the client in the <a href="https://eeid.ee">eeID manager</a> (see <a href="#getting-started">Getting Started</a>). Make sure you configured correct callback url which is in our case must be <code>http://localhost:8080/login/oauth2/callback/eeid</code>.
 You can choose any descriptive <code>client-name</code>. This is the string that is used in the default
 login page setup at <code>/login</code>.
 <br>
@@ -1176,8 +1263,6 @@ to an <code>attributes.php</code> page where they can be displayed.</p>
 <span class="n">CLIENT_REDIRECT_URI</span>=<span class="s2">"http://localhost:8082/index.php"</span>
 <span class="n">AUTHORIZATION_SERVER_AUTHORIZE_URL</span>=<span class="s2">"https://test-auth.eeid.ee/hydra-public/oauth2/auth"</span>
 <span class="n">AUTHORIZATION_SERVER_ACCESS_TOKEN_URL</span>=<span class="s2">"https://test-auth.eeid.ee/hydra-public/oauth2/token"</span>
-<span class="n">RESOURCE_OWNER_URL</span>=<span class="s2">"https://test-auth.eeid.ee/hydra-public/userinfo"</span>
-<span class="n">RESOURCE_SERVER_URL</span>=<span class="s2">"https://test-auth.eeid.ee/hydra-public/userinfo"</span>
 <span class="n">SCOPE</span>=<span class="s2">"openid idcard mid smartid eidas"</span>
 </code></pre></div>
 <p><br>
