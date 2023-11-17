@@ -22,7 +22,7 @@ Welcome to the Estonian Internet Foundation's eeID documentation! This document 
 - EU-citizen cross-border authentication (i.e. via eIDAS-Node)
 - FIDO2 Web Authentication (WebAuthn)
 
-eeID service is based on [Estonian Information System Authorities](https://www.ria.ee/en) solution TARA - see the technical specifications [here](https://e-gov.github.io/TARA-Doku/TechnicalSpecification).
+eeID service is based on [Estonian Information System Authorities](https://www.ria.ee/en) solution [TARA2](https://github.com/e-gov/TARA2-Login).
 
 # OpenID Connect
 
