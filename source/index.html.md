@@ -88,7 +88,7 @@ Country     | Authentication methods | Required scopes
 Belgium | eIDAS | `eidas`
 Czech Republic | mojeID | `eidas`
 Estonia | ID-card, Mobile-ID, Smart-ID | `eidas` `idcard` `mid` `smartid`
-Latvia | Smart-ID | `eidas` `smartid`
+Latvia | Smart-ID, eParaksts karte, eParaksts mobile | `eidas` `smartid`
 Lithuania | Smart-ID, Mobile-ID | `eidas` `smartid` `mid`
 Portugal | eIDAS | `eidas`
 Sweden | eIDAS | `eidas`
