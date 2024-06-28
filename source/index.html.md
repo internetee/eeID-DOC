@@ -223,7 +223,7 @@ Element        | Description
 -------------- | --------------
 `grant_type` | The `authorization_code` value required based on the protocol
 `code` | The authorization code received from the authentication service
-`redirect_url`| The redirect URL sent in the authorisation request
+`redirect_uri`| The redirect URL sent in the authorisation request
 
 The server verifies that the identity token is requested by the right application and issues the identity token included in the response body. The response body uses JSON format consisting four elements:
 
