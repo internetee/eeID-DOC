@@ -7,3 +7,5 @@
 <p align="center"><img src="source/images/showcase.png" width=700 alt="Screenshot of eeID documentation" ></p>
 
 <p align="center"><em>View the documentation at <a href="https://internetee.github.io/eeID-DOC">internetee.github.io/eeID-DOC</a>.</em></p>
+
+<p align="center"><a href="https://github.com/slatedocs/slate/wiki/Using-Slate-in-Docker">Using in Docker</a></p>
