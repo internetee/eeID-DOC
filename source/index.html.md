@@ -58,6 +58,8 @@ In order to get started you have to sign up and create your first service in the
 * Authentication scope - choose the authentication scope you wish to support. The following scopes are supported: `openid`, `webauthn`, `phone` and `email`. NB! `idcard`, `mid`, `smartid` and `eidas` are no longer in use and will be removed.
 * Authentication methods - choose the authentication methods you wish to support. You can select one or more methods based on your preferred country.
 * Contact - choose an existing contact or create a new one. This contact will be associated with the service, and it might be the point of contact for any communications or notifications regarding the service.
+* Consent screen - configure it to skip the "consent screen", which is the screen where the user must explicitly agree to giving the service access to their data and allow perform operations on their behalf.
+* Choose logo - upload a logo for your service.
 * Submission - review all the details entered in the form, and if everything is correct, click on `SUBMIT FOR APPROVAL` to submit your service.
 
 Once you submit the form, it will be reviewed by the service administrators
@@ -417,7 +419,7 @@ The eeID test environment is directed to the Smart-ID demo environment. There ar
 * Use [test users](https://github.com/SK-EID/smart-id-documentation/wiki/Environment-technical-parameters#test-accounts-for-automated-testing).
 
 # Run in Postman
-[<img src="https://run.pstmn.io/button.svg" alt="Run In Postman" style="width: 128px; height: 32px;">](https://god.gw.postman.com/run-collection/19898114-17a1f32a-6558-4fe1-b176-1ef67613d524?action=collection%2Ffork&source=rip_markdown&collection-url=entityId%3D19898114-17a1f32a-6558-4fe1-b176-1ef67613d524%26entityType%3Dcollection%26workspaceId%3D9b267308-63bf-4630-91e1-fc8afccd37ad)
+[<img src="https://run.pstmn.io/button.svg" alt="Run In Postman" style="width: 128px; height: 32px;">](https://god.gw.postman.com/run-collection/37760758-c07af2ef-c1d1-4675-91d1-701c0ea51871?action=collection%2Ffork&source=rip_markdown&collection-url=entityId%3D37760758-c07af2ef-c1d1-4675-91d1-701c0ea51871%26entityType%3Dcollection%26workspaceId%3Dfbfde0f7-54e9-4061-844a-5f03ab3d2ac4)
 
 # Code examples
 
