@@ -315,7 +315,7 @@
             <a href="#getting-started" class="toc-h1 toc-link" data-title="Getting started">Getting started</a>
           </li>
           <li>
-            <a href="#authentication-methods" class="toc-h1 toc-link" data-title="Authentication methods">Authentication methods</a>
+            <a href="#authentication-scope" class="toc-h1 toc-link" data-title="Authentication scope">Authentication scope</a>
           </li>
           <li>
             <a href="#requests" class="toc-h1 toc-link" data-title="Requests">Requests</a>
@@ -363,6 +363,9 @@
               </ul>
           </li>
           <li>
+            <a href="#run-in-postman" class="toc-h1 toc-link" data-title="Run in Postman">Run in Postman</a>
+          </li>
+          <li>
             <a href="#code-examples" class="toc-h1 toc-link" data-title="Code examples">Code examples</a>
               <ul class="toc-list-h2">
                   <li>
@@ -372,7 +375,7 @@
                     <a href="#php-openid-connect-example" class="toc-h2 toc-link" data-title="PHP OpenID Connect example">PHP OpenID Connect example</a>
                   </li>
                   <li>
-                    <a href="#rails-on-rails-with-omniauth-tara" class="toc-h2 toc-link" data-title="Rails on Rails with OmniAuth-Tara">Rails on Rails with OmniAuth-Tara</a>
+                    <a href="#rails-on-rails-with-omniauth-openidconnect" class="toc-h2 toc-link" data-title="Rails on Rails with OmniAuth::OpenIDConnect">Rails on Rails with OmniAuth::OpenIDConnect</a>
                   </li>
               </ul>
           </li>
@@ -395,10 +398,8 @@
 <li>EU-citizen cross-border authentication (i.e. via eIDAS-Node)</li>
 <li>FIDO2 Web Authentication (WebAuthn)</li>
 </ul>
-
-<p>eeID service is based on <a href="https://www.ria.ee/en">Estonian Information System Authorities</a> solution <a href="https://github.com/e-gov/TARA2-Login">TARA2</a>.</p>
 <h1 id='openid-connect'>OpenID Connect</h1>
-<p>The eeID authentication service is based on the OpenID Connect protocol, which is built on top of the OAuth 2.0 authorization framework. It&#39;s designed to provide a secure and standardized way to authenticate users and obtain their basic profile information. OIDC is commonly used in applications that require user authentication, such as web and mobile applications.</p>
+<p>The eeID authentication service is based on the OpenID Connect protocol (OIDC), which is built on top of the OAuth 2.0 authorization framework. It&#39;s designed to provide a secure and standardized way to authenticate users and obtain their basic profile information. OIDC is commonly used in applications that require user authentication, such as web and mobile applications.</p>
 
 <p>Limited subset from standards was chosen and some adjustments were made. The main selections and adjustments compared to the full OpenID Connect protocol are the following:</p>
 
@@ -411,7 +412,7 @@
 <li>Dynamic registration of the client application is not supported. The client application is registered in <a href="https://eeid.ee">eeID manager</a> by a separate procedure.</li>
 </ul>
 <h1 id='getting-started'>Getting started</h1>
-<p>In order to get started you have to sign up and create your first client (service) in the <a href="https://eeid.ee">eeID manager</a>. </p>
+<p>In order to get started you have to sign up and create your first service in the <a href="https://eeid.ee">eeID manager</a>. </p>
 
 <ol>
 <li><p>Add a new contact first. From the main menu select <code>Contacts</code> to go to the contacts management view. Click on + Create New Contact and fill in the form.
@@ -419,7 +420,7 @@
 <li><p>From the main menu select <code>Services</code> to go to the service management view. Click on + Create New Service.
 <img src="images/create_new_service-c48559cb.png" alt="Create New Service" /></p></li>
 <li><p>Fill in the form
-<img src="images/new_service_form-785161ab.png" alt="New Service Form" /></p></li>
+<img src="images/new_service_form-9f1e4118.png" alt="New Service Form" /></p></li>
 <li><p>All the fields must be valid to proceed.</p></li>
 </ol>
 
@@ -427,10 +428,13 @@
 <li>Name - enter the name for your service. This will ultimately appear in-front of your customers</li>
 <li>Description - provide a brief description of your service. It should be concise, ideally one sentence.</li>
 <li>Approval description - in this field, provide details about what you are building and who your target customers are.</li>
-<li>Redirection URL - specify the URL where users should be redirected to after they have been authenticated. If you do not know what you will use, just enter <code>https://localhost/callback</code> for now. The value can be changed later if needed.</li>
+<li>Redirection URL - specify the URL where users should be redirected to after they have been authenticated. If you do not know what you will use, just enter <code>http://localhost/callback</code> for now. The value can be changed later if needed. NB! Ensure that redirect URL uses the HTTPS protocol. HTTP is only permitted for local development environments (e.g., localhost).</li>
 <li>Environment - indicate the environment in which you will be using the service. <code>Test</code> is free and used for testing purposes.</li>
-<li>Authentication methods - choose the authentication methods you wish to support. The options given are <code>EE ID-card</code>, <code>Mobile-ID</code>, <code>Smart-ID</code>, <code>EU-Citizen</code> and <code>Webauthn</code>. You can select one or more methods based on your preference.</li>
+<li>Authentication scope - choose the authentication scope you wish to support. The following scopes are supported: <code>openid</code>, <code>webauthn</code>, <code>phone</code> and <code>email</code>. NB! <code>idcard</code>, <code>mid</code>, <code>smartid</code> and <code>eidas</code> are no longer in use and will be removed.</li>
+<li>Authentication methods - choose the authentication methods you wish to support. You can select one or more methods based on your preferred country.</li>
 <li>Contact - choose an existing contact or create a new one. This contact will be associated with the service, and it might be the point of contact for any communications or notifications regarding the service.</li>
+<li>Consent screen - configure it to skip the &quot;consent screen&quot;, which is the screen where the user must explicitly agree to giving the service access to their data and allow perform operations on their behalf.</li>
+<li>Choose logo - upload a logo for your service.</li>
 <li>Submission - review all the details entered in the form, and if everything is correct, click on <code>SUBMIT FOR APPROVAL</code> to submit your service.</li>
 </ul>
 
@@ -443,73 +447,18 @@ In case there are issues or discrepancies in your application, it might be rejec
 After the review process is completed, you will receive a notification regarding the
 status of your application. This notification will inform you whether your application has
 been approved or rejected.</p>
-<h1 id='authentication-methods'>Authentication methods</h1>
-<p>By default, the eeID service facilitates the following authentication methods:</p>
+<h1 id='authentication-scope'>Authentication scope</h1>
+<p>By default, the eeID service facilitates the following authentication scope:</p>
 
 <ul>
-<li><code>EE ID-card</code> - <a href="https://www.id.ee/en/rubriik/id-card-en/">Estonian ID-card</a></li>
-<li><code>Mobile-ID</code> - <a href="https://www.id.ee/en/mobile-id/">Estonian Mobile-ID</a> (also used in Lithuania)</li>
-<li><code>Smart-ID</code> - <a href="https://www.id.ee/en/article/smart-id/">Estonian Smart-ID</a> (also used in Latvia and Lithuania)</li>
-</ul>
-
-<p>These authentication methods stand as testimony to Estonia&#39;s advanced digital infrastructure, offering citizens secure, reliable, and convenient options for online authentication. By leveraging state-of-the-art technology and stringent security protocols, these methods ensure that Estonian citizens can safely access e-services, conduct online transactions, and sign digital documents from the comfort of their homes or on the go.</p>
-
-<ul>
-<li><code>EU-Citizen</code> authentication method activates a range of cross-border authentication methods. This activation allows EU citizens to log in to e-services using authentication methods recognized and approved in their respective EU member states (i.e. via <a href="https://ec.europa.eu/digital-building-blocks/wikis/display/DIGITAL/eIDAS-Node+Integration+Package">eIDAS-Node</a>):</li>
-</ul>
-
-<table><thead>
-<tr>
-<th>Country</th>
-<th>Authentication methods</th>
-<th>Required scopes</th>
-</tr>
-</thead><tbody>
-<tr>
-<td>Belgium</td>
-<td>eIDAS</td>
-<td><code>eidas</code></td>
-</tr>
-<tr>
-<td>Czech Republic</td>
-<td>mojeID</td>
-<td><code>eidas</code></td>
-</tr>
-<tr>
-<td>Estonia</td>
-<td>ID-card, Mobile-ID, Smart-ID</td>
-<td><code>eidas</code> <code>idcard</code> <code>mid</code> <code>smartid</code></td>
-</tr>
-<tr>
-<td>Latvia</td>
-<td>Smart-ID, eParaksts karte, eParaksts mobile</td>
-<td><code>eidas</code> <code>smartid</code></td>
-</tr>
-<tr>
-<td>Lithuania</td>
-<td>Smart-ID, Mobile-ID</td>
-<td><code>eidas</code> <code>smartid</code> <code>mid</code></td>
-</tr>
-<tr>
-<td>Portugal</td>
-<td>eIDAS</td>
-<td><code>eidas</code></td>
-</tr>
-<tr>
-<td>Sweden</td>
-<td>eIDAS</td>
-<td><code>eidas</code></td>
-</tr>
-</tbody></table>
-
-<ul>
-<li><code>Webauthn</code> authentication method enables a robust and secure user authentication process grounded
+<li><p><code>openid</code> - compulsory (required by the OpenID Connect protocol).</p></li>
+<li><p><code>webauthn</code> authentication scope enables a robust and secure user authentication process grounded
 in public key cryptography. This method does away with the need for passwords,
 instead allowing users to employ local authenticators such as biometrics or 
 security keys to securely and conveniently access online services.
 Being a core component of the <a href="https://fidoalliance.org/fido2-2/fido2-web-authentication-webauthn/">FIDO Alliance&#39;s FIDO2</a> set of specifications,
 it is designed to foster stronger and simpler web authentication mechanisms,
-enhancing security and user experience in the digital landscape.</li>
+enhancing security and user experience in the digital landscape.</p></li>
 </ul>
 
 <p>For a demo of WebAuthn, visit <a href="https://webauthn.io/">https://webauthn.io/</a>.</p>
@@ -518,14 +467,13 @@ enhancing security and user experience in the digital landscape.</li>
 
 <ol>
 <li><p><b>Initial Authentication</b>
-<br>Before creating a WebAuthn credential, the users must first authenticate themselves
-using one of the other methods provided in the eeID service. This step ensures that the user&#39;s identity
-is verified through a secure and recognized authentication method.</p></li>
+<br>Before creating a WebAuthn credential, the users must first verify their identity
+using one of the authentication methods provided in the eeID service or an AI-powered identity verification platform. This crucial step ensures that the user’s identity is securely verified through a recognized and trusted authentication method.</p></li>
 <li><p><b>eeID as Identity Provider</b>
 <br>Once the initial authentication is successful, the eeID service acts as an identity provider.
 In this role, it verifies and stores the authenticated data, establishing a secure and
 trusted identity framework for the user.</p></li>
-<li><p><b>Creating the Webtuhn Credential</b>
+<li><p><b>Creating the Webauthn Credential</b>
 <br>Following the successful authentication through eeID,
 the user can proceed to create a WebAuthn credential. This process involves:</p>
 
@@ -550,7 +498,21 @@ stored on the server. This setup ensures a secure and password-less authenticati
 online transactions but also offers a user-friendly authentication experience.
 It represents a forward step in secure, password-less digital authentication,
 promoting ease of use without compromising on security.</p>
-<h1 id='requests'>Requests</h1><h2 id='authentication-request'>Authentication request</h2>
+
+<ul>
+<li><code>phone</code> - can be used to request the user’s phone number in the identity token. This option is targeted for client applications that use i.e Mobile-ID, which requires user’s phone number for input, as a means for giving digital signatures. The claims <code>phone</code> and <code>phone_number_verified</code> are issued in the identity token. For example:</li>
+</ul>
+<div class="highlight"><pre class="highlight shell tab-shell"><code><span class="s2">"sub"</span>: <span class="s2">"EE60001019906"</span>,
+<span class="s2">"phone_number"</span>: <span class="s2">"+37200000766"</span>,
+<span class="s2">"phone_number_verified"</span>: <span class="nb">true</span>
+</code></pre></div>
+<ul>
+<li><code>email</code> - can be used to request the user’s e-mail address in the identity token. This option is targeted for the client applications that require verification of an e-mail address in authentication of a user. The claims <code>email</code> and <code>email_verified</code> are issued in the identity token. For example:</li>
+</ul>
+<div class="highlight"><pre class="highlight shell tab-shell"><code><span class="s2">"sub"</span>: <span class="s2">"EE60001019906"</span>,
+<span class="s2">"email"</span>: <span class="s2">"60001019906@eesti.ee"</span>,
+<span class="s2">"email_verified"</span>: <span class="nb">false</span>
+</code></pre></div><h1 id='requests'>Requests</h1><h2 id='authentication-request'>Authentication request</h2>
 <p>An authentication request is a HTTP GET request by which the user is redirected from the client application to the eeID server for authentication.</p>
 
 <p>URL: <code>https://auth.eeid.ee/hydra-public/oauth2/auth</code></p>
@@ -562,36 +524,8 @@ promoting ease of use without compromising on security.</p>
 <li><code>state</code> - security code against false request attacks (cross-site request forgery CSRF)</li>
 <li><code>redirect_uri</code> - redirect_uri</li>
 <li><code>response_type</code> - determines the manner of communication of the authentication result to the server, must be equal to <code>code</code></li>
-<li><code>scope</code> - authentication scopes, <code>openid</code> is compulsory (required by the OpenID Connect protocol). The following scopes are supported: <code>idcard</code>, <code>mid</code>, <code>smartid</code>, <code>eidas</code> and <code>webauthn</code>. The scopes must correspond to the authentication methods selected while registering the service:</li>
+<li><code>scope</code> - authentication scope. The scope must correspond to the authentication scope selected while registering the service.</li>
 </ul>
-
-<table><thead>
-<tr>
-<th>Scope</th>
-<th>Authentication method</th>
-</tr>
-</thead><tbody>
-<tr>
-<td><code>idcard</code></td>
-<td>EE ID-card</td>
-</tr>
-<tr>
-<td><code>mid</code></td>
-<td>Mobile-ID</td>
-</tr>
-<tr>
-<td><code>smartid</code></td>
-<td>Smart-ID</td>
-</tr>
-<tr>
-<td><code>eidas</code></td>
-<td>EU-Citizen</td>
-</tr>
-<tr>
-<td><code>webauthn</code></td>
-<td>Webauthn</td>
-</tr>
-</tbody></table>
 
 <p>Optional query parameters:</p>
 
@@ -604,7 +538,7 @@ promoting ease of use without compromising on security.</p>
 <div class="highlight"><pre class="highlight shell tab-shell"><code>GET https://auth.eeid.ee/hydra-public/oauth2/auth?client_id<span class="o">=</span>oidc-b8ab3705-c25f-4271-b87d-ecf190aa4982-11
 &amp;redirect_uri<span class="o">=</span>https%3A%2F%2Feservice.institution.ee%2Fcallback
 &amp;response_type<span class="o">=</span>code
-&amp;scope<span class="o">=</span>openid%20idcard%20mid%20smartid%20eidas
+&amp;scope<span class="o">=</span>openid%20webauthn
 &amp;state<span class="o">=</span>f3b2c3e7f4cf0bed3a783ed6ece617e3
 </code></pre></div><h2 id='redirect-request'>Redirect request</h2>
 <p>The redirect request is a HTTP GET request which is used to redirect the user back to the return address entered upon registration of the client application in <a href="https://eeid.ee">eeID manager</a>. In the redirect request an authorization code is sent to the client application, based on which the client application will request the access token in order to get personal identification code, name and other attributes of the authenticated person. The security code state received in the authentication request is mirrored back. Read more about forming and verifying state from <a href="#protection">Protection against false request attacks</a>.</p>
@@ -1006,6 +940,8 @@ The key element of the process described above is connection of the <code>state<
 <li>Install the Smart-ID demo application on your device and register a <a href="https://github.com/SK-EID/smart-id-documentation/wiki/Smart-ID-demo#getting-started">demo account</a>.</li>
 <li>Use <a href="https://github.com/SK-EID/smart-id-documentation/wiki/Environment-technical-parameters#test-accounts-for-automated-testing">test users</a>.</li>
 </ul>
+<h1 id='run-in-postman'>Run in Postman</h1>
+<p><a href="https://god.gw.postman.com/run-collection/37760758-c07af2ef-c1d1-4675-91d1-701c0ea51871?action=collection%2Ffork&amp;source=rip_markdown&amp;collection-url=entityId%3D37760758-c07af2ef-c1d1-4675-91d1-701c0ea51871%26entityType%3Dcollection%26workspaceId%3Dfbfde0f7-54e9-4061-844a-5f03ab3d2ac4"><img src="https://run.pstmn.io/button.svg" alt="Run In Postman" style="width: 128px; height: 32px;"></a></p>
 <h1 id='code-examples'>Code examples</h1><h2 id='openid-connect-client-with-spring-security'>OpenID Connect Client with Spring Security</h2>
 <p>One of the key features of Spring Security 5 was the native support for OAuth2 and OIDC.
 Making use of the OIDC configuration information (OIDC metadata), integrating with
@@ -1121,10 +1057,10 @@ Spring Security creates a default login page at <code>/login</code> that lists a
             <span class="na">client-secret</span><span class="pi">:</span> <span class="s">&lt;your-eeid-secret&gt;</span>
             <span class="na">authorization-grant-type</span><span class="pi">:</span> <span class="s">authorization_code</span>
             <span class="na">redirect-uri</span><span class="pi">:</span> <span class="s2">"</span><span class="s">{baseUrl}/login/oauth2/callback/{registrationId}"</span>
-            <span class="na">scope</span><span class="pi">:</span> <span class="s">openid,idcard,mid,smartid,eidas</span>
+            <span class="na">scope</span><span class="pi">:</span> <span class="s">openid</span>
         <span class="na">provider</span><span class="pi">:</span>
           <span class="na">eeid</span><span class="pi">:</span>
-            <span class="na">issuer-uri</span><span class="pi">:</span> <span class="s">https://test-auth.eeid.ee/hydra-public/</span>
+            <span class="na">issuer-uri</span><span class="pi">:</span> <span class="s">https://test-auth.eeid.ee/hydra-public</span>
 </code></pre></div>
 <p><br>
 This triggers Spring Boot to register a client. The client registration gets the id <code>eeid</code> which is part of the (default) <code>redirect-uri</code>.
@@ -1140,7 +1076,7 @@ and ensures that the user-agent gets redirected to the right endpoints for authe
 <p>Start the demo application with <code>mvn spring-boot:run</code>. Navigate to <code>http://localhost:8080</code> to access the index site.
 Click on the link to access <code>http://localhost:8080/secured</code> that triggers a login.</p>
 
-<p><img src="images/login_screen-ac4f9876.png" alt="Login Screen" />
+<p><img src="images/login_screen-c9e4a186.png" alt="Login Screen" />
 <br>
 After successful login the page shows details retrieved from the ID token.</p>
 
@@ -1257,13 +1193,13 @@ to an <code>attributes.php</code> page where they can be displayed.</p>
 </code></pre></div>
 <p><br>
 7. Create <code>.env</code> file with your OAuth client configuration parameters</p>
-<div class="highlight"><pre class="highlight conf tab-conf"><code><span class="n">ISSUER</span>=<span class="s2">"https://test-auth.eeid.ee/hydra-public/"</span>
+<div class="highlight"><pre class="highlight conf tab-conf"><code><span class="n">ISSUER</span>=<span class="s2">"https://test-auth.eeid.ee/hydra-public"</span>
 <span class="n">OAUTH_CLIENT_ID</span>=<span class="s2">"&lt;your-eeid-client-id&gt;"</span>
 <span class="n">OAUTH_CLIENT_SECRET</span>=<span class="s2">"&lt;your-eeid-secret&gt;"</span>
 <span class="n">CLIENT_REDIRECT_URI</span>=<span class="s2">"http://localhost:8082/index.php"</span>
 <span class="n">AUTHORIZATION_SERVER_AUTHORIZE_URL</span>=<span class="s2">"https://test-auth.eeid.ee/hydra-public/oauth2/auth"</span>
 <span class="n">AUTHORIZATION_SERVER_ACCESS_TOKEN_URL</span>=<span class="s2">"https://test-auth.eeid.ee/hydra-public/oauth2/token"</span>
-<span class="n">SCOPE</span>=<span class="s2">"openid idcard mid smartid eidas"</span>
+<span class="n">SCOPE</span>=<span class="s2">"openid"</span>
 </code></pre></div>
 <p><br>
 Parameters like <code>OAUTH_CLIENT_ID</code>, <code>OAUTH_CLIENT_SECRET</code> and <code>SCOPE</code> have been defined after
@@ -1327,8 +1263,8 @@ configuring the service in the <a href="https://eeid.ee">eeID manager</a> (see <
 After signing in you will be sent back and then on the attributes page.</p>
 
 <p><img src="images/claims-a93acf58.png" alt="Claims" /></p>
-<h2 id='rails-on-rails-with-omniauth-tara'>Rails on Rails with OmniAuth-Tara</h2>
-<p>In this example, we will make use of <a href="https://github.com/internetee/omniauth-tara">OmniAuth-Tara</a> gem, which contains the <a href="https://e-gov.github.io/TARA-Doku/TechnicalSpecification">Tara</a> strategy for OmniAuth library that standardizes multi-provider authentication for web applications.</p>
+<h2 id='rails-on-rails-with-omniauth-openidconnect'>Rails on Rails with OmniAuth::OpenIDConnect</h2>
+<p>In this example, we will make use of <a href="https://github.com/omniauth/omniauth_openid_connect">OmniAuth::OpenIDConnect</a> gem, which contains the OpenID Connect (OIDC) strategy for OmniAuth library that standardizes multi-provider authentication for web applications.</p>
 <h3 id='getting-started-2'>Getting Started</h3>
 <p>Start by generating your Rails application with Bootstrap using ESBuild to build both the JavaScript and CSS files. From the terminal, run the command to do so:</p>
 <div class="highlight"><pre class="highlight shell tab-shell"><code>rails new eeid_demo <span class="nt">-T</span> <span class="nt">-j</span> esbuild <span class="nt">--css</span> bootstrap
@@ -1411,19 +1347,19 @@ end
 </code></pre></div><h3 id='setting-up-omniauth-tara'>Setting Up OmniAuth-Tara</h3>
 <p>We need to create a new eeID service application. Go to <a href="https://eeid.ee">eeID manager</a> to create one. Enter all the necessary details:</p>
 
-<p><img src="images/demo_service-77f26a45.png" alt="Demo Service" /></p>
+<p><img src="images/demo_service-8d14e8ca.png" alt="Demo Service" /></p>
 
-<p>For the callback URL, enter your website&#39;s address plus <code>auth/tara/callback</code>. If you happen to be on a local machine, your callback URL should be this: <code>http://127.0.0.1:3000/auth/tara/callback</code></p>
+<p>For the callback URL, enter your website&#39;s address plus <code>auth/eeid/callback</code>. If you happen to be on a local machine, your callback URL should be this: <code>http://127.0.0.1:3000/auth/eeid/callback</code></p>
 
 <p>After submitting you will be redirected to the service information page. Copy the <code>Client ID</code> and <code>Client Secret</code> and paste them in a safe place — we will make use of them shortly.
-The callback URL is the URL where a user will be redirected to inside the app after successful authentication and approved authorization (the request will also contain the user’s token). All OmniAuth strategies expect the callback URL to equal <code>/auth/:provider/callback</code>. <code>:provider</code> takes the name of the strategy. In our case, the strategy will be <code>tara</code> as you will list in the initializer.</p>
+The callback URL is the URL where a user will be redirected to inside the app after successful authentication and approved authorization (the request will also contain the user’s token). All OmniAuth strategies expect the callback URL to equal <code>/auth/:provider/callback</code>. <code>:provider</code> takes the name of the strategy. In our case, the strategy will be <code>eeid</code> as you will list in the initializer.</p>
 
 <p>Open up Gemfile to add the necessary gems:</p>
 <div class="highlight"><pre class="highlight ruby tab-ruby"><code><span class="c1"># Gemfile</span>
 <span class="o">...</span>
 <span class="n">gem</span> <span class="s1">'omniauth'</span><span class="p">,</span> <span class="s1">'&gt;=2.0.0'</span>
+<span class="n">gem</span> <span class="s1">'omniauth_openid_connect'</span>
 <span class="n">gem</span> <span class="s1">'omniauth-rails_csrf_protection'</span>
-<span class="n">gem</span> <span class="s1">'omniauth-tara'</span><span class="p">,</span> <span class="ss">github: </span><span class="s1">'internetee/omniauth-tara'</span>
 </code></pre></div>
 <p><br>
 Now create an initializer for OmniAuth in your config/initializers directory. This will hold the configuration for OmniAuth:</p>
@@ -1433,8 +1369,8 @@ Now create an initializer for OmniAuth in your config/initializers directory. Th
 <span class="no">OmniAuth</span><span class="p">.</span><span class="nf">config</span><span class="p">.</span><span class="nf">allowed_request_methods</span> <span class="o">=</span> <span class="p">[</span><span class="ss">:post</span><span class="p">]</span>
 
 <span class="no">Rails</span><span class="p">.</span><span class="nf">application</span><span class="p">.</span><span class="nf">config</span><span class="p">.</span><span class="nf">middleware</span><span class="p">.</span><span class="nf">use</span> <span class="no">OmniAuth</span><span class="o">::</span><span class="no">Builder</span> <span class="k">do</span>
-  <span class="n">provider</span> <span class="s1">'tara'</span><span class="p">,</span> <span class="p">{</span>
-    <span class="ss">name: </span><span class="s1">'tara'</span><span class="p">,</span>
+  <span class="n">provider</span> <span class="ss">:openid_connect</span><span class="p">,</span> <span class="p">{</span>
+    <span class="ss">name: :eeid</span><span class="p">,</span>
     <span class="ss">scope: </span><span class="no">ENV</span><span class="p">[</span><span class="s1">'SCOPES'</span><span class="p">].</span><span class="nf">split</span><span class="p">(</span><span class="s1">','</span><span class="p">),</span>
     <span class="ss">state: </span><span class="no">SecureRandom</span><span class="p">.</span><span class="nf">hex</span><span class="p">(</span><span class="mi">10</span><span class="p">),</span>
     <span class="ss">client_signing_alg: :RS256</span><span class="p">,</span>
@@ -1468,11 +1404,11 @@ To install the gems, run:</p>
 In the home directory create a file called <code>.env</code>.</p>
 <div class="highlight"><pre class="highlight ruby tab-ruby"><code><span class="c1"># .env</span>
 
-<span class="no">ISSUER</span><span class="o">=</span><span class="s2">"https://test-auth.eeid.ee/hydra-public/"</span>
+<span class="no">ISSUER</span><span class="o">=</span><span class="s2">"https://test-auth.eeid.ee/hydra-public"</span>
 <span class="no">IDENTIFIER</span><span class="o">=</span><span class="s2">"&lt;your-eeid-client-id&gt;"</span>
 <span class="no">SECRET</span><span class="o">=</span><span class="s2">"&lt;your-eeid-secret&gt;"</span>
-<span class="no">REDIRECT_URL</span><span class="o">=</span><span class="s2">"http://localhost:3000/auth/tara/callback"</span>
-<span class="no">SCOPES</span><span class="o">=</span><span class="s2">"openid,idcard,mid,smartid"</span>
+<span class="no">REDIRECT_URL</span><span class="o">=</span><span class="s2">"http://localhost:3000/auth/eeid/callback"</span>
+<span class="no">SCOPES</span><span class="o">=</span><span class="s2">"openid"</span>
 </code></pre></div>
 <p><br>
 Open <code>.gitignore</code> and add the file we just created.</p>
@@ -1507,7 +1443,7 @@ We need to add the link for eeID sign-in to navigation and to show this link onl
         <span class="cp">&lt;%</span> <span class="k">if</span> <span class="n">current_user</span> <span class="cp">%&gt;</span>
           <span class="nt">&lt;li</span> <span class="na">class=</span><span class="s">"nav-item nav-link"</span><span class="nt">&gt;</span>Signed in as <span class="cp">&lt;%=</span> <span class="n">current_user</span><span class="p">.</span><span class="nf">first_name</span> <span class="cp">%&gt;</span><span class="nt">&lt;/li&gt;</span>
         <span class="cp">&lt;%</span> <span class="k">else</span> <span class="cp">%&gt;</span>
-          <span class="nt">&lt;li</span> <span class="na">class=</span><span class="s">"nav-item"</span><span class="nt">&gt;</span><span class="cp">&lt;%=</span> <span class="n">button_to</span> <span class="s1">'Sign in with eeID'</span><span class="p">,</span> <span class="s1">'/auth/tara'</span><span class="p">,</span> <span class="ss">class: </span><span class="s1">'nav-link'</span><span class="p">,</span> <span class="ss">data: </span><span class="p">{</span> <span class="ss">turbo: </span><span class="kp">false</span> <span class="p">}</span> <span class="cp">%&gt;</span><span class="nt">&lt;/li&gt;</span>
+          <span class="nt">&lt;li</span> <span class="na">class=</span><span class="s">"nav-item"</span><span class="nt">&gt;</span><span class="cp">&lt;%=</span> <span class="n">button_to</span> <span class="s1">'Sign in with eeID'</span><span class="p">,</span> <span class="s1">'/auth/eeid'</span><span class="p">,</span> <span class="ss">class: </span><span class="s1">'nav-link'</span><span class="p">,</span> <span class="ss">data: </span><span class="p">{</span> <span class="ss">turbo: </span><span class="kp">false</span> <span class="p">}</span> <span class="cp">%&gt;</span><span class="nt">&lt;/li&gt;</span>
         <span class="cp">&lt;%</span> <span class="k">end</span> <span class="cp">%&gt;</span>
       <span class="nt">&lt;/ul&gt;</span>
     <span class="nt">&lt;/div&gt;</span>
@@ -1623,7 +1559,7 @@ Then add this link for logging out to navigation, so our navigation looks like t
           <span class="nt">&lt;li</span> <span class="na">class=</span><span class="s">"nav-item nav-link"</span><span class="nt">&gt;</span>Signed in as <span class="cp">&lt;%=</span> <span class="n">current_user</span><span class="p">.</span><span class="nf">first_name</span> <span class="cp">%&gt;</span><span class="nt">&lt;/li&gt;</span>
           <span class="nt">&lt;li</span> <span class="na">class=</span><span class="s">"nav-item"</span><span class="nt">&gt;</span><span class="cp">&lt;%=</span> <span class="n">button_to</span> <span class="s1">'Log Out'</span><span class="p">,</span> <span class="n">logout_path</span><span class="p">,</span> <span class="ss">method: :delete</span><span class="p">,</span> <span class="ss">class: </span><span class="s1">'nav-link'</span><span class="p">,</span> <span class="ss">data: </span><span class="p">{</span> <span class="ss">turbo: </span><span class="kp">false</span> <span class="p">}</span> <span class="cp">%&gt;</span><span class="nt">&lt;/li&gt;</span>
         <span class="cp">&lt;%</span> <span class="k">else</span> <span class="cp">%&gt;</span>
-          <span class="nt">&lt;li</span> <span class="na">class=</span><span class="s">"nav-item"</span><span class="nt">&gt;</span><span class="cp">&lt;%=</span> <span class="n">button_to</span> <span class="s1">'Sign in with eeID'</span><span class="p">,</span> <span class="s1">'/auth/tara'</span><span class="p">,</span> <span class="ss">class: </span><span class="s1">'nav-link'</span><span class="p">,</span> <span class="ss">data: </span><span class="p">{</span> <span class="ss">turbo: </span><span class="kp">false</span> <span class="p">}</span> <span class="cp">%&gt;</span><span class="nt">&lt;/li&gt;</span>
+          <span class="nt">&lt;li</span> <span class="na">class=</span><span class="s">"nav-item"</span><span class="nt">&gt;</span><span class="cp">&lt;%=</span> <span class="n">button_to</span> <span class="s1">'Sign in with eeID'</span><span class="p">,</span> <span class="s1">'/auth/eeid'</span><span class="p">,</span> <span class="ss">class: </span><span class="s1">'nav-link'</span><span class="p">,</span> <span class="ss">data: </span><span class="p">{</span> <span class="ss">turbo: </span><span class="kp">false</span> <span class="p">}</span> <span class="cp">%&gt;</span><span class="nt">&lt;/li&gt;</span>
         <span class="cp">&lt;%</span> <span class="k">end</span> <span class="cp">%&gt;</span>
       <span class="nt">&lt;/ul&gt;</span>
     <span class="nt">&lt;/div&gt;</span>
