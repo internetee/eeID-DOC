@@ -22,11 +22,9 @@ Welcome to the Estonian Internet Foundation's eeID documentation! This document 
 - EU-citizen cross-border authentication (i.e. via eIDAS-Node)
 - FIDO2 Web Authentication (WebAuthn)
 
-eeID service is based on [Estonian Information System Authorities](https://www.ria.ee/en) solution [TARA2](https://github.com/e-gov/TARA2-Login).
-
 # OpenID Connect
 
-The eeID authentication service is based on the OpenID Connect protocol, which is built on top of the OAuth 2.0 authorization framework. It's designed to provide a secure and standardized way to authenticate users and obtain their basic profile information. OIDC is commonly used in applications that require user authentication, such as web and mobile applications.
+The eeID authentication service is based on the OpenID Connect protocol (OIDC), which is built on top of the OAuth 2.0 authorization framework. It's designed to provide a secure and standardized way to authenticate users and obtain their basic profile information. OIDC is commonly used in applications that require user authentication, such as web and mobile applications.
 
 Limited subset from standards was chosen and some adjustments were made. The main selections and adjustments compared to the full OpenID Connect protocol are the following:
 
@@ -39,7 +37,7 @@ Limited subset from standards was chosen and some adjustments were made. The mai
 
 # Getting started
 
-In order to get started you have to sign up and create your first client (service) in the [eeID manager](https://eeid.ee). 
+In order to get started you have to sign up and create your first service in the [eeID manager](https://eeid.ee). 
 
 1. Add a new contact first. From the main menu select `Contacts` to go to the contacts management view. Click on + Create New Contact and fill in the form.
 ![Create New Contact](images/new_contact_form.png)
@@ -55,10 +53,13 @@ In order to get started you have to sign up and create your first client (servic
 * Name - enter the name for your service. This will ultimately appear in-front of your customers
 * Description - provide a brief description of your service. It should be concise, ideally one sentence.
 * Approval description - in this field, provide details about what you are building and who your target customers are.
-* Redirection URL - specify the URL where users should be redirected to after they have been authenticated. If you do not know what you will use, just enter `https://localhost/callback` for now. The value can be changed later if needed.
+* Redirection URL - specify the URL where users should be redirected to after they have been authenticated. If you do not know what you will use, just enter `http://localhost/callback` for now. The value can be changed later if needed. NB! Ensure that redirect URL uses the HTTPS protocol. HTTP is only permitted for local development environments (e.g., localhost).
 * Environment - indicate the environment in which you will be using the service. `Test` is free and used for testing purposes.
-* Authentication methods - choose the authentication methods you wish to support. The options given are `EE ID-card`, `Mobile-ID`, `Smart-ID`, `EU-Citizen` and `Webauthn`. You can select one or more methods based on your preference.
+* Authentication scope - choose the authentication scope you wish to support. The following scopes are supported: `openid`, `webauthn`, `phone` and `email`. NB! `idcard`, `mid`, `smartid` and `eidas` are no longer in use and will be removed.
+* Authentication methods - choose the authentication methods you wish to support. You can select one or more methods based on your preferred country.
 * Contact - choose an existing contact or create a new one. This contact will be associated with the service, and it might be the point of contact for any communications or notifications regarding the service.
+* Consent screen - configure it to skip the "consent screen", which is the screen where the user must explicitly agree to giving the service access to their data and allow perform operations on their behalf.
+* Choose logo - upload a logo for your service.
 * Submission - review all the details entered in the form, and if everything is correct, click on `SUBMIT FOR APPROVAL` to submit your service.
 
 Once you submit the form, it will be reviewed by the service administrators
@@ -71,29 +72,13 @@ After the review process is completed, you will receive a notification regarding
 status of your application. This notification will inform you whether your application has
 been approved or rejected.
 
-# Authentication methods
+# Authentication scope
 
-By default, the eeID service facilitates the following authentication methods:
+By default, the eeID service facilitates the following authentication scope:
 
-* `EE ID-card` - [Estonian ID-card](https://www.id.ee/en/rubriik/id-card-en/)
-* `Mobile-ID` - [Estonian Mobile-ID](https://www.id.ee/en/mobile-id/) (also used in Lithuania)
-* `Smart-ID` - [Estonian Smart-ID](https://www.id.ee/en/article/smart-id/) (also used in Latvia and Lithuania)
+* `openid` - compulsory (required by the OpenID Connect protocol).
 
-These authentication methods stand as testimony to Estonia's advanced digital infrastructure, offering citizens secure, reliable, and convenient options for online authentication. By leveraging state-of-the-art technology and stringent security protocols, these methods ensure that Estonian citizens can safely access e-services, conduct online transactions, and sign digital documents from the comfort of their homes or on the go.
-
-* `EU-Citizen` authentication method activates a range of cross-border authentication methods. This activation allows EU citizens to log in to e-services using authentication methods recognized and approved in their respective EU member states (i.e. via [eIDAS-Node](https://ec.europa.eu/digital-building-blocks/wikis/display/DIGITAL/eIDAS-Node+Integration+Package)):
-
-Country     | Authentication methods | Required scopes
-------------| ----------------------| ---------------
-Belgium | eIDAS | `eidas`
-Czech Republic | mojeID | `eidas`
-Estonia | ID-card, Mobile-ID, Smart-ID | `eidas` `idcard` `mid` `smartid`
-Latvia | Smart-ID, eParaksts karte, eParaksts mobile | `eidas` `smartid`
-Lithuania | Smart-ID, Mobile-ID | `eidas` `smartid` `mid`
-Portugal | eIDAS | `eidas`
-Sweden | eIDAS | `eidas`
-
-* `Webauthn` authentication method enables a robust and secure user authentication process grounded
+* `webauthn` authentication scope enables a robust and secure user authentication process grounded
 in public key cryptography. This method does away with the need for passwords,
 instead allowing users to employ local authenticators such as biometrics or 
 security keys to securely and conveniently access online services.
@@ -106,16 +91,15 @@ For a demo of WebAuthn, visit [https://webauthn.io/](https://webauthn.io/).
 <b>Creating a WebAuthn Credential through eeID:</b>
 
 1. <b>Initial Authentication</b>
-<br>Before creating a WebAuthn credential, the users must first authenticate themselves
-using one of the other methods provided in the eeID service. This step ensures that the user's identity
-is verified through a secure and recognized authentication method.
+<br>Before creating a WebAuthn credential, the users must first verify their identity
+using one of the authentication methods provided in the eeID service or an AI-powered identity verification platform. This crucial step ensures that the user’s identity is securely verified through a recognized and trusted authentication method.
 
 2. <b>eeID as Identity Provider</b>
 <br>Once the initial authentication is successful, the eeID service acts as an identity provider.
 In this role, it verifies and stores the authenticated data, establishing a secure and
 trusted identity framework for the user.
 
-3. <b>Creating the Webtuhn Credential</b>
+3. <b>Creating the Webauthn Credential</b>
 <br>Following the successful authentication through eeID,
 the user can proceed to create a WebAuthn credential. This process involves:
     * <b>Registering a Local Authenticator.</b> The user will register a local authenticator,
@@ -135,6 +119,22 @@ online transactions but also offers a user-friendly authentication experience.
 It represents a forward step in secure, password-less digital authentication,
 promoting ease of use without compromising on security.
 
+* `phone` - can be used to request the user’s phone number in the identity token. This option is targeted for client applications that use i.e Mobile-ID, which requires user’s phone number for input, as a means for giving digital signatures. The claims `phone` and `phone_number_verified` are issued in the identity token. For example:
+
+```shell
+"sub": "EE60001019906",
+"phone_number": "+37200000766",
+"phone_number_verified": true
+```
+
+* `email` - can be used to request the user’s e-mail address in the identity token. This option is targeted for the client applications that require verification of an e-mail address in authentication of a user. The claims `email` and `email_verified` are issued in the identity token. For example:
+
+```shell
+"sub": "EE60001019906",
+"email": "60001019906@eesti.ee",
+"email_verified": false
+```
+
 # Requests
 
 ## Authentication request
@@ -149,15 +149,7 @@ Required query parameters:
 - `state` - security code against false request attacks (cross-site request forgery CSRF)
 - `redirect_uri` - redirect_uri
 - `response_type` - determines the manner of communication of the authentication result to the server, must be equal to `code`
-- `scope` - authentication scopes, `openid` is compulsory (required by the OpenID Connect protocol). The following scopes are supported: `idcard`, `mid`, `smartid`, `eidas` and `webauthn`. The scopes must correspond to the authentication methods selected while registering the service:
-
-Scope      | Authentication method
------------| --------------
-`idcard` | EE ID-card
-`mid` | Mobile-ID
-`smartid` | Smart-ID
-`eidas` | EU-Citizen
-`webauthn` | Webauthn
+- `scope` - authentication scope. The scope must correspond to the authentication scope selected while registering the service.
 
 Optional query parameters:
 
@@ -170,7 +162,7 @@ An example of an authentication request:
 GET https://auth.eeid.ee/hydra-public/oauth2/auth?client_id=oidc-b8ab3705-c25f-4271-b87d-ecf190aa4982-11
 &redirect_uri=https%3A%2F%2Feservice.institution.ee%2Fcallback
 &response_type=code
-&scope=openid%20idcard%20mid%20smartid%20eidas
+&scope=openid%20webauthn
 &state=f3b2c3e7f4cf0bed3a783ed6ece617e3
 ```
 
@@ -426,6 +418,9 @@ The eeID test environment is directed to the Smart-ID demo environment. There ar
 * Install the Smart-ID demo application on your device and register a [demo account](https://github.com/SK-EID/smart-id-documentation/wiki/Smart-ID-demo#getting-started).
 * Use [test users](https://github.com/SK-EID/smart-id-documentation/wiki/Environment-technical-parameters#test-accounts-for-automated-testing).
 
+# Run in Postman
+[<img src="https://run.pstmn.io/button.svg" alt="Run In Postman" style="width: 128px; height: 32px;">](https://god.gw.postman.com/run-collection/37760758-c07af2ef-c1d1-4675-91d1-701c0ea51871?action=collection%2Ffork&source=rip_markdown&collection-url=entityId%3D37760758-c07af2ef-c1d1-4675-91d1-701c0ea51871%26entityType%3Dcollection%26workspaceId%3Dfbfde0f7-54e9-4061-844a-5f03ab3d2ac4)
+
 # Code examples
 
 ## OpenID Connect Client with Spring Security
@@ -565,10 +560,10 @@ spring:
             client-secret: <your-eeid-secret>
             authorization-grant-type: authorization_code
             redirect-uri: "{baseUrl}/login/oauth2/callback/{registrationId}"
-            scope: openid,idcard,mid,smartid,eidas
+            scope: openid
         provider:
           eeid:
-            issuer-uri: https://test-auth.eeid.ee/hydra-public/
+            issuer-uri: https://test-auth.eeid.ee/hydra-public
 ```
 <br>
 This triggers Spring Boot to register a client. The client registration gets the id `eeid` which is part of the (default) `redirect-uri`.
@@ -717,13 +712,13 @@ header("Location: ./attributes.php");
 7. Create `.env` file with your OAuth client configuration parameters
 
 ```conf
-ISSUER="https://test-auth.eeid.ee/hydra-public/"
+ISSUER="https://test-auth.eeid.ee/hydra-public"
 OAUTH_CLIENT_ID="<your-eeid-client-id>"
 OAUTH_CLIENT_SECRET="<your-eeid-secret>"
 CLIENT_REDIRECT_URI="http://localhost:8082/index.php"
 AUTHORIZATION_SERVER_AUTHORIZE_URL="https://test-auth.eeid.ee/hydra-public/oauth2/auth"
 AUTHORIZATION_SERVER_ACCESS_TOKEN_URL="https://test-auth.eeid.ee/hydra-public/oauth2/token"
-SCOPE="openid idcard mid smartid eidas"
+SCOPE="openid"
 ```
 <br>
 Parameters like `OAUTH_CLIENT_ID`, `OAUTH_CLIENT_SECRET` and `SCOPE` have been defined after
@@ -790,9 +785,9 @@ After signing in you will be sent back and then on the attributes page.
 
 ![Claims](images/claims.png)
 
-## Rails on Rails with OmniAuth-Tara
+## Rails on Rails with OmniAuth::OpenIDConnect
 
-In this example, we will make use of [OmniAuth-Tara](https://github.com/internetee/omniauth-tara) gem, which contains the [Tara](https://e-gov.github.io/TARA-Doku/TechnicalSpecification) strategy for OmniAuth library that standardizes multi-provider authentication for web applications.
+In this example, we will make use of [OmniAuth::OpenIDConnect](https://github.com/omniauth/omniauth_openid_connect) gem, which contains the OpenID Connect (OIDC) strategy for OmniAuth library that standardizes multi-provider authentication for web applications.
 
 ### Getting Started
 
@@ -896,10 +891,10 @@ We need to create a new eeID service application. Go to [eeID manager](https://e
 
 ![Demo Service](images/demo_service.png)
 
-For the callback URL, enter your website's address plus `auth/tara/callback`. If you happen to be on a local machine, your callback URL should be this: `http://127.0.0.1:3000/auth/tara/callback`
+For the callback URL, enter your website's address plus `auth/eeid/callback`. If you happen to be on a local machine, your callback URL should be this: `http://127.0.0.1:3000/auth/eeid/callback`
 
 After submitting you will be redirected to the service information page. Copy the `Client ID` and `Client Secret` and paste them in a safe place — we will make use of them shortly.
-The callback URL is the URL where a user will be redirected to inside the app after successful authentication and approved authorization (the request will also contain the user’s token). All OmniAuth strategies expect the callback URL to equal `/auth/:provider/callback`. `:provider` takes the name of the strategy. In our case, the strategy will be `tara` as you will list in the initializer.
+The callback URL is the URL where a user will be redirected to inside the app after successful authentication and approved authorization (the request will also contain the user’s token). All OmniAuth strategies expect the callback URL to equal `/auth/:provider/callback`. `:provider` takes the name of the strategy. In our case, the strategy will be `eeid` as you will list in the initializer.
 
 Open up Gemfile to add the necessary gems:
 
@@ -907,8 +902,8 @@ Open up Gemfile to add the necessary gems:
 # Gemfile
 ...
 gem 'omniauth', '>=2.0.0'
+gem 'omniauth_openid_connect'
 gem 'omniauth-rails_csrf_protection'
-gem 'omniauth-tara', github: 'internetee/omniauth-tara'
 ```
 <br>
 Now create an initializer for OmniAuth in your config/initializers directory. This will hold the configuration for OmniAuth:
@@ -920,8 +915,8 @@ Now create an initializer for OmniAuth in your config/initializers directory. Th
 OmniAuth.config.allowed_request_methods = [:post]
 
 Rails.application.config.middleware.use OmniAuth::Builder do
-  provider 'tara', {
-    name: 'tara',
+  provider :openid_connect, {
+    name: :eeid,
     scope: ENV['SCOPES'].split(','),
     state: SecureRandom.hex(10),
     client_signing_alg: :RS256,
@@ -961,11 +956,11 @@ In the home directory create a file called `.env`.
 ```ruby
 # .env
 
-ISSUER="https://test-auth.eeid.ee/hydra-public/"
+ISSUER="https://test-auth.eeid.ee/hydra-public"
 IDENTIFIER="<your-eeid-client-id>"
 SECRET="<your-eeid-secret>"
-REDIRECT_URL="http://localhost:3000/auth/tara/callback"
-SCOPES="openid,idcard,mid,smartid"
+REDIRECT_URL="http://localhost:3000/auth/eeid/callback"
+SCOPES="openid"
 ```
 <br>
 Open `.gitignore` and add the file we just created.
@@ -1006,7 +1001,7 @@ We need to add the link for eeID sign-in to navigation and to show this link onl
         <% if current_user %>
           <li class="nav-item nav-link">Signed in as <%= current_user.first_name %></li>
         <% else %>
-          <li class="nav-item"><%= button_to 'Sign in with eeID', '/auth/tara', class: 'nav-link', data: { turbo: false } %></li>
+          <li class="nav-item"><%= button_to 'Sign in with eeID', '/auth/eeid', class: 'nav-link', data: { turbo: false } %></li>
         <% end %>
       </ul>
     </div>
@@ -1146,7 +1141,7 @@ Then add this link for logging out to navigation, so our navigation looks like t
           <li class="nav-item nav-link">Signed in as <%= current_user.first_name %></li>
           <li class="nav-item"><%= button_to 'Log Out', logout_path, method: :delete, class: 'nav-link', data: { turbo: false } %></li>
         <% else %>
-          <li class="nav-item"><%= button_to 'Sign in with eeID', '/auth/tara', class: 'nav-link', data: { turbo: false } %></li>
+          <li class="nav-item"><%= button_to 'Sign in with eeID', '/auth/eeid', class: 'nav-link', data: { turbo: false } %></li>
         <% end %>
       </ul>
     </div>
