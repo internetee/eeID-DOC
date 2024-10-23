@@ -14,18 +14,20 @@ code_clipboard: true
 
 # Introduction
 
+![eeID](images/eeid_logo.png)
+
 Welcome to the Estonian Internet Foundation's eeID documentation! This document describes the technical characteristics of the Estonian Internet Foundation eeID services and includes advice for interfacing the client application with e-services. The Estonian Internet Foundation's eeID services offer a robust and secure framework for identity management, enabling both authentication and identification processes for users and organizations.
 
 ## Key Components
 ### [eeID Authentication Service](#eeid-authentication):
 
 - The authentication service is based on the OpenID Connect protocol, which is an extension of the OAuth 2.0 framework. It provides a standardized method for verifying user identities across various applications and platforms.
-- Users can authenticate using multiple methods, including Mobiil-ID, ID card, Smart-ID, EU-citizen cross-border authentication and FIDO2 Web Authentication (WebAuthn). This flexibility allows institutions and private individuals to choose the most suitable authentication method for their needs.
+- Users can authenticate using multiple methods, including Mobiil-ID, ID card, Smart-ID, EU-citizen cross-border authentication and FIDO2 Web Authentication (Passkey Authentication). This flexibility allows institutions and private individuals to choose the most suitable authentication method for their needs.
 - The service issues identity tokens that contain essential user information, enabling applications to confirm identities and manage user access securely.
 
 ### [eeID Identification Service](#eeid-identification):
 
-- The identification service complements the authentication service by providing an API for creating identification requests and verifying user identities based on specific criteria, such as unique identifiers (sub) or personal details (name).
+- The identification service complements the authentication service by providing an API for creating identification requests and verifying user identities based on specific criteria, such as unique identifiers (subject) or personal details (name).
 - Organizations can initiate identification requests to confirm user identities, ensuring accurate matches against the provided information. This service is particularly valuable in sectors that require stringent identity verification, such as finance, healthcare, government and domain registries.
 - By streamlining the identification process, the service enhances security and efficiency, allowing organizations to manage user verification seamlessly.
 
@@ -35,9 +37,9 @@ The eeID is based on the OpenID Connect protocol (OIDC), which is built on top o
 
 Limited subset from standards was chosen and some adjustments were made. The main selections and adjustments compared to the full OpenID Connect protocol are the following:
 
-- The service supports the authorization code flow. The authorization code flow is deemed the most secure option and is thus appropriate for public services.
+- The services support the authorization code flow. The authorization code flow is deemed the most secure option and is thus appropriate for public services.
 - All information about an authenticated user is transferred to the application in an ID token.
-- The eIDAS assurance level is also transferred to the application if it is known (in the acr statement).
+- The eIDAS assurance level is also transferred to the application if it is known (in the `acr` statement).
 - The authentication method is selected by the user in the authentication service or by the interfaced client with the scope parameter.
 - Cross-border authentication based on the technical specification of eIDAS.
 - Dynamic registration of the client application is not supported. The client application is registered in [eeID manager](https://eeid.ee) by a separate procedure.
@@ -57,25 +59,25 @@ In order to get started you have to sign up and create your first service in the
 
 4. All the fields must be valid to proceed.
 
-* Name - enter the name for your service. This will ultimately appear in-front of your customers
-* Type - enter the type of your service (Authentication or Identification)
-* Description - provide a brief description of your service. It should be concise, ideally one sentence.
-* Approval description - in this field, provide details about what you are building and who your target customers are.
-* Redirection URL (Authentication) - specify the URL where users should be redirected to after they have been authenticated. If you do not know what you will use, just enter `http://localhost/callback` for now. The value can be changed later if needed. NB! Ensure that redirect URL uses the HTTPS protocol. HTTP is only permitted for local development environments (e.g., localhost).
-* Webhook URL (Identification) - specify the URL where the service will send notifications about the status of identification requests. This is a critical field for services that require real-time updates on the verification process. Ensure the provided URL is secure (HTTPS) and can handle incoming requests. The path should be `eeid/webhooks/identification_requests`.
-* Environment - indicate the environment in which you will be using the service. `Test` is free and used for testing purposes.
-* Authentication scope - choose the authentication scope you wish to support. The following scopes are supported: `openid`, `webauthn`, `phone` and `email`. NB! `idcard`, `mid`, `smartid` and `eidas` are no longer in use and will be removed.
-* Authentication methods - choose the authentication methods you wish to support. You can select one or more methods based on your preferred country.
-* Contact - choose an existing contact or create a new one. This contact will be associated with the service, and it might be the point of contact for any communications or notifications regarding the service.
-* Consent screen (Authentication) - configure it to skip the "consent screen", which is the screen where the user must explicitly agree to giving the service access to their data and allow perform operations on their behalf.
-* Choose logo (Authentication) - upload a logo for your service.
-* Submission - review all the details entered in the form, and if everything is correct, click on `SUBMIT FOR APPROVAL` to submit your service.
+* **Name** - enter the name for your service. NB! This will ultimately appear in-front of your customers.
+* **Type** - enter the type of your service (`Authentication` or `Identification`)
+* **Description** - provide a brief description of your service. It should be concise, ideally one sentence.
+* **Approval description** - in this field, provide details about what you are building and who your target customers are.
+* **Redirection URL** (`Authentication`) - specify the URL where users should be redirected to after they have been authenticated. If you do not know what you will use, just enter `http://localhost/callback` for now. The value can be changed later if needed. NB! Ensure that redirect URL uses the HTTPS protocol. HTTP is only permitted for local development environments (e.g., localhost).
+* **Webhook URL** (`Identification`) - specify the URL where the service will send notifications about the status of identification requests. This is a critical field for services that require real-time updates on the verification process. Ensure the provided URL is secure (HTTPS) and can handle incoming requests. The path must contain `eeid/webhooks/identification_requests`.
+* **Environment** - indicate the environment in which you will be using the service. `Test` is free and used for testing purposes.
+* **Authentication scope** - choose the authentication scope you wish to support. The following scopes are supported: `openid`, `webauthn`, `phone` and `email`. NB! `idcard`, `mid`, `smartid` and `eidas` are no longer in use and will be removed.
+* **Authentication methods** - choose the authentication methods you wish to support. You can select one or more methods based on your preferred country.
+* **Contact** - choose an existing contact or create a new one. This contact will be associated with the service, and it might be the point of contact for any communications or notifications regarding the service.
+* **Consent screen** (`Authentication`) - configure it to skip the "consent screen", which is the screen where the user must explicitly agree to giving the service access to their data and allow perform operations on their behalf.
+* **Choose logo** (`Authentication`) - upload a logo for your service.
+* **Submission** - review all the details entered in the form, and if everything is correct, click on `SUBMIT FOR APPROVAL` to submit your service.
 
 Once you submit the form, it will be reviewed by the service administrators
 at the [Estonian Internet Foundation](https://www.internet.ee/)
 They will assess the details provided in your application to ensure
 they meet the necessary criteria and adhere to the [terms of use](https://meedia.internet.ee/files/Terms_of_use_eeID.pdf).
-If your application meets all the requirements, it will be approved and you will be provided with the client ID and secret.
+If your application meets all the requirements, it will be approved and you will be provided with the `Client ID` and `Secret`.
 In case there are issues or discrepancies in your application, it might be rejected.
 After the review process is completed, you will receive a notification regarding the
 status of your application. This notification will inform you whether your application has
@@ -83,7 +85,7 @@ been approved or rejected.
 
 # Authentication scope
 
-By default, the eeID service facilitates the following authentication scope:
+By default, the eeID services facilitate the following authentication scope:
 
 * `openid` - compulsory (required by the OpenID Connect protocol).
 
@@ -108,7 +110,7 @@ By default, the eeID service facilitates the following authentication scope:
 <b>Creating a WebAuthn Credential through eeID:</b>
 
 1. <b>Initial Authentication</b>
-<br>Before creating a WebAuthn credential (passkey), users must first verify their identity using an authentication method provided by the eeID service or, if unavailable, an AI-powered identity verification platform like Veriff. This step is crucial for ensuring the user's identity is securely verified through a recognized and trusted authentication method.
+<br>Before creating a WebAuthn credential (passkey), users must first verify their identity using an authentication method provided by the eeID service or, if unavailable, an AI-powered identity verification platform ([Veriff](https://www.veriff.com/)). This step is crucial for ensuring the user's identity is securely verified through a recognized and trusted authentication method.
 
 2. <b>eeID as Identity Provider</b>
 <br>Once the initial authentication is successful, the eeID service acts as an identity provider.
