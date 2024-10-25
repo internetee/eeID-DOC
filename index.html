@@ -307,75 +307,58 @@
       <ul id="toc" class="toc-list-h1">
           <li>
             <a href="#introduction" class="toc-h1 toc-link" data-title="Introduction">Introduction</a>
+              <ul class="toc-list-h2">
+                  <li>
+                    <a href="#key-components" class="toc-h2 toc-link" data-title="Key Components">Key Components</a>
+                  </li>
+              </ul>
           </li>
           <li>
             <a href="#openid-connect" class="toc-h1 toc-link" data-title="OpenID Connect">OpenID Connect</a>
           </li>
           <li>
-            <a href="#getting-started" class="toc-h1 toc-link" data-title="Getting started">Getting started</a>
+            <a href="#getting-started" class="toc-h1 toc-link" data-title="Getting Started">Getting Started</a>
           </li>
           <li>
             <a href="#authentication-scope" class="toc-h1 toc-link" data-title="Authentication scope">Authentication scope</a>
           </li>
           <li>
-            <a href="#requests" class="toc-h1 toc-link" data-title="Requests">Requests</a>
+            <a href="#eeid-authentication" class="toc-h1 toc-link" data-title="eeID Authentication">eeID Authentication</a>
               <ul class="toc-list-h2">
                   <li>
-                    <a href="#authentication-request" class="toc-h2 toc-link" data-title="Authentication request">Authentication request</a>
+                    <a href="#requests" class="toc-h2 toc-link" data-title="Requests">Requests</a>
                   </li>
                   <li>
-                    <a href="#redirect-request" class="toc-h2 toc-link" data-title="Redirect request">Redirect request</a>
+                    <a href="#protection" class="toc-h2 toc-link" data-title="Protection">Protection</a>
                   </li>
                   <li>
-                    <a href="#identity-token-request" class="toc-h2 toc-link" data-title="Identity token request">Identity token request</a>
+                    <a href="#endpoints-and-timeouts" class="toc-h2 toc-link" data-title="Endpoints and timeouts">Endpoints and timeouts</a>
                   </li>
                   <li>
-                    <a href="#user-info-request" class="toc-h2 toc-link" data-title="User info request">User info request</a>
+                    <a href="#testing" class="toc-h2 toc-link" data-title="Testing">Testing</a>
+                  </li>
+                  <li>
+                    <a href="#run-in-postman" class="toc-h2 toc-link" data-title="Run in Postman">Run in Postman</a>
+                  </li>
+                  <li>
+                    <a href="#code-examples" class="toc-h2 toc-link" data-title="Code examples">Code examples</a>
                   </li>
               </ul>
           </li>
           <li>
-            <a href="#protection" class="toc-h1 toc-link" data-title="Protection">Protection</a>
-          </li>
-          <li>
-            <a href="#endpoints-and-timeouts" class="toc-h1 toc-link" data-title="Endpoints and timeouts">Endpoints and timeouts</a>
+            <a href="#eeid-identification" class="toc-h1 toc-link" data-title="eeID Identification">eeID Identification</a>
               <ul class="toc-list-h2">
                   <li>
-                    <a href="#production-service" class="toc-h2 toc-link" data-title="Production service">Production service</a>
+                    <a href="#key-features" class="toc-h2 toc-link" data-title="Key Features">Key Features</a>
                   </li>
                   <li>
-                    <a href="#test-service" class="toc-h2 toc-link" data-title="Test service">Test service</a>
+                    <a href="#getting-started-2" class="toc-h2 toc-link" data-title="Getting Started">Getting Started</a>
                   </li>
                   <li>
-                    <a href="#timeouts" class="toc-h2 toc-link" data-title="Timeouts">Timeouts</a>
-                  </li>
-              </ul>
-          </li>
-          <li>
-            <a href="#testing" class="toc-h1 toc-link" data-title="Testing">Testing</a>
-              <ul class="toc-list-h2">
-                  <li>
-                    <a href="#mobile-id" class="toc-h2 toc-link" data-title="Mobile ID">Mobile ID</a>
+                    <a href="#example-workflow" class="toc-h2 toc-link" data-title="Example Workflow">Example Workflow</a>
                   </li>
                   <li>
-                    <a href="#smart-id" class="toc-h2 toc-link" data-title="Smart ID">Smart ID</a>
-                  </li>
-              </ul>
-          </li>
-          <li>
-            <a href="#run-in-postman" class="toc-h1 toc-link" data-title="Run in Postman">Run in Postman</a>
-          </li>
-          <li>
-            <a href="#code-examples" class="toc-h1 toc-link" data-title="Code examples">Code examples</a>
-              <ul class="toc-list-h2">
-                  <li>
-                    <a href="#openid-connect-client-with-spring-security" class="toc-h2 toc-link" data-title="OpenID Connect Client with Spring Security">OpenID Connect Client with Spring Security</a>
-                  </li>
-                  <li>
-                    <a href="#php-openid-connect-example" class="toc-h2 toc-link" data-title="PHP OpenID Connect example">PHP OpenID Connect example</a>
-                  </li>
-                  <li>
-                    <a href="#rails-on-rails-with-omniauth-openidconnect" class="toc-h2 toc-link" data-title="Rails on Rails with OmniAuth::OpenIDConnect">Rails on Rails with OmniAuth::OpenIDConnect</a>
+                    <a href="#identification-requests-api" class="toc-h2 toc-link" data-title="Identification Requests API">Identification Requests API</a>
                   </li>
               </ul>
           </li>
@@ -389,29 +372,35 @@
     <div class="page-wrapper">
       <div class="content">
         <h1 id='introduction'>Introduction</h1>
-<p>Welcome to the Estonian Internet Foundation&#39;s eeID documentation! This document describes the technical characteristics of the Estonian Internet Foundation eeID authentication service and includes advice for interfacing the client application with e-services. The eeID authentication service can be used by institutions and private persons to add the support of various different <a href="#authentication-methods">authentication methods</a> to its e-service:</p>
+<p><img src="images/eeid_logo-0277c13b.png" alt="eeID" /></p>
 
+<p>Welcome to the Estonian Internet Foundation&#39;s eeID documentation! This document describes the technical characteristics of the Estonian Internet Foundation eeID services and includes advice for interfacing the client application with e-services. The Estonian Internet Foundation&#39;s eeID services offer a robust and secure framework for identity management, enabling both authentication and identification processes for users and organizations.</p>
+<h2 id='key-components'>Key Components</h2><h3 id='eeid-authentication-service'><a href="#eeid-authentication">eeID Authentication Service</a>:</h3>
 <ul>
-<li>Mobiil-ID</li>
-<li>ID card</li>
-<li>Smart-ID</li>
-<li>EU-citizen cross-border authentication (i.e. via eIDAS-Node)</li>
-<li>FIDO2 Web Authentication (WebAuthn)</li>
+<li>The authentication service is based on the OpenID Connect protocol, which is an extension of the OAuth 2.0 framework. It provides a standardized method for verifying user identities across various applications and platforms.</li>
+<li>Users can authenticate using multiple methods, including Mobiil-ID, ID card, Smart-ID, EU-citizen cross-border authentication and FIDO2 Web Authentication (Passkey Authentication). This flexibility allows institutions and private individuals to choose the most suitable authentication method for their needs.</li>
+<li>The service issues identity tokens that contain essential user information, enabling applications to confirm identities and manage user access securely.</li>
+</ul>
+<h3 id='eeid-identification-service'><a href="#eeid-identification">eeID Identification Service</a>:</h3>
+<ul>
+<li>The identification service complements the authentication service by providing an API for creating identification requests and verifying user identities based on specific criteria, such as unique identifiers (subject) or personal details (name).</li>
+<li>Organizations can initiate identification requests to confirm user identities, ensuring accurate matches against the provided information. This service is particularly valuable in sectors that require stringent identity verification, such as finance, healthcare, government and domain registries.</li>
+<li>By streamlining the identification process, the service enhances security and efficiency, allowing organizations to manage user verification seamlessly.</li>
 </ul>
 <h1 id='openid-connect'>OpenID Connect</h1>
-<p>The eeID authentication service is based on the OpenID Connect protocol (OIDC), which is built on top of the OAuth 2.0 authorization framework. It&#39;s designed to provide a secure and standardized way to authenticate users and obtain their basic profile information. OIDC is commonly used in applications that require user authentication, such as web and mobile applications.</p>
+<p>The eeID is based on the OpenID Connect protocol (OIDC), which is built on top of the OAuth 2.0 authorization framework. It&#39;s designed to provide a secure and standardized way to authenticate users and obtain their basic profile information. OIDC is commonly used in applications that require user authentication, such as web and mobile applications.</p>
 
 <p>Limited subset from standards was chosen and some adjustments were made. The main selections and adjustments compared to the full OpenID Connect protocol are the following:</p>
 
 <ul>
-<li>The service supports the authorisation code flow. The authorisation code flow is deemed the most secure option and is thus appropriate for public services.</li>
+<li>The services support the authorization code flow. The authorization code flow is deemed the most secure option and is thus appropriate for public services.</li>
 <li>All information about an authenticated user is transferred to the application in an ID token.</li>
-<li>The eIDAS assurance level is also transferred to the application if it is known (in the acr statement).</li>
+<li>The eIDAS assurance level is also transferred to the application if it is known (in the <code>acr</code> statement).</li>
 <li>The authentication method is selected by the user in the authentication service or by the interfaced client with the scope parameter.</li>
 <li>Cross-border authentication based on the technical specification of eIDAS.</li>
 <li>Dynamic registration of the client application is not supported. The client application is registered in <a href="https://eeid.ee">eeID manager</a> by a separate procedure.</li>
 </ul>
-<h1 id='getting-started'>Getting started</h1>
+<h1 id='getting-started'>Getting Started</h1>
 <p>In order to get started you have to sign up and create your first service in the <a href="https://eeid.ee">eeID manager</a>. </p>
 
 <ol>
@@ -420,87 +409,41 @@
 <li><p>From the main menu select <code>Services</code> to go to the service management view. Click on + Create New Service.
 <img src="images/create_new_service-c48559cb.png" alt="Create New Service" /></p></li>
 <li><p>Fill in the form
-<img src="images/new_service_form-9f1e4118.png" alt="New Service Form" /></p></li>
+<img src="images/new_service_form-245378b4.png" alt="New Service Form" /></p></li>
 <li><p>All the fields must be valid to proceed.</p></li>
 </ol>
 
 <ul>
-<li>Name - enter the name for your service. This will ultimately appear in-front of your customers</li>
-<li>Description - provide a brief description of your service. It should be concise, ideally one sentence.</li>
-<li>Approval description - in this field, provide details about what you are building and who your target customers are.</li>
-<li>Redirection URL - specify the URL where users should be redirected to after they have been authenticated. If you do not know what you will use, just enter <code>http://localhost/callback</code> for now. The value can be changed later if needed. NB! Ensure that redirect URL uses the HTTPS protocol. HTTP is only permitted for local development environments (e.g., localhost).</li>
-<li>Environment - indicate the environment in which you will be using the service. <code>Test</code> is free and used for testing purposes.</li>
-<li>Authentication scope - choose the authentication scope you wish to support. The following scopes are supported: <code>openid</code>, <code>webauthn</code>, <code>phone</code> and <code>email</code>. NB! <code>idcard</code>, <code>mid</code>, <code>smartid</code> and <code>eidas</code> are no longer in use and will be removed.</li>
-<li>Authentication methods - choose the authentication methods you wish to support. You can select one or more methods based on your preferred country.</li>
-<li>Contact - choose an existing contact or create a new one. This contact will be associated with the service, and it might be the point of contact for any communications or notifications regarding the service.</li>
-<li>Consent screen - configure it to skip the &quot;consent screen&quot;, which is the screen where the user must explicitly agree to giving the service access to their data and allow perform operations on their behalf.</li>
-<li>Choose logo - upload a logo for your service.</li>
-<li>Submission - review all the details entered in the form, and if everything is correct, click on <code>SUBMIT FOR APPROVAL</code> to submit your service.</li>
+<li><strong>Name</strong> - enter the name for your service. NB! This will ultimately appear in-front of your customers.</li>
+<li><strong>Type</strong> - enter the type of your service (<code>Authentication</code> or <code>Identification</code>)</li>
+<li><strong>Description</strong> - provide a brief description of your service. It should be concise, ideally one sentence.</li>
+<li><strong>Approval description</strong> - in this field, provide details about what you are building and who your target customers are.</li>
+<li><strong>Redirection URL</strong> (<code>Authentication</code>) - specify the URL where users should be redirected to after they have been authenticated. If you do not know what you will use, just enter <code>http://localhost/callback</code> for now. The value can be changed later if needed. NB! Ensure that redirect URL uses the HTTPS protocol. HTTP is only permitted for local development environments (e.g., localhost).</li>
+<li><strong>Webhook URL</strong> (<code>Identification</code>) - specify the URL where the service will send notifications about the status of identification requests. This is a critical field for services that require real-time updates on the verification process. Ensure the provided URL is secure (HTTPS) and can handle incoming requests. The path must contain <code>eeid/webhooks/identification_requests</code>.</li>
+<li><strong>Environment</strong> - indicate the environment in which you will be using the service. <code>Test</code> is free and used for testing purposes.</li>
+<li><strong>Authentication scope</strong> - choose the authentication scope you wish to support. The following scopes are supported: <code>openid</code>, <code>webauthn</code>, <code>phone</code> and <code>email</code>. NB! <code>idcard</code>, <code>mid</code>, <code>smartid</code> and <code>eidas</code> are no longer in use and will be removed.</li>
+<li><strong>Authentication methods</strong> - choose the authentication methods you wish to support. You can select one or more methods based on your preferred country.</li>
+<li><strong>Contact</strong> - choose an existing contact or create a new one. This contact will be associated with the service, and it might be the point of contact for any communications or notifications regarding the service.</li>
+<li><strong>Consent screen</strong> (<code>Authentication</code>) - configure it to skip the &quot;consent screen&quot;, which is the screen where the user must explicitly agree to giving the service access to their data and allow perform operations on their behalf.</li>
+<li><strong>Choose logo</strong> (<code>Authentication</code>) - upload a logo for your service.</li>
+<li><strong>Submission</strong> - review all the details entered in the form, and if everything is correct, click on <code>SUBMIT FOR APPROVAL</code> to submit your service.</li>
 </ul>
 
 <p>Once you submit the form, it will be reviewed by the service administrators
 at the <a href="https://www.internet.ee/">Estonian Internet Foundation</a>
 They will assess the details provided in your application to ensure
 they meet the necessary criteria and adhere to the <a href="https://meedia.internet.ee/files/Terms_of_use_eeID.pdf">terms of use</a>.
-If your application meets all the requirements, it will be approved and you will be provided with the client ID and secret.
+If your application meets all the requirements, it will be approved and you will be provided with the <code>Client ID</code> and <code>Secret</code>.
 In case there are issues or discrepancies in your application, it might be rejected.
 After the review process is completed, you will receive a notification regarding the
 status of your application. This notification will inform you whether your application has
 been approved or rejected.</p>
 <h1 id='authentication-scope'>Authentication scope</h1>
-<p>By default, the eeID service facilitates the following authentication scope:</p>
+<p>By default, the eeID services facilitate the following authentication scope:</p>
 
 <ul>
 <li><p><code>openid</code> - compulsory (required by the OpenID Connect protocol).</p></li>
-<li><p><code>webauthn</code> authentication scope enables a robust and secure user authentication process grounded
-in public key cryptography. This method does away with the need for passwords,
-instead allowing users to employ local authenticators such as biometrics or 
-security keys to securely and conveniently access online services.
-Being a core component of the <a href="https://fidoalliance.org/fido2-2/fido2-web-authentication-webauthn/">FIDO Alliance&#39;s FIDO2</a> set of specifications,
-it is designed to foster stronger and simpler web authentication mechanisms,
-enhancing security and user experience in the digital landscape.</p></li>
-</ul>
-
-<p>For a demo of WebAuthn, visit <a href="https://webauthn.io/">https://webauthn.io/</a>.</p>
-
-<p><b>Creating a WebAuthn Credential through eeID:</b></p>
-
-<ol>
-<li><p><b>Initial Authentication</b>
-<br>Before creating a WebAuthn credential, the users must first verify their identity
-using one of the authentication methods provided in the eeID service or an AI-powered identity verification platform. This crucial step ensures that the user’s identity is securely verified through a recognized and trusted authentication method.</p></li>
-<li><p><b>eeID as Identity Provider</b>
-<br>Once the initial authentication is successful, the eeID service acts as an identity provider.
-In this role, it verifies and stores the authenticated data, establishing a secure and
-trusted identity framework for the user.</p></li>
-<li><p><b>Creating the Webauthn Credential</b>
-<br>Following the successful authentication through eeID,
-the user can proceed to create a WebAuthn credential. This process involves:</p>
-
-<ul>
-<li><b>Registering a Local Authenticator.</b> The user will register a local authenticator,
-such as a biometric identifier (fingerprint, facial recognition, etc.) or a security key.</li>
-<li><b>Public Key Cryptography.</b> The WebAuthn method leverages public key cryptography,
-where a private key is stored on the user&#39;s local device, and a public key is
-stored on the server. This setup ensures a secure and password-less authentication process.</li>
-<li><b>Credential ID.</b> Upon successful registration, a unique Credential ID is generated, which will be used for future authentications.</li>
-</ul></li>
-<li><p><b>Future Authentications</b>
-<br>With the WebAuthn credential created, the user can now use this method for future authentications. When logging in:</p>
-
-<ul>
-<li>The user will be prompted to authenticate using their local authenticator.</li>
-<li>The server verifies the authentication using the stored public key, ensuring a secure and swift login process.</li>
-</ul></li>
-</ol>
-
-<p>Creating a WebAuthn credential through the eeID service not only enhances the security of
-online transactions but also offers a user-friendly authentication experience.
-It represents a forward step in secure, password-less digital authentication,
-promoting ease of use without compromising on security.</p>
-
-<ul>
-<li><code>phone</code> - can be used to request the user’s phone number in the identity token. This option is targeted for client applications that use i.e Mobile-ID, which requires user’s phone number for input, as a means for giving digital signatures. The claims <code>phone</code> and <code>phone_number_verified</code> are issued in the identity token. For example:</li>
+<li><p><code>phone</code> - can be used to request the user’s phone number in the identity token. This option is targeted for client applications that use i.e Mobile-ID, which requires user’s phone number for input, as a means for giving digital signatures. The claims <code>phone</code> and <code>phone_number_verified</code> are issued in the identity token. For example:</p></li>
 </ul>
 <div class="highlight"><pre class="highlight shell tab-shell"><code><span class="s2">"sub"</span>: <span class="s2">"EE60001019906"</span>,
 <span class="s2">"phone_number"</span>: <span class="s2">"+37200000766"</span>,
@@ -512,7 +455,47 @@ promoting ease of use without compromising on security.</p>
 <div class="highlight"><pre class="highlight shell tab-shell"><code><span class="s2">"sub"</span>: <span class="s2">"EE60001019906"</span>,
 <span class="s2">"email"</span>: <span class="s2">"60001019906@eesti.ee"</span>,
 <span class="s2">"email_verified"</span>: <span class="nb">false</span>
-</code></pre></div><h1 id='requests'>Requests</h1><h2 id='authentication-request'>Authentication request</h2>
+</code></pre></div>
+<ul>
+<li><code>webauthn</code> - authentication scope leverages passkeys, a cutting-edge technology that replaces traditional passwords with a more secure and user-friendly approach. Passkeys, as described in <a href="https://fidoalliance.org/passkeys-101/">FIDO Alliance&#39;s Passkeys 101</a>, utilize public key cryptography to enable users to authenticate using local authenticators such as biometrics, security keys, or other trusted devices. This method simplifies the authentication process while significantly enhancing security, providing a seamless and secure experience for users across the web.</li>
+</ul>
+
+<p><b>Creating a WebAuthn Credential through eeID:</b></p>
+
+<ol>
+<li><p><b>Initial Authentication</b>
+<br>Before creating a WebAuthn credential (passkey), users must first verify their identity using an authentication method provided by the eeID service or, if unavailable, an AI-powered identity verification platform (<a href="https://www.veriff.com/">Veriff</a>). This step is crucial for ensuring the user&#39;s identity is securely verified through a recognized and trusted authentication method.</p></li>
+<li><p><b>eeID as Identity Provider</b>
+<br>Once the initial authentication is successful, the eeID service acts as an identity provider.
+In this role, it verifies and stores the authenticated data, establishing a secure and
+trusted identity framework for the user.</p></li>
+<li><p><b>Creating the Webauthn Credential (passkey)</b>
+<br>Following the successful authentication through eeID,
+the user can proceed to create a passkey. This process involves:</p>
+
+<ul>
+<li><b>Registering a Local Authenticator.</b> The user will register a local authenticator,
+such as a biometric identifier (fingerprint, facial recognition, etc.) or a security key.</li>
+<li><b>Public Key Cryptography.</b> The WebAuthn method leverages public key cryptography,
+where a private key is stored on the user&#39;s local device, and a public key is
+stored on the server. This setup ensures a secure and password-less authentication process.</li>
+<li><b>Credential ID.</b> Upon successful registration, a unique Credential ID is generated, which will be used for future authentications.</li>
+</ul></li>
+</ol>
+
+<p><br>
+4. <b>Future Authentications</b>
+<br>With the passkey created, the user can now use this method for future authentications. When logging in:</p>
+
+<p>* The user will be prompted to authenticate using their local authenticator.</p>
+
+<p>* The server verifies the authentication using the stored public key, ensuring a secure and swift login process.</p>
+
+<p>Creating a passkey through the eeID service not only enhances the security of
+online transactions but also offers a user-friendly authentication experience.
+It represents a forward step in secure, password-less digital authentication,
+promoting ease of use without compromising on security.</p>
+<h1 id='eeid-authentication'>eeID Authentication</h1><h2 id='requests'>Requests</h2><h3 id='authentication-request'>Authentication request</h3>
 <p>An authentication request is a HTTP GET request by which the user is redirected from the client application to the eeID server for authentication.</p>
 
 <p>URL: <code>https://auth.eeid.ee/hydra-public/oauth2/auth</code></p>
@@ -540,7 +523,7 @@ promoting ease of use without compromising on security.</p>
 &amp;response_type<span class="o">=</span>code
 &amp;scope<span class="o">=</span>openid%20webauthn
 &amp;state<span class="o">=</span>f3b2c3e7f4cf0bed3a783ed6ece617e3
-</code></pre></div><h2 id='redirect-request'>Redirect request</h2>
+</code></pre></div><h3 id='redirect-request'>Redirect request</h3>
 <p>The redirect request is a HTTP GET request which is used to redirect the user back to the return address entered upon registration of the client application in <a href="https://eeid.ee">eeID manager</a>. In the redirect request an authorization code is sent to the client application, based on which the client application will request the access token in order to get personal identification code, name and other attributes of the authenticated person. The security code state received in the authentication request is mirrored back. Read more about forming and verifying state from <a href="#protection">Protection against false request attacks</a>.</p>
 
 <p>An example of a redirect request:</p>
@@ -557,7 +540,7 @@ The+requested+scope+is+invalid%2C+unknown%2C+or+malformed.+The+OAuth+2.0+Client+
 </code></pre></div>
 <p><br>
 The redirect request errors are normally resulted by a misconfiguration; therefore the error description in parameter <code>error_description</code> is not needed to be displayed for the user directly. The client application should check whether or not an error message has been sent.</p>
-<h2 id='identity-token-request'>Identity token request</h2>
+<h3 id='identity-token-request'>Identity token request</h3>
 <p>The identity token request is an HTTP POST request which is used by the client application to request the identity token from the login server of eeID.</p>
 
 <p>An example of an identity token request:</p>
@@ -735,7 +718,7 @@ The following claims are presented in the identity token:</p>
 <p>Identity token might consist of other OpenID Connect protocol based fields that are not supported by eeID.</p>
 
 <p>The client application must obtain the identity token immediately or within <code>30</code> seconds (before the expiry time of the identity token).</p>
-<h2 id='user-info-request'>User info request</h2>
+<h3 id='user-info-request'>User info request</h3>
 <p>User info request enables requesting information about an authenticated user based on a valid <code>OAuth 2.0</code> access token. The request must be done by using the HTTP GET method. The access token must be presented to the user info endpoint in the HTTP header by using <a href="https://tools.ietf.org/html/rfc6750#section-2.1">the Bearer Token method</a> or as a <a href="https://tools.ietf.org/html/rfc6750#section-2.3">URLi parameter</a>.</p>
 
 <p>Example 1 - transferring an access certificate in the <code>Authorization</code> header:</p>
@@ -805,7 +788,7 @@ about the error are returned:</p>
   </span><span class="nl">"error"</span><span class="p">:</span><span class="w"> </span><span class="s2">"invalid_token"</span><span class="p">,</span><span class="w">
   </span><span class="nl">"error_description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Token expired. Access token expired at '2022-10-07 14:55:34 +0000 UTC'."</span><span class="w">
 </span><span class="p">}</span><span class="w">
-</span></code></pre></div><h1 id='protection'>Protection</h1>
+</span></code></pre></div><h2 id='protection'>Protection</h2>
 <p>The client application must implement protective measures against false request attacks (cross-site request forgery, CSRF). 
 This can be achieved by using <code>state</code> security code. Using <code>state</code> is compulsory.</p>
 
@@ -837,7 +820,7 @@ Length of state parameter must be minimally 8 characters. In the course of proce
 
 <p>The redirect request may only be accepted if the checks described above are successful. 
 The key element of the process described above is connection of the <code>state</code> value with the session. This is achieved by using a cookie.</p>
-<h1 id='endpoints-and-timeouts'>Endpoints and timeouts</h1><h3 id='production-service'>Production service</h3>
+<h2 id='endpoints-and-timeouts'>Endpoints and timeouts</h2><h3 id='production-service'>Production service</h3>
 <table><thead>
 <tr>
 <th>Endpoint</th>
@@ -917,14 +900,14 @@ The key element of the process described above is connection of the <code>state<
 <td>The client application must obtain the access token using authorization code within 30 seconds.</td>
 </tr>
 </tbody></table>
-<h1 id='testing'>Testing</h1>
+<h2 id='testing'>Testing</h2>
 <p>A prerequisite for testing the eeID authentication service is registering a service in test environment. After approving your service, it is possible to test the service immediately, using the credentials generated after approving.</p>
 
 <p>Users for successful authentication:</p>
 
 <ul>
 <li>Mobile ID phone and id numbers: EE - <code>00000766</code> | <code>60001019906</code>, LT - <code>60000666</code> | <code>50001018865</code></li>
-<li>Smart-ID personal codes: EE - <code>30303039914</code>, LV - <code>030303-10012</code>, LT - <code>30303039914</code></li>
+<li>Smart-ID personal codes: EE - <code>30303039914</code>, LV - <code>030303-10012</code>, LT - <code>30303039914</code>, BE - <code>06090199964</code></li>
 <li>eIDAS country Czech Republic: select <code>Testovací profily</code> from the redirection screen and select a test user for authentication</li>
 </ul>
 <h3 id='mobile-id'>Mobile ID</h3>
@@ -940,17 +923,21 @@ The key element of the process described above is connection of the <code>state<
 <li>Install the Smart-ID demo application on your device and register a <a href="https://github.com/SK-EID/smart-id-documentation/wiki/Smart-ID-demo#getting-started">demo account</a>.</li>
 <li>Use <a href="https://github.com/SK-EID/smart-id-documentation/wiki/Environment-technical-parameters#test-accounts-for-automated-testing">test users</a>.</li>
 </ul>
-<h1 id='run-in-postman'>Run in Postman</h1>
+<h2 id='run-in-postman'>Run in Postman</h2>
 <p><a href="https://god.gw.postman.com/run-collection/37760758-c07af2ef-c1d1-4675-91d1-701c0ea51871?action=collection%2Ffork&amp;source=rip_markdown&amp;collection-url=entityId%3D37760758-c07af2ef-c1d1-4675-91d1-701c0ea51871%26entityType%3Dcollection%26workspaceId%3Dfbfde0f7-54e9-4061-844a-5f03ab3d2ac4"><img src="https://run.pstmn.io/button.svg" alt="Run In Postman" style="width: 128px; height: 32px;"></a></p>
-<h1 id='code-examples'>Code examples</h1><h2 id='openid-connect-client-with-spring-security'>OpenID Connect Client with Spring Security</h2>
+<h2 id='code-examples'>Code examples</h2><h3 id='openid-connect-client-with-spring-security'>OpenID Connect Client with Spring Security</h3>
 <p>One of the key features of Spring Security 5 was the native support for OAuth2 and OIDC.
 Making use of the OIDC configuration information (OIDC metadata), integrating with
 the eeID Server gets super easy. This tutorial shows how to use a registered service to login via eeID and access the user details within an ID-token.</p>
-<h3 id='prerequisites'>Prerequisites</h3>
+
+<p><b>Prerequisites</b></p>
+
 <p>You should be familiar with Java, Spring Boot, and Spring Security.
 Optionally, you should know how to use IntelliJ IDEA, but you can use any IDE of your choice.
-Make sure you <a href="#getting-started">configure a service</a> in the <a href="https://eeid.ee">eeID manager</a> before getting started.</p>
-<h3 id='setting-up-the-project'>Setting up the project</h3>
+Make sure you <a href="#getting-started">configure an authentication service</a> in the <a href="https://eeid.ee">eeID manager</a> before getting started.</p>
+
+<p><b>Setting up the project</b></p>
+
 <ol>
 <li>Visit <a href="https://start.spring.io/">start.spring.io</a> to create a new Spring Boot project</li>
 <li>Select Maven as your build tool and Java as your language</li>
@@ -961,7 +948,9 @@ Make sure you <a href="#getting-started">configure a service</a> in the <a href=
 
 <p><img src="images/spring_initializr-a68a7971.png" alt="Spring Initializr" />
 6. Generate the application. Spring Initializr creates an archive with a bootstrap application that includes the selected dependencies. Download and extract the archive, and import the project in an IDE of your choice</p>
-<h3 id='add-a-starting-site'>Add a Starting Site</h3>
+
+<p><b>Add a Starting Site</b></p>
+
 <p>Provide a starting site that is publicly available. Create the file <code>src/main/resources/templates/index.html</code>.
 Add a link to the protected resource <code>/secured</code>.</p>
 <div class="highlight"><pre class="highlight html tab-html"><code><span class="cp">&lt;!DOCTYPE html&gt;</span>
@@ -976,7 +965,9 @@ Add a link to the protected resource <code>/secured</code>.</p>
 <span class="nt">&lt;p&gt;&lt;a</span> <span class="na">href=</span><span class="s">"/secured"</span><span class="nt">&gt;</span>Secured content<span class="nt">&lt;/a&gt;&lt;/p&gt;</span>
 <span class="nt">&lt;/body&gt;</span>
 <span class="nt">&lt;/html&gt;</span>
-</code></pre></div><h3 id='add-a-controller'>Add a Controller</h3>
+</code></pre></div>
+<p><b>Add a Controller</b></p>
+
 <p>When the user logs in show the username. For that create a controller that handles
 requests for the endpoint <code>/</code> and <code>/secured</code>. Create the file <code>src/main/java/com/example/demo/UserController.java</code>:</p>
 <div class="highlight"><pre class="highlight java tab-java"><code><span class="nd">@Controller</span>
@@ -1015,7 +1006,9 @@ Create a template called <code>secured.html</code> next to <code>index.html</cod
 </code></pre></div>
 <p><br>
 With these routes in place, we can now set up our security configuration.</p>
-<h3 id='protect-the-user-area'>Protect the User Area</h3>
+
+<p><b>Protect the User Area</b></p>
+
 <p>So far there are two unprotected endpoints: <code>/</code> and <code>/secured</code>.
 Create another class, that enforces OAuth for certain paths. Create the file <code>src/main/java/com/example/demo/OAuth2SecurityConfig.java</code> with the following content:</p>
 <div class="highlight"><pre class="highlight java tab-java"><code><span class="nd">@Configuration</span>
@@ -1040,7 +1033,9 @@ Create another class, that enforces OAuth for certain paths. Create the file <co
 This enables and configures Spring Web Security.
 The endpoints <code>/</code> and <code>/error</code> are public. Any other requests must be authenticated using OAuth.
 Spring Security creates a default login page at <code>/login</code> that lists all the login options. </p>
-<h3 id='configure-the-oauth-client'>Configure the OAuth Client</h3>
+
+<p><b>Configure the OAuth Client</b></p>
+
 <p>Define the following client in <code>src/main/resources/application.yml</code>:</p>
 <div class="highlight"><pre class="highlight yaml"><code><span class="na">spring</span><span class="pi">:</span>
   <span class="na">main</span><span class="pi">:</span>
@@ -1072,11 +1067,13 @@ login page setup at <code>/login</code>.
 Spring Boot Security loads all the necessary OpenID configuration from the metadata
 at <a href="https://test-auth.eeid.ee/hydra-public/.well-known/openid-configuration">https://test-auth.eeid.ee/hydra-public/.well-known/openid-configuration</a>
 and ensures that the user-agent gets redirected to the right endpoints for authentication.</p>
-<h3 id='run-the-demo-application'>Run the Demo Application</h3>
+
+<p><b>Run the Demo Application</b></p>
+
 <p>Start the demo application with <code>mvn spring-boot:run</code>. Navigate to <code>http://localhost:8080</code> to access the index site.
 Click on the link to access <code>http://localhost:8080/secured</code> that triggers a login.</p>
 
-<p><img src="images/login_screen-c9e4a186.png" alt="Login Screen" />
+<p><img src="images/login_screen-275391b0.png" alt="Login Screen" />
 <br>
 After successful login the page shows details retrieved from the ID token.</p>
 
@@ -1085,8 +1082,8 @@ After successful login the page shows details retrieved from the ID token.</p>
 You can also navigate to <code>http://localhost:8080/login</code> to directly access the default login page created by Spring Security.</p>
 
 <p>For further examples and help regarding OAuth2 and Spring Security for a reactive web application visit <a href="https://docs.spring.io/spring-security/reference/reactive/oauth2/login/index.html">Spring Security Reference Documentation</a>.</p>
-<h2 id='php-openid-connect-example'>PHP OpenID Connect example</h2>
-<p>Make sure you <a href="#getting-started">configure a service</a> in the <a href="https://eeid.ee">eeID manager</a> before getting started.
+<h3 id='php-openid-connect-example'>PHP OpenID Connect example</h3>
+<p>Make sure you <a href="#getting-started">configure am authentication service</a> in the <a href="https://eeid.ee">eeID manager</a> before getting started.
 <br>
 This example uses the jumbojett basic OpenID Connect client and phpdotenv installed using composer and running on Docker container.</p>
 
@@ -1098,7 +1095,9 @@ This example uses the jumbojett basic OpenID Connect client and phpdotenv instal
 
 <p>It takes users to an attributes page after login and display the claims/values that have been passed.
 In the real world you would read the claims and feed them into your authorisation/user-session management process.</p>
-<h3 id='instructions'>Instructions</h3>
+
+<p><b>Instructions</b></p>
+
 <ol>
 <li>Start by creating a new Dockerfile. This file will be used to build an image for your container. In the Dockerfile, include the following lines::</li>
 </ol>
@@ -1263,9 +1262,11 @@ configuring the service in the <a href="https://eeid.ee">eeID manager</a> (see <
 After signing in you will be sent back and then on the attributes page.</p>
 
 <p><img src="images/claims-a93acf58.png" alt="Claims" /></p>
-<h2 id='rails-on-rails-with-omniauth-openidconnect'>Rails on Rails with OmniAuth::OpenIDConnect</h2>
+<h3 id='rails-on-rails-with-omniauth-openidconnect'>Rails on Rails with OmniAuth::OpenIDConnect</h3>
 <p>In this example, we will make use of <a href="https://github.com/omniauth/omniauth_openid_connect">OmniAuth::OpenIDConnect</a> gem, which contains the OpenID Connect (OIDC) strategy for OmniAuth library that standardizes multi-provider authentication for web applications.</p>
-<h3 id='getting-started-2'>Getting Started</h3>
+
+<p><b>Getting Started</b></p>
+
 <p>Start by generating your Rails application with Bootstrap using ESBuild to build both the JavaScript and CSS files. From the terminal, run the command to do so:</p>
 <div class="highlight"><pre class="highlight shell tab-shell"><code>rails new eeid_demo <span class="nt">-T</span> <span class="nt">-j</span> esbuild <span class="nt">--css</span> bootstrap
 </code></pre></div>
@@ -1344,10 +1345,13 @@ Open routes file to add our <code>root_path</code>:</p>
 Rails.application.routes.draw <span class="k">do
   </span>root to: <span class="s1">'pages#index'</span>
 end
-</code></pre></div><h3 id='setting-up-omniauth-tara'>Setting Up OmniAuth-Tara</h3>
-<p>We need to create a new eeID service application. Go to <a href="https://eeid.ee">eeID manager</a> to create one. Enter all the necessary details:</p>
+</code></pre></div>
+<p><br>
+<b>Setting Up OmniAuth Openid Connect</b></p>
 
-<p><img src="images/demo_service-8d14e8ca.png" alt="Demo Service" /></p>
+<p>We need to create a new eeID authenitcation service application. Go to <a href="https://eeid.ee">eeID manager</a> to create one. Enter all the necessary details:</p>
+
+<p><img src="images/demo_service-68b8ee2b.png" alt="Demo Service" /></p>
 
 <p>For the callback URL, enter your website&#39;s address plus <code>auth/eeid/callback</code>. If you happen to be on a local machine, your callback URL should be this: <code>http://127.0.0.1:3000/auth/eeid/callback</code></p>
 
@@ -1449,7 +1453,10 @@ We need to add the link for eeID sign-in to navigation and to show this link onl
     <span class="nt">&lt;/div&gt;</span>
   <span class="nt">&lt;/div&gt;</span>
 <span class="nt">&lt;/nav&gt;</span>
-</code></pre></div><h3 id='creating-sessions'>Creating Sessions</h3>
+</code></pre></div>
+<p><br>
+<b>Creating Sessions</b></p>
+
 <p>We&#39;ll need a session controller to handle the logging in of users. Create a file for that in controllers directory. The <code>create</code> action helps create a session for users so they can be logged into your application. Without this, users have no means of logging in.</p>
 <div class="highlight"><pre class="highlight ruby tab-ruby"><code><span class="c1"># app/controllers/sessions_controller.rb</span>
 
@@ -1482,7 +1489,10 @@ Open <code>app/controllers/application_controller.rb</code> and add the followin
   <span class="n">helper_method</span> <span class="ss">:current_user</span>
   <span class="o">...</span>
 <span class="k">end</span>
-</code></pre></div><h3 id='user-model'>User Model</h3>
+</code></pre></div>
+<p><br>
+<b>User Model</b></p>
+
 <p>Now generate a model for Users. Run this command to do so:</p>
 <div class="highlight"><pre class="highlight shell tab-shell"><code>rails generate model User provider:string uid:string first_name:string last_name:string token:string
 </code></pre></div>
@@ -1524,7 +1534,9 @@ Open up User model and make it look like this:</p>
 </code></pre></div>
 <p><br>
 The code above stores some information belonging to the user. This includes the <code>first_name</code>, <code>last_name</code> and <code>token</code> of the user.</p>
-<h3 id='deleting-sessions'>Deleting Sessions</h3>
+
+<p><b>Deleting Sessions</b></p>
+
 <p>In our application, we want to provide users the ability to log out. We will need a <code>destroy</code> action in <code>SessionsController</code> for this to work. Then a link will be added to navigation.</p>
 
 <p>Add the <code>destroy</code> action to <code>SessionsController</code>:</p>
@@ -1577,7 +1589,96 @@ Open up <code>config/routes.rb</code> to update our routes with the action we ju
 <p><br>
 Start up rails server and point browser to <a href="http://localhost:3000">http://localhost:3000</a>.</p>
 <div class="highlight"><pre class="highlight shell tab-shell"><code>bin/dev
-</code></pre></div>
+</code></pre></div><h1 id='eeid-identification'>eeID Identification</h1>
+<p>The eeID Identification Service allows organizations to create identification requests and verify user identities based on specific criteria. It is built on a robust framework that ensures security, compliance, and ease of use.</p>
+<h2 id='key-features'>Key Features</h2>
+<ul>
+<li><strong>Secure Identity Verification</strong>: The service provides a secure method for verifying user identities, ensuring that organizations can trust the information they receive.</li>
+<li><strong>Multiple Delivery Methods</strong>: Clients can choose how they receive proof of identity documents, including email (default), API pull, or webhook delivery.</li>
+<li><strong>User-Friendly Interface</strong>: The <a href="https://eeid.ee">eeID manager</a> offers a no-code solution for clients to create identification requests easily.</li>
+<li><strong>Real-Time Notifications</strong>: Clients can receive updates on the status of identification requests through webhooks.</li>
+</ul>
+<h2 id='getting-started-2'>Getting Started</h2>
+<p>To begin using the eeID Identification Service, follow these steps:</p>
+
+<ol>
+<li><strong>Sign Up</strong>: Create an account on the <a href="https://eeid.ee">eeID Manager</a>.</li>
+<li><strong>Create a Service</strong>:
+
+<ul>
+<li>Navigate to the <code>Services</code> section in the eeID Manager.</li>
+<li>Click on + Create New Service, select <code>Identification</code> type and fill in the required details:
+<img src="images/new_identification_service_form-cd65ba92.png" alt="New Identification Service" /></li>
+</ul></li>
+<li><strong>Submit the service for approval</strong></li>
+</ol>
+<h2 id='example-workflow'>Example Workflow</h2>
+<ol>
+<li><strong>View Identification Requests</strong>:
+
+<ul>
+<li>Go to the identification service show page. Click the button <strong>&quot;View Identification Requests&quot;</strong> to see existing requests if any. </li>
+</ul></li>
+<li><strong>Create a New Request</strong>:
+
+<ul>
+<li>Click the button <strong>&quot;Create New Request&quot;</strong>. A form will appear prompting you to enter the necessary claims:
+<img src="images/new_identification_form-14252a6f.png" alt="New Identification Request" /></li>
+</ul></li>
+<li><strong>Enter Claims to Match</strong>:
+
+<ul>
+<li>Enter the following claims:
+
+<ul>
+<li><strong>sub</strong>: The subject identifier (mandatory).</li>
+<li><strong>name</strong>: An optional field to match the end-user&#39;s name.</li>
+</ul></li>
+<li>Additionally, enter a <strong>reference</strong>:
+This reference serves as an identifier in the system of the calling service and will be included in the result if present.</li>
+</ul></li>
+<li><strong>Submit the Request</strong>:
+
+<ul>
+<li>Once all required data is entered, submit the form to create a new identification request.</li>
+<li>The system generates a new identification request and provides a unique link for the end-user:
+<img src="images/identification_request-6472869a.png" alt="Identification Request" /></li>
+</ul></li>
+<li><strong>Send the Link to the End-User</strong>:
+
+<ul>
+<li>It is your responsibility to send the generated link to the end-user for verification.</li>
+</ul></li>
+<li><strong>Verification Process</strong>:
+
+<ul>
+<li>The end-user follows the link to complete the verification process with eeID.</li>
+<li>The identification request is marked as <strong>completed</strong> once the end-user successfully finishes the verification process. An email will be sent to the identification service contact email. If a secure webhook URL was provided, the service will send a POST request with the proof of identity document once it is ready.</li>
+</ul></li>
+<li><strong>Handling Aborted Requests</strong>:
+
+<ul>
+<li>If the end-user aborts the flow without completing the assignment, the status of the identification request remains unchanged.</li>
+<li>The end-user can follow the link again to complete the assignment at a later time. The generated link will be valid for <strong>7 days</strong>. If the verification process is not completed within this time frame, the identification request will expire.</li>
+</ul></li>
+</ol>
+<h2 id='identification-requests-api'>Identification Requests API</h2>
+<p>In addition to the no-code solution provided by the <a href="https://eeid.ee">eeID manager</a>, the eeID Identification Service offers a robust API for handling identification requests. This API allows developers to programmatically create, manage, and retrieve identification requests, providing greater flexibility and integration capabilities for applications.</p>
+<h3 id='api-features'>API Features</h3>
+<ul>
+<li><strong>Create Identification Requests</strong>: Easily submit new identification requests by providing the necessary claims, including the subject identifier (<code>sub</code>) and optional <code>name</code>. This allows for automated request creation directly from your application.</li>
+<li><strong>Retrieve Identification Requests</strong>: Access existing identification requests to check their status or retrieve detailed information. This feature enables applications to monitor the progress of requests and respond accordingly.</li>
+<li><strong>Proof of Identity Request</strong>: Retrieve the proof of identity document in PDF format for a specific identification request. This feature is essential for applications that require access to verified identity documents for further processing or record-keeping.</li>
+<li><strong>Authorization</strong>: The requests must be authenticated using a valid access token. Ensure that the token is included in the request header as follows:
+<code>
+Authorization: Bearer {access_token}
+</code></li>
+</ul>
+<h3 id='api-documentation'>API Documentation</h3>
+<p>The API is fully documented and available for testing in Postman. You can explore the available endpoints, request parameters, and response formats directly in the Postman collection:</p>
+
+<p><a href="https://god.gw.postman.com/run-collection/37760758-d649a287-c53e-483c-84d5-3b584a88b706?action=collection%2Ffork&amp;source=rip_markdown&amp;collection-url=entityId%3D37760758-d649a287-c53e-483c-84d5-3b584a88b706%26entityType%3Dcollection%26workspaceId%3D38bd2f07-e8f0-4bd4-ae32-1917d18f19a8"><img src="https://run.pstmn.io/button.svg" alt="Run In Postman" style="width: 128px; height: 32px;"></a></p>
+
       </div>
     </div>
   </body>
