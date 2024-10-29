@@ -1236,7 +1236,9 @@ Authorization: Bearer {access_token}
 
 ### API Documentation
 
-The API is fully documented and available for testing in Postman. You can explore the available endpoints, request parameters, and response formats directly in the Postman collection:
+Comprehensive API documentation is available for the eeID Identification Service. You can access it here: [eeID Identification Service API Documentation](https://internetee.github.io/eeID-ident-api-doc/).
+
+For additional testing, the API is also available in Postman. You can explore the available endpoints, request parameters, and response formats directly in the Postman collection:
 
 [<img src="https://run.pstmn.io/button.svg" alt="Run In Postman" style="width: 128px; height: 32px;">](https://god.gw.postman.com/run-collection/37760758-d649a287-c53e-483c-84d5-3b584a88b706?action=collection%2Ffork&source=rip_markdown&collection-url=entityId%3D37760758-d649a287-c53e-483c-84d5-3b584a88b706%26entityType%3Dcollection%26workspaceId%3D38bd2f07-e8f0-4bd4-ae32-1917d18f19a8)
 
