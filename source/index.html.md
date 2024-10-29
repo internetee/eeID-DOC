@@ -28,7 +28,7 @@ Welcome to the Estonian Internet Foundation's eeID documentation! This document 
 ### [eeID Identification Service](#eeid-identification):
 
 - The identification service complements the authentication service by providing an API for creating identification requests and verifying user identities based on specific criteria, such as unique identifiers (subject) or personal details (name).
-- Organizations can initiate identification requests to confirm user identities, ensuring accurate matches against the provided information. This service is particularly valuable in sectors that require stringent identity verification, such as finance, healthcare, government and domain registries.
+- Organizations can initiate identification requests to confirm user identities, ensuring accurate matches against the provided information. This service is particularly valuable in sectors that require stringent identity verification, such as finance, healthcare, government, and domain registries, especially in light of the recently applied [NIS2 directive](https://digital-strategy.ec.europa.eu/en/policies/nis2-directive), which emphasizes the importance of robust cybersecurity measures and identity verification processes.
 - By streamlining the identification process, the service enhances security and efficiency, allowing organizations to manage user verification seamlessly.
 
 # OpenID Connect
