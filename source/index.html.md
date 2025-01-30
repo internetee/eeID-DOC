@@ -1202,9 +1202,11 @@ To begin using the eeID Identification Service, follow these steps:
    - Click the button **"Create New Request"**. A form will appear prompting you to enter the necessary claims:
   ![New Identification Request](images/new_identification_form.png)
 3. **Enter Claims to Match**:
-   - Enter the following claims:
-     - **sub**: The subject identifier (mandatory).
-     - **name**: An optional field to match the end-user's name.
+   - At least one of the following claims must be presented:
+     - **sub**: This field represents the unique identifier or subject for the end-user.
+     - **name**: This field allows you to specify the end-user's full name.
+     - **birthdate**: This field captures the end-user's date of birth represented in YYYY-MM-DD format.
+     - **country**: This field specifies the end-user's country in ISO 3166-1 Alpha-2 format.
    - Additionally, enter a **reference**:
      This reference serves as an identifier in the system of the calling service and will be included in the result if present.
 4. **Submit the Request**:
@@ -1226,7 +1228,7 @@ In addition to the no-code solution provided by the [eeID manager](https://eeid.
 
 ### API Features
 
-- **Create Identification Requests**: Easily submit new identification requests by providing the necessary claims, including the subject identifier (`sub`) and optional `name`. This allows for automated request creation directly from your application.
+- **Create Identification Requests**: Easily submit new identification requests by providing the necessary claims, including the subject identifier (`sub`), full name (`name`), `country` or `birthdate`. This allows for automated request creation directly from your application.
 - **Retrieve Identification Requests**: Access existing identification requests to check their status or retrieve detailed information. This feature enables applications to monitor the progress of requests and respond accordingly.
 - **Proof of Identity Request**: Retrieve the proof of identity document in PDF format for a specific identification request. This feature is essential for applications that require access to verified identity documents for further processing or record-keeping.
 - **Authorization**: The requests must be authenticated using a valid access token. Ensure that the token is included in the request header as follows:
@@ -1241,5 +1243,3 @@ Comprehensive API documentation is available for the eeID Identification Service
 For additional testing, the API is also available in Postman. You can explore the available endpoints, request parameters, and response formats directly in the Postman collection:
 
 [<img src="https://run.pstmn.io/button.svg" alt="Run In Postman" style="width: 128px; height: 32px;">](https://god.gw.postman.com/run-collection/37760758-d649a287-c53e-483c-84d5-3b584a88b706?action=collection%2Ffork&source=rip_markdown&collection-url=entityId%3D37760758-d649a287-c53e-483c-84d5-3b584a88b706%26entityType%3Dcollection%26workspaceId%3D38bd2f07-e8f0-4bd4-ae32-1917d18f19a8)
-
-
