@@ -1623,16 +1623,18 @@ Start up rails server and point browser to <a href="http://localhost:3000">http:
 
 <ul>
 <li>Click the button <strong>&quot;Create New Request&quot;</strong>. A form will appear prompting you to enter the necessary claims:
-<img src="images/new_identification_form-14252a6f.png" alt="New Identification Request" /></li>
+<img src="images/new_identification_form-51b019f4.png" alt="New Identification Request" /></li>
 </ul></li>
 <li><strong>Enter Claims to Match</strong>:
 
 <ul>
-<li>Enter the following claims:
+<li>At least one of the following claims must be presented:
 
 <ul>
-<li><strong>sub</strong>: The subject identifier (mandatory).</li>
-<li><strong>name</strong>: An optional field to match the end-user&#39;s name.</li>
+<li><strong>sub</strong>: This field represents the unique identifier or subject for the end-user.</li>
+<li><strong>name</strong>: This field allows you to specify the end-user&#39;s full name.</li>
+<li><strong>birthdate</strong>: This field captures the end-user&#39;s date of birth represented in YYYY-MM-DD format.</li>
+<li><strong>country</strong>: This field specifies the end-user&#39;s country in ISO 3166-1 Alpha-2 format.</li>
 </ul></li>
 <li>Additionally, enter a <strong>reference</strong>:
 This reference serves as an identifier in the system of the calling service and will be included in the result if present.</li>
@@ -1666,7 +1668,7 @@ This reference serves as an identifier in the system of the calling service and 
 <p>In addition to the no-code solution provided by the <a href="https://eeid.ee">eeID manager</a>, the eeID Identification Service offers a robust API for handling identification requests. This API allows developers to programmatically create, manage, and retrieve identification requests, providing greater flexibility and integration capabilities for applications.</p>
 <h3 id='api-features'>API Features</h3>
 <ul>
-<li><strong>Create Identification Requests</strong>: Easily submit new identification requests by providing the necessary claims, including the subject identifier (<code>sub</code>) and optional <code>name</code>. This allows for automated request creation directly from your application.</li>
+<li><strong>Create Identification Requests</strong>: Easily submit new identification requests by providing the necessary claims, including the subject identifier (<code>sub</code>), full name (<code>name</code>), <code>country</code> or <code>birthdate</code>. This allows for automated request creation directly from your application.</li>
 <li><strong>Retrieve Identification Requests</strong>: Access existing identification requests to check their status or retrieve detailed information. This feature enables applications to monitor the progress of requests and respond accordingly.</li>
 <li><strong>Proof of Identity Request</strong>: Retrieve the proof of identity document in PDF format for a specific identification request. This feature is essential for applications that require access to verified identity documents for further processing or record-keeping.</li>
 <li><strong>Authorization</strong>: The requests must be authenticated using a valid access token. Ensure that the token is included in the request header as follows:
