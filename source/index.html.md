@@ -1215,6 +1215,7 @@ To begin using the eeID Identification Service, follow these steps:
    ![Identification Request](images/identification_request.png)
 5. **Send the Link to the End-User**:
    - It is your responsibility to send the generated link to the end-user for verification.
+   - You can add a `ui_locales` parameter to the link in order to change the UI language. The supported languages are `ru` (Russian), `et` (Estonian), and `en` (English). For example, to change the UI language to Russian, add `?ui_locales=ru` to the end of the link.
 6. **Verification Process**:
    - The end-user follows the link to complete the verification process with eeID.
    - The identification request is marked as **completed** once the end-user successfully finishes the verification process. An email will be sent to the identification service contact email. If a secure webhook URL was provided, the service will send a POST request with the proof of identity document once it is ready.
