@@ -318,9 +318,40 @@
           </li>
           <li>
             <a href="#getting-started" class="toc-h1 toc-link" data-title="Getting Started">Getting Started</a>
+              <ul class="toc-list-h2">
+                  <li>
+                    <a href="#creating-an-account" class="toc-h2 toc-link" data-title="Creating an account">Creating an account</a>
+                  </li>
+                  <li>
+                    <a href="#types-of-accounts" class="toc-h2 toc-link" data-title="Types of accounts">Types of accounts</a>
+                  </li>
+                  <li>
+                    <a href="#creating-a-new-organization" class="toc-h2 toc-link" data-title="Creating a new organization">Creating a new organization</a>
+                  </li>
+                  <li>
+                    <a href="#setting-your-billing-info" class="toc-h2 toc-link" data-title="Setting your billing info">Setting your billing info</a>
+                  </li>
+                  <li>
+                    <a href="#creating-a-new-service" class="toc-h2 toc-link" data-title="Creating a new service">Creating a new service</a>
+                  </li>
+                  <li>
+                    <a href="#transferring-a-service" class="toc-h2 toc-link" data-title="Transferring a service">Transferring a service</a>
+                  </li>
+              </ul>
           </li>
           <li>
             <a href="#authentication-scope" class="toc-h1 toc-link" data-title="Authentication scope">Authentication scope</a>
+              <ul class="toc-list-h2">
+                  <li>
+                    <a href="#passkeys" class="toc-h2 toc-link" data-title="Passkeys">Passkeys</a>
+                  </li>
+                  <li>
+                    <a href="#creating-a-passkey" class="toc-h2 toc-link" data-title="Creating a passkey">Creating a passkey</a>
+                  </li>
+                  <li>
+                    <a href="#deleting-a-passkey" class="toc-h2 toc-link" data-title="Deleting a passkey">Deleting a passkey</a>
+                  </li>
+              </ul>
           </li>
           <li>
             <a href="#eeid-authentication" class="toc-h1 toc-link" data-title="eeID Authentication">eeID Authentication</a>
@@ -378,7 +409,7 @@
 <h2 id='key-components'>Key Components</h2><h3 id='eeid-authentication-service'><a href="#eeid-authentication">eeID Authentication Service</a>:</h3>
 <ul>
 <li>The authentication service is based on the OpenID Connect protocol, which is an extension of the OAuth 2.0 framework. It provides a standardized method for verifying user identities across various applications and platforms.</li>
-<li>Users can authenticate using multiple methods, including Mobiil-ID, ID card, Smart-ID, EU-citizen cross-border authentication and FIDO2 Web Authentication (Passkey Authentication). This flexibility allows institutions and private individuals to choose the most suitable authentication method for their needs.</li>
+<li>Users can authenticate using multiple methods, including Mobiil-ID, ID card, Smart-ID, EU-citizen cross-border authentication and FIDO2 Web Authentication (Passkey Authentication). This flexibility allows organizations and private individuals to choose the most suitable authentication method for their needs.</li>
 <li>The service issues identity tokens that contain essential user information, enabling applications to confirm identities and manage user access securely.</li>
 </ul>
 <h3 id='eeid-identification-service'><a href="#eeid-identification">eeID Identification Service</a>:</h3>
@@ -388,34 +419,173 @@
 <li>By streamlining the identification process, the service enhances security and efficiency, allowing organizations to manage user verification seamlessly.</li>
 </ul>
 <h1 id='openid-connect'>OpenID Connect</h1>
-<p>The eeID is based on the OpenID Connect protocol (OIDC), which is built on top of the OAuth 2.0 authorization framework. It&#39;s designed to provide a secure and standardized way to authenticate users and obtain their basic profile information. OIDC is commonly used in applications that require user authentication, such as web and mobile applications.</p>
+<p>The eeID is based on the <a href="https://openid.net/developers/how-connect-works/">OpenID Connect protocol (OIDC)</a>, which is built on top of the <a href="https://oauth.net/2/">OAuth 2.0</a> authorization framework. It&#39;s designed to provide a secure and standardized way to authenticate users and obtain their basic profile information. OIDC is commonly used in applications that require user authentication, such as web and mobile applications.</p>
 
-<p>Limited subset from standards was chosen and some adjustments were made. The main selections and adjustments compared to the full OpenID Connect protocol are the following:</p>
+<p>Limited subset from standards was chosen and some adjustments were made. The main selections and adjustments compared to the full <a href="https://openid.net/specs/openid-connect-core-1_0.html">OpenID Connect protocol</a> are the following:</p>
 
 <ul>
 <li>The services support the authorization code flow. The authorization code flow is deemed the most secure option and is thus appropriate for public services.</li>
 <li>All information about an authenticated user is transferred to the application in an ID token.</li>
-<li>The eIDAS assurance level is also transferred to the application if it is known (in the <code>acr</code> statement).</li>
+<li>The <a href="https://ec.europa.eu/digital-building-blocks/sites/display/DIGITAL/eIDAS+Levels+of+Assurance">eIDAS assurance level</a> is also transferred to the application if it is known (in the <code>acr</code> statement).</li>
 <li>The authentication method is selected by the user in the authentication service or by the interfaced client with the scope parameter.</li>
-<li>Cross-border authentication based on the technical specification of eIDAS.</li>
+<li>Cross-border authentication based on the technical specification of <a href="https://digital-strategy.ec.europa.eu/en/policies/discover-eidas">eIDAS</a>.</li>
 <li>Dynamic registration of the client application is not supported. The client application is registered in <a href="https://eeid.ee">eeID manager</a> by a separate procedure.</li>
 </ul>
-<h1 id='getting-started'>Getting Started</h1>
-<p>In order to get started you have to sign up and create your first service in the <a href="https://eeid.ee">eeID manager</a>. </p>
+<h1 id='getting-started'>Getting Started</h1><h2 id='creating-an-account'>Creating an account</h2>
+<p>To get started with eeID, you&#39;ll need to create a free personal account and verify your email address.
+Every person who uses eeID signs in to a user account. Your user account is your identity on eeID and has a personal profile.</p>
 
 <ol>
-<li><p>Add a new contact first. From the main menu select <code>Contacts</code> to go to the contacts management view. Click on + Create New Contact and fill in the form.
-<img src="images/new_contact_form-5e7dd36c.png" alt="Create New Contact" /></p></li>
-<li><p>From the main menu select <code>Services</code> to go to the service management view. Click on + Create New Service.
-<img src="images/create_new_service-c48559cb.png" alt="Create New Service" /></p></li>
-<li><p>Fill in the form
-<img src="images/new_service_form-245378b4.png" alt="New Service Form" /></p></li>
-<li><p>All the fields must be valid to proceed.</p></li>
+<li><p>Navigate to <a href="https://eeid.ee/">https://eeid.ee/</a>.</p></li>
+<li><p>You have two options to create an account:</p></li>
+</ol>
+<h3 id='option-1-create-account-form'>Option 1: Create Account Form</h3>
+<ol>
+<li>Click <code>CREATE AN ACCOUNT</code>.</li>
+<li>Fill in the registration form with your:
+
+<ul>
+<li>Email address</li>
+<li>Password (must be at least 8 characters)</li>
+<li>First name</li>
+<li>Last name</li>
+<li>Phone number</li>
+<li>Country</li>
+</ul></li>
+<li>Accept the Terms and Conditions.</li>
+<li>Click <code>SIGN UP</code>.</li>
+<li>Verify your email address by clicking the link sent to your inbox.</li>
+</ol>
+<h3 id='option-2-sign-in-with-eeid-authentication'>Option 2: Sign in with eeID Authentication</h3>
+<ol>
+<li>Click <code>SIGN IN WITH eeID</code>.</li>
+<li>Choose your preferred authentication method:
+
+<ul>
+<li>ID card</li>
+<li>Mobile-ID </li>
+<li>Smart-ID</li>
+<li>EU citizen authentication</li>
+<li>Passkey</li>
+</ul></li>
+<li>Complete the authentication process</li>
+<li>After successful authentication, you&#39;ll be redirected to a pre-filled registration form containing your:
+
+<ul>
+<li>First name</li>
+<li>Last name</li>
+<li>Personal identification code</li>
+<li>Country</li>
+</ul></li>
+<li>Complete any remaining required fields:
+
+<ul>
+<li>Email address</li>
+<li>Phone number</li>
+</ul></li>
+<li>Accept the Terms and Conditions</li>
+<li>Click <code>Create Account</code></li>
+<li>Verify your email address by clicking the link sent to your inbox.</li>
+</ol>
+
+<p>After creating your account and verifying your email, you can log in and start using eeID services.</p>
+<h2 id='types-of-accounts'>Types of accounts</h2><h3 id='user-accounts'>User accounts</h3>
+<p>If you signed up for your own account on eeID, you are using a personal account. Personal accounts represent individual users and have a unique profile with verified identity information. With a personal account, you can:</p>
+
+<ul>
+<li>Create and manage your own services</li>
+<li>Join or create organizations</li>
+<li>Authenticate using various methods (ID card, Mobile-ID, Smart-ID, etc.)</li>
+<li>Create and manage passkeys for passwordless authentication</li>
+</ul>
+
+<p>All personal accounts can own an unlimited number of services.</p>
+<h3 id='organization-accounts'>Organization accounts</h3>
+<p>Organization accounts enable teams to work together on shared services under a single account. They provide an effective way for businesses, non-profits, and other groups to collectively manage their services.</p>
+
+<p>Like user accounts, organizations can own services. However, you cannot sign in directly to an organization. Instead, each person signs in to their personal user account, and any actions the person takes on organization resources are attributed to their user account. Each user can be a member of multiple organizations.</p>
+
+<p>The users within an organization can be given different roles, which grant different levels of access to the organization and its data:</p>
+
+<ul>
+<li><p><strong>Organization Owner</strong>: Has complete administrative access to the organization, including the ability to edit organization data, add/remove members and manage billing. For security reasons, it&#39;s recommended to have at least two organization owners.</p></li>
+<li><p><strong>Organization Member</strong>: The default role with permissions to create and update services and view authentication information.</p></li>
+</ul>
+
+<p>All organizations can own an unlimited number of services, making them suitable for businesses of any size.</p>
+<h2 id='creating-a-new-organization'>Creating a new organization</h2>
+<p>When you create a new organization, it doesn&#39;t have any services associated with it. For more information on adding services to your organization, see <a href="#creating-a-new-service">Creating a new service</a> and <a href="#transferring-a-service">Transferring a service</a>.</p>
+
+<ol>
+<li><p>From the main menu select <code>Organizations</code> to go to the organization management view. Click on <code>+ Create New Organziation</code>.</p></li>
+<li><p>Follow the prompts to create your organization:</p></li>
 </ol>
 
 <ul>
-<li><strong>Name</strong> - enter the name for your service. NB! This will ultimately appear in-front of your customers.</li>
-<li><strong>Type</strong> - enter the type of your service (<code>Authentication</code> or <code>Identification</code>)</li>
+<li><strong>Organization name</strong> - enter the name for your organization.</li>
+<li><strong>Contact email</strong> - enter the email address that will be used for communications regarding the organization and its services.</li>
+<li><strong>Description</strong> - provide a brief description of your organization and its purpose.</li>
+<li><strong>URL</strong> - enter your organization&#39;s website URL (optional).</li>
+<li><strong>Locale</strong> - select the preferred language for communications with your organization.</li>
+</ul>
+<h2 id='setting-your-billing-info'>Setting your billing info</h2>
+<p>Your account&#39;s billing info is where eeID sends receipts and other billing-related information. You can set up billing information for both personal and organization accounts.</p>
+<h3 id='for-personal-accounts'>For personal accounts:</h3>
+<ol>
+<li>From the main menu select <code>Account</code> to go to your profile view</li>
+<li>Click <code>Edit details</code></li>
+<li>Under <code>Billing data</code> fill in the following information:
+
+<ul>
+<li>Billing recipient name*</li>
+<li>Billing email address*</li>
+<li>IBAN (for automatic payments)</li>
+<li>Country*</li>
+<li>VAT number (if applicable)</li>
+<li>Registration code</li>
+<li>Street address</li>
+<li>City</li>
+<li>Postal code</li>
+</ul></li>
+</ol>
+<h3 id='for-organization-accounts'>For organization accounts:</h3>
+<ol>
+<li>Navigate to your organization by either:
+
+<ul>
+<li>Selecting <code>Organizations</code> from the main menu and clicking the organization name, or</li>
+<li>Using the account dropdown menu in the top navigation bar</li>
+</ul></li>
+<li>Click <code>Account</code> followed by <code>Settings</code>.</li>
+<li>Locate the <code>Billing data</code> section and complete the required billing information fields.</li>
+</ol>
+
+<p>Fields marked with * are required. Organization owners can edit billing information, while regular members can only view it.</p>
+
+<p>You can also enable automatic balance reloading for both personal and organization accounts to ensure uninterrupted service.</p>
+<h2 id='creating-a-new-service'>Creating a new service</h2>
+<p>You can create a new service on your personal account or any organization where you have sufficient permissions.</p>
+
+<ol>
+<li>From the main menu select <code>Services</code> to go to the service management view. Click on <code>+ Create New Service</code>.</li>
+</ol>
+
+<p><img src="images/create_new_service-c48559cb.png" alt="Create New Service" /></p>
+
+<ol>
+<li>Fill in the form</li>
+</ol>
+
+<p><img src="images/new_service_form-cb4ba094.png" alt="New Service Form" /></p>
+
+<ol>
+<li>All the fields must be valid to proceed.</li>
+</ol>
+
+<ul>
+<li><strong>Type</strong> - enter the type of your service (<code>Authentication</code> or <code>Identification</code>).</li>
+<li><strong>Owner</strong> - select who will own this service - either your personal account or an organization you belong to. The owner will be responsible for managing the service settings, billing, and access control.</li>
+<li><strong>Servce name</strong> - enter the name for your service. NB! This will ultimately appear in-front of your customers.</li>
 <li><strong>Description</strong> - provide a brief description of your service. It should be concise, ideally one sentence.</li>
 <li><strong>Approval description</strong> - in this field, provide details about what you are building and who your target customers are.</li>
 <li><strong>Redirection URL</strong> (<code>Authentication</code>) - specify the URL where users should be redirected to after they have been authenticated. If you do not know what you will use, just enter <code>http://localhost/callback</code> for now. The value can be changed later if needed. NB! Ensure that redirect URL uses the HTTPS protocol. HTTP is only permitted for local development environments (e.g., localhost).</li>
@@ -423,7 +593,6 @@
 <li><strong>Environment</strong> - indicate the environment in which you will be using the service. <code>Test</code> is free and used for testing purposes.</li>
 <li><strong>Authentication scope</strong> - choose the authentication scope you wish to support. The following scopes are supported: <code>openid</code>, <code>webauthn</code>, <code>phone</code> and <code>email</code>. NB! <code>idcard</code>, <code>mid</code>, <code>smartid</code> and <code>eidas</code> are no longer in use and will be removed.</li>
 <li><strong>Authentication methods</strong> - choose the authentication methods you wish to support. You can select one or more methods based on your preferred country.</li>
-<li><strong>Contact</strong> - choose an existing contact or create a new one. This contact will be associated with the service, and it might be the point of contact for any communications or notifications regarding the service.</li>
 <li><strong>Consent screen</strong> (<code>Authentication</code>) - configure it to skip the &quot;consent screen&quot;, which is the screen where the user must explicitly agree to giving the service access to their data and allow perform operations on their behalf.</li>
 <li><strong>Choose logo</strong> (<code>Authentication</code>) - upload a logo for your service.</li>
 <li><strong>Submission</strong> - review all the details entered in the form, and if everything is correct, click on <code>SUBMIT FOR APPROVAL</code> to submit your service.</li>
@@ -438,6 +607,27 @@ In case there are issues or discrepancies in your application, it might be rejec
 After the review process is completed, you will receive a notification regarding the
 status of your application. This notification will inform you whether your application has
 been approved or rejected.</p>
+<h2 id='transferring-a-service'>Transferring a service</h2>
+<p>You can transfer services between your personal account and organization accounts. After transferring a service, the new owner will have full administrative access to manage the service&#39;s settings and resources. During the transfer process, you have the option to rename the service if desired.</p>
+
+<p>Before transferring a service, ensure you meet these requirements:</p>
+
+<ul>
+<li>You must be the owner of the service you want to transfer</li>
+<li>The recipient (user or organization) must have permissions to create services</li>
+<li>The receiving account cannot have an existing service with the same name</li>
+<li>You can transfer a service owned by an organization to your personal account or to another organization only if you have an owner role in the source organization</li>
+</ul>
+
+<p>Note that when a service is transferred, all new transactions and authentication records will also be transferred to the new owner.</p>
+
+<ol>
+<li><p>Navigate to the main page of the service.</p></li>
+<li><p>Under your service name, click <code>Transfer Service</code>.</p></li>
+<li><p>Select the dropdown menu and click an organization or a user.</p></li>
+<li><p>Optionally, in the &quot;Service name&quot; field, type a new name for the service.</p></li>
+<li><p>Click <code>Submit</code></p></li>
+</ol>
 <h1 id='authentication-scope'>Authentication scope</h1>
 <p>By default, the eeID services facilitate the following authentication scope:</p>
 
@@ -459,9 +649,28 @@ been approved or rejected.</p>
 <ul>
 <li><code>webauthn</code> - authentication scope leverages passkeys, a cutting-edge technology that replaces traditional passwords with a more secure and user-friendly approach. Passkeys, as described in <a href="https://fidoalliance.org/passkeys-101/">FIDO Alliance&#39;s Passkeys 101</a>, utilize public key cryptography to enable users to authenticate using local authenticators such as biometrics, security keys, or other trusted devices. This method simplifies the authentication process while significantly enhancing security, providing a seamless and secure experience for users across the web.</li>
 </ul>
+<h2 id='passkeys'>Passkeys</h2>
+<p>Passkeys provide a convenient way to streamline future authentications after initial identity verification. They leverage the <a href="https://en.wikipedia.org/wiki/WebAuthn">WebAuthn</a> standard to allow users to authenticate using their device&#39;s built-in security features like fingerprint sensors, facial recognition, or PIN codes.</p>
+<h3 id='what-are-passkeys-in-eeid'>What are Passkeys in eeID?</h3>
+<p>After authenticating through eeID&#39;s primary authentication methods (like Mobile-ID, Smart-ID, or ID-card), users can create a passkey - a cryptographic credential tied to their verified identity. This passkey can then be used for subsequent authentications from the same device, making the process faster while maintaining security. The passkey works by creating a cryptographic key pair where the private key stays securely on the user&#39;s device.</p>
+<h3 id='key-benefits'>Key Benefits</h3>
+<ul>
+<li><strong>Streamlined Re-authentication</strong>: Once identity is verified through eeID&#39;s primary methods, subsequent logins can be completed quickly using device biometrics or PIN</li>
+<li><strong>Device-Specific Security</strong>: Passkeys are securely stored on user devices and can&#39;t be phished or compromised</li>
+<li><strong>Convenience</strong>: Eliminates the need to repeatedly use primary authentication methods while maintaining security</li>
+<li><strong>Multi-device Support</strong>: Passkeys can be synchronized across a user&#39;s trusted devices through cloud services</li>
+<li><strong>Enhanced User Experience</strong>: Provides a faster authentication option while preserving eeID&#39;s strong identity verification</li>
+</ul>
+<h3 id='how-they-work-with-eeid'>How They Work with eeID</h3>
+<ol>
+<li>User first authenticates using a primary eeID method to verify their identity</li>
+<li>User can then create a passkey for that device</li>
+<li>For future authentications from that device, user can choose to use their passkey</li>
+<li>Authentication is completed by using the device&#39;s built-in authenticator (fingerprint, face, or PIN)</li>
+</ol>
 
-<p><b>Creating a WebAuthn Credential through eeID:</b></p>
-
+<p>Passkeys complement eeID&#39;s existing authentication methods by providing a secure and convenient option for subsequent authentications while maintaining the high security standards required for identity verification.</p>
+<h2 id='creating-a-passkey'>Creating a passkey</h2>
 <ol>
 <li><p><b>Initial Authentication</b>
 <br>Before creating a WebAuthn credential (passkey), users must first verify their identity using an authentication method provided by the eeID service or, if unavailable, an AI-powered identity verification platform (<a href="https://www.veriff.com/">Veriff</a>). This step is crucial for ensuring the user&#39;s identity is securely verified through a recognized and trusted authentication method.</p></li>
@@ -481,20 +690,63 @@ where a private key is stored on the user&#39;s local device, and a public key i
 stored on the server. This setup ensures a secure and password-less authentication process.</li>
 <li><b>Credential ID.</b> Upon successful registration, a unique Credential ID is generated, which will be used for future authentications.</li>
 </ul></li>
-</ol>
-
-<p><br>
-4. <b>Future Authentications</b>
+<li><p><b>Future Authentications</b>
 <br>With the passkey created, the user can now use this method for future authentications. When logging in:</p>
 
-<p>* The user will be prompted to authenticate using their local authenticator.</p>
+<ul>
+<li>The user will be prompted to authenticate using their local authenticator.</li>
+<li>The server verifies the authentication using the stored public key, ensuring a secure and swift login process.</li>
+</ul></li>
+</ol>
+<h2 id='deleting-a-passkey'>Deleting a passkey</h2>
+<p>It&#39;s important to manage your passkeys securely. You may want to delete a passkey if:</p>
 
-<p>* The server verifies the authentication using the stored public key, ensuring a secure and swift login process.</p>
+<ul>
+<li>Your device has been lost or stolen</li>
+<li>You no longer use a particular device</li>
+<li>You suspect unauthorized access</li>
+<li>You&#39;re selling or giving away a device</li>
+<li>You want to refresh your security credentials</li>
+</ul>
 
-<p>Creating a passkey through the eeID service not only enhances the security of
-online transactions but also offers a user-friendly authentication experience.
-It represents a forward step in secure, password-less digital authentication,
-promoting ease of use without compromising on security.</p>
+<p>There are two ways to remove passkeys, each affecting different parts of the credential pair:</p>
+
+<ol>
+<li><b>Device-specific Deletion</b>
+<br>This removes the private key stored on your device. You should do this before selling/disposing of devices:
+
+<ul>
+<li>For Windows: Navigate to Settings &gt; Accounts &gt; Passkeys to manage your passkeys. For detailed instructions, see the <a href="https://support.microsoft.com/en-us/windows/manage-your-passkeys-in-windows-6a70599a-25e1-4461-86be-d67d1023c69f">Windows Passkey Management Guide</a></li>
+<li>For macOS: Go to the Passwords app on your Mac. For detailed instructions, see the <a href="https://support.apple.com/guide/passwords/remove-mchl77e2cb66/mac">macOS Passkey Management Guide</a></li>
+<li>For iOS: Go to the Passwords app. For detailed instructions, see the <a href="https://support.apple.com/en-us/104955">iOS Passkey Management Guide</a></li>
+<li>For Android: Go to Google Account &gt; Security &gt; Passkeys and security keys. For detailed instructions, see the <a href="https://support.google.com/accounts/answer/13548313?hl=en">Android Passkey Management Guide</a></li>
+<li>For Chrome: Go to Settings &gt; Autofill and passwords &gt; Passkeys. For detailed instructions, see the <a href="https://support.google.com/chrome/answer/13168025?hl=en">Chrome Passkey Management Guide</a>
+<br>
+<br></li>
+</ul></li>
+<li><b>eeID Manager Deletion</b>
+<br>This removes the public key stored on eeID servers, effectively invalidating the credential pair:
+
+<ul>
+<li>Log in or create a personal account in <a href="https://eeid.ee">eeID Manager</a></li>
+<li>Navigate to your Account page</li>
+<li>Under &quot;Sign in and security&quot;, click <code>Show Passkeys</code></li>
+<li>Find the passkey you want to remove and click the delete button</li>
+<li>Confirm the deletion</li>
+</ul></li>
+</ol>
+
+<p>For maximum security when compromised:</p>
+
+<ol>
+<li>Delete the passkey from your device to remove the private key</li>
+<li>Delete it from eeID Manager to remove the public key</li>
+<li>Create a new passkey after authenticating with a primary method</li>
+</ol>
+
+<p>Note that deleting a passkey means you&#39;ll need to use a primary authentication method (like Mobile-ID or Smart-ID) for your next sign-in from that device. This is a security measure to ensure only you can create new passkeys for your account.</p>
+
+<p>If you suspect unauthorized access, you should delete the passkey immediately through eeID Manager even if you don&#39;t have access to the device. This will prevent anyone from using that passkey to access your account, as the public-private key pair must both be valid for authentication to succeed.</p>
 <h1 id='eeid-authentication'>eeID Authentication</h1><h2 id='requests'>Requests</h2><h3 id='authentication-request'>Authentication request</h3>
 <p>An authentication request is a HTTP GET request by which the user is redirected from the client application to the eeID server for authentication.</p>
 
@@ -1351,7 +1603,7 @@ end
 
 <p>We need to create a new eeID authenitcation service application. Go to <a href="https://eeid.ee">eeID manager</a> to create one. Enter all the necessary details:</p>
 
-<p><img src="images/demo_service-68b8ee2b.png" alt="Demo Service" /></p>
+<p><img src="images/demo_service-783a33f1.png" alt="Demo Service" /></p>
 
 <p>For the callback URL, enter your website&#39;s address plus <code>auth/eeid/callback</code>. If you happen to be on a local machine, your callback URL should be this: <code>http://127.0.0.1:3000/auth/eeid/callback</code></p>
 
@@ -1607,8 +1859,7 @@ Start up rails server and point browser to <a href="http://localhost:3000">http:
 
 <ul>
 <li>Navigate to the <code>Services</code> section in the eeID Manager.</li>
-<li>Click on + Create New Service, select <code>Identification</code> type and fill in the required details:
-<img src="images/new_identification_service_form-cd65ba92.png" alt="New Identification Service" /></li>
+<li>Click on <code>+ Create New Service</code>, select <code>Identification</code> type and fill in the required details, see <a href="#creating-a-new-service">Creating a new service</a>.</li>
 </ul></li>
 <li><strong>Submit the service for approval</strong></li>
 </ol>
