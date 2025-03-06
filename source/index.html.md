@@ -22,7 +22,7 @@ Welcome to the Estonian Internet Foundation's eeID documentation! This document 
 ### [eeID Authentication Service](#eeid-authentication):
 
 - The authentication service is based on the OpenID Connect protocol, which is an extension of the OAuth 2.0 framework. It provides a standardized method for verifying user identities across various applications and platforms.
-- Users can authenticate using multiple methods, including Mobiil-ID, ID card, Smart-ID, EU-citizen cross-border authentication and FIDO2 Web Authentication (Passkey Authentication). This flexibility allows institutions and private individuals to choose the most suitable authentication method for their needs.
+- Users can authenticate using multiple methods, including Mobiil-ID, ID card, Smart-ID, EU-citizen cross-border authentication and FIDO2 Web Authentication (Passkey Authentication). This flexibility allows organizations and private individuals to choose the most suitable authentication method for their needs.
 - The service issues identity tokens that contain essential user information, enabling applications to confirm identities and manage user access securely.
 
 ### [eeID Identification Service](#eeid-identification):
@@ -33,34 +33,154 @@ Welcome to the Estonian Internet Foundation's eeID documentation! This document 
 
 # OpenID Connect
 
-The eeID is based on the OpenID Connect protocol (OIDC), which is built on top of the OAuth 2.0 authorization framework. It's designed to provide a secure and standardized way to authenticate users and obtain their basic profile information. OIDC is commonly used in applications that require user authentication, such as web and mobile applications.
+The eeID is based on the [OpenID Connect protocol (OIDC)](https://openid.net/developers/how-connect-works/), which is built on top of the [OAuth 2.0](https://oauth.net/2/) authorization framework. It's designed to provide a secure and standardized way to authenticate users and obtain their basic profile information. OIDC is commonly used in applications that require user authentication, such as web and mobile applications.
 
-Limited subset from standards was chosen and some adjustments were made. The main selections and adjustments compared to the full OpenID Connect protocol are the following:
+Limited subset from standards was chosen and some adjustments were made. The main selections and adjustments compared to the full [OpenID Connect protocol](https://openid.net/specs/openid-connect-core-1_0.html) are the following:
 
 - The services support the authorization code flow. The authorization code flow is deemed the most secure option and is thus appropriate for public services.
 - All information about an authenticated user is transferred to the application in an ID token.
-- The eIDAS assurance level is also transferred to the application if it is known (in the `acr` statement).
+- The [eIDAS assurance level](https://ec.europa.eu/digital-building-blocks/sites/display/DIGITAL/eIDAS+Levels+of+Assurance) is also transferred to the application if it is known (in the `acr` statement).
 - The authentication method is selected by the user in the authentication service or by the interfaced client with the scope parameter.
-- Cross-border authentication based on the technical specification of eIDAS.
+- Cross-border authentication based on the technical specification of [eIDAS](https://digital-strategy.ec.europa.eu/en/policies/discover-eidas).
 - Dynamic registration of the client application is not supported. The client application is registered in [eeID manager](https://eeid.ee) by a separate procedure.
 
 # Getting Started
 
-In order to get started you have to sign up and create your first service in the [eeID manager](https://eeid.ee). 
+## Creating an account
 
-1. Add a new contact first. From the main menu select `Contacts` to go to the contacts management view. Click on + Create New Contact and fill in the form.
-![Create New Contact](images/new_contact_form.png)
+To get started with eeID, you'll need to create a free personal account and verify your email address.
+Every person who uses eeID signs in to a user account. Your user account is your identity on eeID and has a personal profile.
 
-2. From the main menu select `Services` to go to the service management view. Click on + Create New Service.
+1. Navigate to [https://eeid.ee/](https://eeid.ee/).
+
+2. You have two options to create an account:
+
+### Option 1: Create Account Form
+
+1. Click `CREATE AN ACCOUNT`.
+2. Fill in the registration form with your:
+   - Email address
+   - Password (must be at least 8 characters)
+   - First name
+   - Last name
+   - Phone number
+   - Country
+3. Accept the Terms and Conditions.
+4. Click `SIGN UP`.
+5. Verify your email address by clicking the link sent to your inbox.
+
+### Option 2: Sign in with eeID Authentication
+
+1. Click `SIGN IN WITH eeID`.
+2. Choose your preferred authentication method:
+   - ID card
+   - Mobile-ID 
+   - Smart-ID
+   - EU citizen authentication
+   - Passkey
+3. Complete the authentication process
+4. After successful authentication, you'll be redirected to a pre-filled registration form containing your:
+   - First name
+   - Last name
+   - Personal identification code
+   - Country
+5. Complete any remaining required fields:
+   - Email address
+   - Phone number
+6. Accept the Terms and Conditions
+7. Click `Create Account`
+8. Verify your email address by clicking the link sent to your inbox.
+
+After creating your account and verifying your email, you can log in and start using eeID services.
+
+## Types of accounts
+
+### User accounts
+
+If you signed up for your own account on eeID, you are using a personal account. Personal accounts represent individual users and have a unique profile with verified identity information. With a personal account, you can:
+
+  - Create and manage your own services
+  - Join or create organizations
+  - Authenticate using various methods (ID card, Mobile-ID, Smart-ID, etc.)
+  - Create and manage passkeys for passwordless authentication
+
+All personal accounts can own an unlimited number of services.
+
+### Organization accounts
+
+Organization accounts enable teams to work together on shared services under a single account. They provide an effective way for businesses, non-profits, and other groups to collectively manage their services.
+
+Like user accounts, organizations can own services. However, you cannot sign in directly to an organization. Instead, each person signs in to their personal user account, and any actions the person takes on organization resources are attributed to their user account. Each user can be a member of multiple organizations.
+
+The users within an organization can be given different roles, which grant different levels of access to the organization and its data:
+
+- **Organization Owner**: Has complete administrative access to the organization, including the ability to edit organization data, add/remove members and manage billing. For security reasons, it's recommended to have at least two organization owners.
+
+- **Organization Member**: The default role with permissions to create and update services and view authentication information.
+
+All organizations can own an unlimited number of services, making them suitable for businesses of any size.
+
+## Creating a new organization
+
+When you create a new organization, it doesn't have any services associated with it. For more information on adding services to your organization, see [Creating a new service](#creating-a-new-service) and [Transferring a service](#transferring-a-service).
+
+1. From the main menu select `Organizations` to go to the organization management view. Click on `+ Create New Organziation`.
+
+2. Follow the prompts to create your organization:
+
+* **Organization name** - enter the name for your organization.
+* **Contact email** - enter the email address that will be used for communications regarding the organization and its services.
+* **Description** - provide a brief description of your organization and its purpose.
+* **URL** - enter your organization's website URL (optional).
+* **Locale** - select the preferred language for communications with your organization.
+
+## Setting your billing info
+
+Your account's billing info is where eeID sends receipts and other billing-related information. You can set up billing information for both personal and organization accounts.
+
+### For personal accounts:
+1. From the main menu select `Account` to go to your profile view
+2. Click `Edit details`
+3. Under `Billing data` fill in the following information:
+   - Billing recipient name*
+   - Billing email address*
+   - IBAN (for automatic payments)
+   - Country*
+   - VAT number (if applicable)
+   - Registration code
+   - Street address
+   - City
+   - Postal code
+
+### For organization accounts:
+1. Navigate to your organization by either:
+   - Selecting `Organizations` from the main menu and clicking the organization name, or
+   - Using the account dropdown menu in the top navigation bar
+2. Click `Account` followed by `Settings`.
+3. Locate the `Billing data` section and complete the required billing information fields.
+
+Fields marked with * are required. Organization owners can edit billing information, while regular members can only view it.
+
+You can also enable automatic balance reloading for both personal and organization accounts to ensure uninterrupted service.
+
+
+## Creating a new service
+
+You can create a new service on your personal account or any organization where you have sufficient permissions.
+
+1. From the main menu select `Services` to go to the service management view. Click on `+ Create New Service`.
+
 ![Create New Service](images/create_new_service.png)
 
-3. Fill in the form
+2. Fill in the form
+
 ![New Service Form](images/new_service_form.png)
 
-4. All the fields must be valid to proceed.
+3. All the fields must be valid to proceed.
 
-* **Name** - enter the name for your service. NB! This will ultimately appear in-front of your customers.
-* **Type** - enter the type of your service (`Authentication` or `Identification`)
+* **Type** - enter the type of your service (`Authentication` or `Identification`).
+* **Owner** - select who will own this service - either your personal account or an organization you belong to. The owner will be responsible for managing the service settings, billing, and access control.
+* **Servce name** - enter the name for your service. NB! This will ultimately appear in-front of your customers.
 * **Description** - provide a brief description of your service. It should be concise, ideally one sentence.
 * **Approval description** - in this field, provide details about what you are building and who your target customers are.
 * **Redirection URL** (`Authentication`) - specify the URL where users should be redirected to after they have been authenticated. If you do not know what you will use, just enter `http://localhost/callback` for now. The value can be changed later if needed. NB! Ensure that redirect URL uses the HTTPS protocol. HTTP is only permitted for local development environments (e.g., localhost).
@@ -68,7 +188,6 @@ In order to get started you have to sign up and create your first service in the
 * **Environment** - indicate the environment in which you will be using the service. `Test` is free and used for testing purposes.
 * **Authentication scope** - choose the authentication scope you wish to support. The following scopes are supported: `openid`, `webauthn`, `phone` and `email`. NB! `idcard`, `mid`, `smartid` and `eidas` are no longer in use and will be removed.
 * **Authentication methods** - choose the authentication methods you wish to support. You can select one or more methods based on your preferred country.
-* **Contact** - choose an existing contact or create a new one. This contact will be associated with the service, and it might be the point of contact for any communications or notifications regarding the service.
 * **Consent screen** (`Authentication`) - configure it to skip the "consent screen", which is the screen where the user must explicitly agree to giving the service access to their data and allow perform operations on their behalf.
 * **Choose logo** (`Authentication`) - upload a logo for your service.
 * **Submission** - review all the details entered in the form, and if everything is correct, click on `SUBMIT FOR APPROVAL` to submit your service.
@@ -82,6 +201,30 @@ In case there are issues or discrepancies in your application, it might be rejec
 After the review process is completed, you will receive a notification regarding the
 status of your application. This notification will inform you whether your application has
 been approved or rejected.
+
+## Transferring a service
+
+You can transfer services between your personal account and organization accounts. After transferring a service, the new owner will have full administrative access to manage the service's settings and resources. During the transfer process, you have the option to rename the service if desired.
+
+Before transferring a service, ensure you meet these requirements:
+
+- You must be the owner of the service you want to transfer
+- The recipient (user or organization) must have permissions to create services
+- The receiving account cannot have an existing service with the same name
+- You can transfer a service owned by an organization to your personal account or to another organization only if you have an owner role in the source organization
+
+Note that when a service is transferred, all new transactions and authentication records will also be transferred to the new owner.
+
+1. Navigate to the main page of the service.
+
+2. Under your service name, click `Transfer Service`.
+
+3. Select the dropdown menu and click an organization or a user.
+
+4. Optionally, in the "Service name" field, type a new name for the service.
+
+5. Click `Submit`
+
 
 # Authentication scope
 
@@ -107,7 +250,29 @@ By default, the eeID services facilitate the following authentication scope:
 
 * `webauthn` - authentication scope leverages passkeys, a cutting-edge technology that replaces traditional passwords with a more secure and user-friendly approach. Passkeys, as described in [FIDO Alliance's Passkeys 101](https://fidoalliance.org/passkeys-101/), utilize public key cryptography to enable users to authenticate using local authenticators such as biometrics, security keys, or other trusted devices. This method simplifies the authentication process while significantly enhancing security, providing a seamless and secure experience for users across the web.
 
-<b>Creating a WebAuthn Credential through eeID:</b>
+## Passkeys
+
+Passkeys provide a convenient way to streamline future authentications after initial identity verification. They leverage the [WebAuthn](https://en.wikipedia.org/wiki/WebAuthn) standard to allow users to authenticate using their device's built-in security features like fingerprint sensors, facial recognition, or PIN codes.
+
+### What are Passkeys in eeID?
+After authenticating through eeID's primary authentication methods (like Mobile-ID, Smart-ID, or ID-card), users can create a passkey - a cryptographic credential tied to their verified identity. This passkey can then be used for subsequent authentications from the same device, making the process faster while maintaining security. The passkey works by creating a cryptographic key pair where the private key stays securely on the user's device.
+
+### Key Benefits
+- **Streamlined Re-authentication**: Once identity is verified through eeID's primary methods, subsequent logins can be completed quickly using device biometrics or PIN
+- **Device-Specific Security**: Passkeys are securely stored on user devices and can't be phished or compromised
+- **Convenience**: Eliminates the need to repeatedly use primary authentication methods while maintaining security
+- **Multi-device Support**: Passkeys can be synchronized across a user's trusted devices through cloud services
+- **Enhanced User Experience**: Provides a faster authentication option while preserving eeID's strong identity verification
+
+### How They Work with eeID
+1. User first authenticates using a primary eeID method to verify their identity
+2. User can then create a passkey for that device
+3. For future authentications from that device, user can choose to use their passkey
+4. Authentication is completed by using the device's built-in authenticator (fingerprint, face, or PIN)
+
+Passkeys complement eeID's existing authentication methods by providing a secure and convenient option for subsequent authentications while maintaining the high security standards required for identity verification.
+
+## Creating a passkey
 
 1. <b>Initial Authentication</b>
 <br>Before creating a WebAuthn credential (passkey), users must first verify their identity using an authentication method provided by the eeID service or, if unavailable, an AI-powered identity verification platform ([Veriff](https://www.veriff.com/)). This step is crucial for ensuring the user's identity is securely verified through a recognized and trusted authentication method.
@@ -120,25 +285,56 @@ trusted identity framework for the user.
 3. <b>Creating the Webauthn Credential (passkey)</b>
 <br>Following the successful authentication through eeID,
 the user can proceed to create a passkey. This process involves:
-    * <b>Registering a Local Authenticator.</b> The user will register a local authenticator,
-    such as a biometric identifier (fingerprint, facial recognition, etc.) or a security key.
-    * <b>Public Key Cryptography.</b> The WebAuthn method leverages public key cryptography,
-    where a private key is stored on the user's local device, and a public key is
-    stored on the server. This setup ensures a secure and password-less authentication process.
-    * <b>Credential ID.</b> Upon successful registration, a unique Credential ID is generated, which will be used for future authentications.
+  * <b>Registering a Local Authenticator.</b> The user will register a local authenticator,
+  such as a biometric identifier (fingerprint, facial recognition, etc.) or a security key.
+  * <b>Public Key Cryptography.</b> The WebAuthn method leverages public key cryptography,
+  where a private key is stored on the user's local device, and a public key is
+  stored on the server. This setup ensures a secure and password-less authentication process.
+  * <b>Credential ID.</b> Upon successful registration, a unique Credential ID is generated, which will be used for future authentications.
 
-<br>
 4. <b>Future Authentications</b>
 <br>With the passkey created, the user can now use this method for future authentications. When logging in:
+  * The user will be prompted to authenticate using their local authenticator.
+  * The server verifies the authentication using the stored public key, ensuring a secure and swift login process.
 
-    * The user will be prompted to authenticate using their local authenticator.
+## Deleting a passkey
 
-    * The server verifies the authentication using the stored public key, ensuring a secure and swift login process.
+It's important to manage your passkeys securely. You may want to delete a passkey if:
 
-Creating a passkey through the eeID service not only enhances the security of
-online transactions but also offers a user-friendly authentication experience.
-It represents a forward step in secure, password-less digital authentication,
-promoting ease of use without compromising on security.
+- Your device has been lost or stolen
+- You no longer use a particular device
+- You suspect unauthorized access
+- You're selling or giving away a device
+- You want to refresh your security credentials
+
+There are two ways to remove passkeys, each affecting different parts of the credential pair:
+
+1. <b>Device-specific Deletion</b>
+<br>This removes the private key stored on your device. You should do this before selling/disposing of devices:
+  - For Windows: Navigate to Settings > Accounts > Passkeys to manage your passkeys. For detailed instructions, see the [Windows Passkey Management Guide](https://support.microsoft.com/en-us/windows/manage-your-passkeys-in-windows-6a70599a-25e1-4461-86be-d67d1023c69f)
+  - For macOS: Go to the Passwords app on your Mac. For detailed instructions, see the [macOS Passkey Management Guide](https://support.apple.com/guide/passwords/remove-mchl77e2cb66/mac)
+  - For iOS: Go to the Passwords app. For detailed instructions, see the [iOS Passkey Management Guide](https://support.apple.com/en-us/104955)
+  - For Android: Go to Google Account > Security > Passkeys and security keys. For detailed instructions, see the [Android Passkey Management Guide](https://support.google.com/accounts/answer/13548313?hl=en)
+  - For Chrome: Go to Settings > Autofill and passwords > Passkeys. For detailed instructions, see the [Chrome Passkey Management Guide](https://support.google.com/chrome/answer/13168025?hl=en)
+<br>
+<br>
+2. <b>eeID Manager Deletion</b>
+<br>This removes the public key stored on eeID servers, effectively invalidating the credential pair:
+  - Log in or create a personal account in [eeID Manager](https://eeid.ee)
+  - Navigate to your Account page
+  - Under "Sign in and security", click `Show Passkeys`
+  - Find the passkey you want to remove and click the delete button
+  - Confirm the deletion
+
+For maximum security when compromised:
+
+1. Delete the passkey from your device to remove the private key
+2. Delete it from eeID Manager to remove the public key
+3. Create a new passkey after authenticating with a primary method
+
+Note that deleting a passkey means you'll need to use a primary authentication method (like Mobile-ID or Smart-ID) for your next sign-in from that device. This is a security measure to ensure only you can create new passkeys for your account.
+
+If you suspect unauthorized access, you should delete the passkey immediately through eeID Manager even if you don't have access to the device. This will prevent anyone from using that passkey to access your account, as the public-private key pair must both be valid for authentication to succeed.
 
 # eeID Authentication
 
@@ -1190,8 +1386,7 @@ To begin using the eeID Identification Service, follow these steps:
 1. **Sign Up**: Create an account on the [eeID Manager](https://eeid.ee).
 2. **Create a Service**:
    - Navigate to the `Services` section in the eeID Manager.
-   - Click on + Create New Service, select `Identification` type and fill in the required details:
-   ![New Identification Service](images/new_identification_service_form.png)
+   - Click on `+ Create New Service`, select `Identification` type and fill in the required details, see [Creating a new service](#creating-a-new-service).
 3. **Submit the service for approval**
 
 ## Example Workflow
