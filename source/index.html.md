@@ -1398,9 +1398,10 @@ To begin using the eeID Identification Service, follow these steps:
   ![New Identification Request](images/new_identification_form.png)
 3. **Enter Claims to Match**:
    - At least one of the following claims must be presented:
-     - **sub**: This field represents the unique identifier or subject for the end-user.
+     - **sub**: This field represents the unique identifier (subject) for the end-user. The value of `sub` can be either the national ID number or the document number, and it must start with the two-letter country code (e.g., `EE12345678901` or `EEAB1234567`).  
+       **Important:** Do not provide the `sub` claim if you do not have the end-user's ID number or document number.
      - **name**: This field allows you to specify the end-user's full name.
-     - **birthdate**: This field captures the end-user's date of birth represented in YYYY-MM-DD format.
+     - **birthdate**: This field captures the end-user's date of birth, represented in YYYY-MM-DD format.
      - **country**: This field specifies the end-user's country in ISO 3166-1 Alpha-2 format.
    - Additionally, enter a **reference**:
      This reference serves as an identifier in the system of the calling service and will be included in the result if present.
