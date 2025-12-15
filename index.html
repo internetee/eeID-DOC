@@ -1882,9 +1882,10 @@ Start up rails server and point browser to <a href="http://localhost:3000">http:
 <li>At least one of the following claims must be presented:
 
 <ul>
-<li><strong>sub</strong>: This field represents the unique identifier or subject for the end-user.</li>
+<li><strong>sub</strong>: This field represents the unique identifier (subject) for the end-user. The value of <code>sub</code> can be either the national ID number or the document number, and it must start with the two-letter country code (e.g., <code>EE12345678901</code> or <code>EEAB1234567</code>).<br>
+<strong>Important:</strong> Do not provide the <code>sub</code> claim if you do not have the end-user&#39;s ID number or document number.</li>
 <li><strong>name</strong>: This field allows you to specify the end-user&#39;s full name.</li>
-<li><strong>birthdate</strong>: This field captures the end-user&#39;s date of birth represented in YYYY-MM-DD format.</li>
+<li><strong>birthdate</strong>: This field captures the end-user&#39;s date of birth, represented in YYYY-MM-DD format.</li>
 <li><strong>country</strong>: This field specifies the end-user&#39;s country in ISO 3166-1 Alpha-2 format.</li>
 </ul></li>
 <li>Additionally, enter a <strong>reference</strong>:
