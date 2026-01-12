@@ -576,7 +576,7 @@ Every person who uses eeID signs in to a user account. Your user account is your
 <li>Fill in the form</li>
 </ol>
 
-<p><img src="images/new_service_form-cb4ba094.png" alt="New Service Form" /></p>
+<p><img src="images/new_service_form-59d76183.png" alt="New Service Form" /></p>
 
 <ol>
 <li>All the fields must be valid to proceed.</li>
@@ -585,13 +585,18 @@ Every person who uses eeID signs in to a user account. Your user account is your
 <ul>
 <li><strong>Type</strong> - enter the type of your service (<code>Authentication</code> or <code>Identification</code>).</li>
 <li><strong>Owner</strong> - select who will own this service - either your personal account or an organization you belong to. The owner will be responsible for managing the service settings, billing, and access control.</li>
-<li><strong>Servce name</strong> - enter the name for your service. NB! This will ultimately appear in-front of your customers.</li>
+<li><strong>Service name</strong> - enter the name for your service. NB! This will ultimately appear in-front of your customers. You can provide translations of the service name in multiple languages (English, Estonian, and Russian) by clicking the &quot;Update name translations&quot; link below the service name field. This allows your service to display a localized name to users based on their language preference. If translations are not provided, the default service name will be used.</li>
 <li><strong>Description</strong> - provide a brief description of your service. It should be concise, ideally one sentence.</li>
 <li><strong>Approval description</strong> - in this field, provide details about what you are building and who your target customers are.</li>
-<li><strong>Redirection URL</strong> (<code>Authentication</code>) - specify the URL where users should be redirected to after they have been authenticated. If you do not know what you will use, just enter <code>http://localhost/callback</code> for now. The value can be changed later if needed. NB! Ensure that redirect URL uses the HTTPS protocol. HTTP is only permitted for local development environments (e.g., localhost).</li>
+<li><strong>Redirection URLs</strong> (<code>Authentication</code>) - specify one or more URLs where users should be redirected to after they have been authenticated. You can enter multiple URLs by placing each URL on a separate line in the textarea field. For example:
+<code>
+https://domain.com/eeid/callback
+https://another-domain.com/eeid/callback
+</code>
+If you do not know what you will use, just enter <code>http://localhost/callback</code> for now. The value can be changed later if needed. NB! Ensure that redirect URLs use the HTTPS protocol. HTTP is only permitted for local development environments (e.g., localhost).</li>
 <li><strong>Webhook URL</strong> (<code>Identification</code>) - specify the URL where the service will send notifications about the status of identification requests. This is a critical field for services that require real-time updates on the verification process. Ensure the provided URL is secure (HTTPS) and can handle incoming requests. The path must contain <code>eeid/webhooks/identification_requests</code>.</li>
 <li><strong>Environment</strong> - indicate the environment in which you will be using the service. <code>Test</code> is free and used for testing purposes.</li>
-<li><strong>Authentication scope</strong> - choose the authentication scope you wish to support. The following scopes are supported: <code>openid</code>, <code>webauthn</code>, <code>phone</code> and <code>email</code>. NB! <code>idcard</code>, <code>mid</code>, <code>smartid</code> and <code>eidas</code> are no longer in use and will be removed.</li>
+<li><strong>Authentication scope</strong> - choose the authentication scope you wish to support. See the <a href="#authentication-scope">Authentication scope</a> section for more details. The following scopes are supported: <code>openid</code>, <code>webauthn</code>, <code>phone</code> and <code>email</code>.</li>
 <li><strong>Authentication methods</strong> - choose the authentication methods you wish to support. You can select one or more methods based on your preferred country.</li>
 <li><strong>Consent screen</strong> (<code>Authentication</code>) - configure it to skip the &quot;consent screen&quot;, which is the screen where the user must explicitly agree to giving the service access to their data and allow perform operations on their behalf.</li>
 <li><strong>Choose logo</strong> (<code>Authentication</code>) - upload a logo for your service.</li>
@@ -988,6 +993,7 @@ The valid access token response is provided in the JSON format. Example:</p>
   </span><span class="nl">"auth_time"</span><span class="p">:</span><span class="w"> </span><span class="mi">1694591147</span><span class="p">,</span><span class="w">
   </span><span class="nl">"authentication_type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"SMART_ID"</span><span class="p">,</span><span class="w">
   </span><span class="nl">"date_of_birth"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2000-01-01"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"expiration_time"</span><span class="p">:</span><span class="w"> </span><span class="mi">1851935057</span><span class="p">,</span><span class="w">
   </span><span class="nl">"family_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"O’CONNEŽ-ŠUSLIK TESTNUMBER"</span><span class="p">,</span><span class="w">
   </span><span class="nl">"given_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"MARY ÄNN"</span><span class="p">,</span><span class="w">
   </span><span class="nl">"sub"</span><span class="p">:</span><span class="w"> </span><span class="s2">"EE60001019906"</span><span class="p">,</span><span class="w">
@@ -1021,6 +1027,10 @@ The claims included in the response are issued based on the identity token.</p>
 <tr>
 <td><code>date_of_birth</code></td>
 <td>The date of birth of the authenticated user in the ISO_8601 format</td>
+</tr>
+<tr>
+<td><code>expiration_time</code></td>
+<td>The expiration time of the user information in seconds since the Unix epoch (UTC). Provided if available. This value is typically determined by the validity period of the user&#39;s identity document or authentication certificate</td>
 </tr>
 <tr>
 <td><code>given_name</code></td>
@@ -1176,7 +1186,7 @@ The key element of the process described above is connection of the <code>state<
 <li>Use <a href="https://github.com/SK-EID/smart-id-documentation/wiki/Environment-technical-parameters#test-accounts-for-automated-testing">test users</a>.</li>
 </ul>
 <h2 id='run-in-postman'>Run in Postman</h2>
-<p><a href="https://god.gw.postman.com/run-collection/37760758-c07af2ef-c1d1-4675-91d1-701c0ea51871?action=collection%2Ffork&amp;source=rip_markdown&amp;collection-url=entityId%3D37760758-c07af2ef-c1d1-4675-91d1-701c0ea51871%26entityType%3Dcollection%26workspaceId%3Dfbfde0f7-54e9-4061-844a-5f03ab3d2ac4"><img src="https://run.pstmn.io/button.svg" alt="Run In Postman" style="width: 128px; height: 32px;"></a></p>
+<p><a href="https://www.postman.com/internetee/public/collection/o8k10xt/eeid-authentication-api-v1-0?action=share&amp;creator=37760758"><img src="https://run.pstmn.io/button.svg" alt="Run In Postman" style="width: 128px; height: 32px;"></a></p>
 <h2 id='code-examples'>Code examples</h2><h3 id='openid-connect-client-with-spring-security'>OpenID Connect Client with Spring Security</h3>
 <p>One of the key features of Spring Security 5 was the native support for OAuth2 and OIDC.
 Making use of the OIDC configuration information (OIDC metadata), integrating with
@@ -1325,7 +1335,7 @@ and ensures that the user-agent gets redirected to the right endpoints for authe
 <p>Start the demo application with <code>mvn spring-boot:run</code>. Navigate to <code>http://localhost:8080</code> to access the index site.
 Click on the link to access <code>http://localhost:8080/secured</code> that triggers a login.</p>
 
-<p><img src="images/login_screen-275391b0.png" alt="Login Screen" />
+<p><img src="images/login_screen-7e8e145f.png" alt="Login Screen" />
 <br>
 After successful login the page shows details retrieved from the ID token.</p>
 
@@ -1603,7 +1613,7 @@ end
 
 <p>We need to create a new eeID authenitcation service application. Go to <a href="https://eeid.ee">eeID manager</a> to create one. Enter all the necessary details:</p>
 
-<p><img src="images/demo_service-783a33f1.png" alt="Demo Service" /></p>
+<p><img src="images/demo_service-09dd2315.png" alt="Demo Service" /></p>
 
 <p>For the callback URL, enter your website&#39;s address plus <code>auth/eeid/callback</code>. If you happen to be on a local machine, your callback URL should be this: <code>http://127.0.0.1:3000/auth/eeid/callback</code></p>
 
@@ -1874,9 +1884,9 @@ Start up rails server and point browser to <a href="http://localhost:3000">http:
 
 <ul>
 <li>Click the button <strong>&quot;Create New Request&quot;</strong>. A form will appear prompting you to enter the necessary claims:
-<img src="images/new_identification_form-51b019f4.png" alt="New Identification Request" /></li>
+<img src="images/new_identification_form-6ae1de11.png" alt="New Identification Request" /></li>
 </ul></li>
-<li><strong>Enter Claims to Match</strong>:
+<li><p><strong>Enter Claims to Match</strong>:</p>
 
 <ul>
 <li>At least one of the following claims must be presented:
@@ -1890,27 +1900,29 @@ Start up rails server and point browser to <a href="http://localhost:3000">http:
 </ul></li>
 <li>Additionally, enter a <strong>reference</strong>:
 This reference serves as an identifier in the system of the calling service and will be included in the result if present.</li>
+<li>Enter identification <strong>reason</strong>: 
+Provide a clear explanation of why you are requesting identification. This reason will be displayed to the end-user on the identification form, helping them understand the purpose of the identification request. It is recommended to provide a concise and transparent reason to build trust with the end-user.</li>
 </ul></li>
-<li><strong>Submit the Request</strong>:
+<li><p><strong>Submit the Request</strong>:</p>
 
 <ul>
 <li>Once all required data is entered, submit the form to create a new identification request.</li>
 <li>The system generates a new identification request and provides a unique link for the end-user:
 <img src="images/identification_request-6472869a.png" alt="Identification Request" /></li>
 </ul></li>
-<li><strong>Send the Link to the End-User</strong>:
+<li><p><strong>Send the Link to the End-User</strong>:</p>
 
 <ul>
 <li>It is your responsibility to send the generated link to the end-user for verification.</li>
 <li>You can add a <code>ui_locales</code> parameter to the link in order to change the UI language. The supported languages are <code>ru</code> (Russian), <code>et</code> (Estonian), and <code>en</code> (English). For example, to change the UI language to Russian, add <code>?ui_locales=ru</code> to the end of the link.</li>
 </ul></li>
-<li><strong>Verification Process</strong>:
+<li><p><strong>Verification Process</strong>:</p>
 
 <ul>
 <li>The end-user follows the link to complete the verification process with eeID.</li>
 <li>The identification request is marked as <strong>completed</strong> once the end-user successfully finishes the verification process. An email will be sent to the identification service contact email. If a secure webhook URL was provided, the service will send a POST request with the proof of identity document once it is ready.</li>
 </ul></li>
-<li><strong>Handling Aborted Requests</strong>:
+<li><p><strong>Handling Aborted Requests</strong>:</p>
 
 <ul>
 <li>If the end-user aborts the flow without completing the assignment, the status of the identification request remains unchanged.</li>
@@ -1934,7 +1946,7 @@ Authorization: Bearer {access_token}
 
 <p>For additional testing, the API is also available in Postman. You can explore the available endpoints, request parameters, and response formats directly in the Postman collection:</p>
 
-<p><a href="https://god.gw.postman.com/run-collection/37760758-d649a287-c53e-483c-84d5-3b584a88b706?action=collection%2Ffork&amp;source=rip_markdown&amp;collection-url=entityId%3D37760758-d649a287-c53e-483c-84d5-3b584a88b706%26entityType%3Dcollection%26workspaceId%3D38bd2f07-e8f0-4bd4-ae32-1917d18f19a8"><img src="https://run.pstmn.io/button.svg" alt="Run In Postman" style="width: 128px; height: 32px;"></a></p>
+<p><a href="https://www.postman.com/internetee/public/collection/mtlpwug/eeid-identification-api-v1-0?action=share&amp;creator=37760758"><img src="https://run.pstmn.io/button.svg" alt="Run In Postman" style="width: 128px; height: 32px;"></a></p>
 
       </div>
     </div>
