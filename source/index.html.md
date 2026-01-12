@@ -180,13 +180,18 @@ You can create a new service on your personal account or any organization where 
 
 * **Type** - enter the type of your service (`Authentication` or `Identification`).
 * **Owner** - select who will own this service - either your personal account or an organization you belong to. The owner will be responsible for managing the service settings, billing, and access control.
-* **Servce name** - enter the name for your service. NB! This will ultimately appear in-front of your customers.
+* **Service name** - enter the name for your service. NB! This will ultimately appear in-front of your customers. You can provide translations of the service name in multiple languages (English, Estonian, and Russian) by clicking the "Update name translations" link below the service name field. This allows your service to display a localized name to users based on their language preference. If translations are not provided, the default service name will be used.
 * **Description** - provide a brief description of your service. It should be concise, ideally one sentence.
 * **Approval description** - in this field, provide details about what you are building and who your target customers are.
-* **Redirection URL** (`Authentication`) - specify the URL where users should be redirected to after they have been authenticated. If you do not know what you will use, just enter `http://localhost/callback` for now. The value can be changed later if needed. NB! Ensure that redirect URL uses the HTTPS protocol. HTTP is only permitted for local development environments (e.g., localhost).
+* **Redirection URLs** (`Authentication`) - specify one or more URLs where users should be redirected to after they have been authenticated. You can enter multiple URLs by placing each URL on a separate line in the textarea field. For example:
+  ```
+  https://domain.com/eeid/callback
+  https://another-domain.com/eeid/callback
+  ```
+  If you do not know what you will use, just enter `http://localhost/callback` for now. The value can be changed later if needed. NB! Ensure that redirect URLs use the HTTPS protocol. HTTP is only permitted for local development environments (e.g., localhost).
 * **Webhook URL** (`Identification`) - specify the URL where the service will send notifications about the status of identification requests. This is a critical field for services that require real-time updates on the verification process. Ensure the provided URL is secure (HTTPS) and can handle incoming requests. The path must contain `eeid/webhooks/identification_requests`.
 * **Environment** - indicate the environment in which you will be using the service. `Test` is free and used for testing purposes.
-* **Authentication scope** - choose the authentication scope you wish to support. The following scopes are supported: `openid`, `webauthn`, `phone` and `email`. NB! `idcard`, `mid`, `smartid` and `eidas` are no longer in use and will be removed.
+* **Authentication scope** - choose the authentication scope you wish to support. See the [Authentication scope](#authentication-scope) section for more details. The following scopes are supported: `openid`, `webauthn`, `phone` and `email`.
 * **Authentication methods** - choose the authentication methods you wish to support. You can select one or more methods based on your preferred country.
 * **Consent screen** (`Authentication`) - configure it to skip the "consent screen", which is the screen where the user must explicitly agree to giving the service access to their data and allow perform operations on their behalf.
 * **Choose logo** (`Authentication`) - upload a logo for your service.
@@ -508,6 +513,7 @@ The valid access token response is provided in the JSON format. Example:
   "auth_time": 1694591147,
   "authentication_type": "SMART_ID",
   "date_of_birth": "2000-01-01",
+  "expiration_time": 1851935057,
   "family_name": "O’CONNEŽ-ŠUSLIK TESTNUMBER",
   "given_name": "MARY ÄNN",
   "sub": "EE60001019906",
@@ -523,6 +529,7 @@ The claims included in the response are issued based on the identity token.
 | `authentication_type` | The authentication method used for user authentication. Example values: `MOBILE_ID` - Mobile-ID, `ID_CARD` - Estonian ID card, `SMART_ID` - Smart-ID, `WEBAUTHN` - Fido Webauthn
 | `acr` | `high` - level of authentication based on the eIDAS LoA (level of assurance). Possible values: `low`, `substantial`, `high`
 | `date_of_birth` | The date of birth of the authenticated user in the ISO_8601 format
+| `expiration_time` | The expiration time of the user information in seconds since the Unix epoch (UTC). Provided if available. This value is typically determined by the validity period of the user's identity document or authentication certificate
 | `given_name` | The first name of the authenticated user
 | `family_name` | The surname of the authenticated user
 
@@ -622,7 +629,9 @@ The eeID test environment is directed to the Smart-ID demo environment. There ar
 * Use [test users](https://github.com/SK-EID/smart-id-documentation/wiki/Environment-technical-parameters#test-accounts-for-automated-testing).
 
 ## Run in Postman
-[<img src="https://run.pstmn.io/button.svg" alt="Run In Postman" style="width: 128px; height: 32px;">](https://god.gw.postman.com/run-collection/37760758-c07af2ef-c1d1-4675-91d1-701c0ea51871?action=collection%2Ffork&source=rip_markdown&collection-url=entityId%3D37760758-c07af2ef-c1d1-4675-91d1-701c0ea51871%26entityType%3Dcollection%26workspaceId%3Dfbfde0f7-54e9-4061-844a-5f03ab3d2ac4)
+[<img src="https://run.pstmn.io/button.svg" alt="Run In Postman" style="width: 128px; height: 32px;">](https://www.postman.com/internetee/public/collection/o8k10xt/eeid-authentication-api-v1-0?action=share&creator=37760758)
+
+
 
 ## Code examples
 
@@ -1405,6 +1414,9 @@ To begin using the eeID Identification Service, follow these steps:
      - **country**: This field specifies the end-user's country in ISO 3166-1 Alpha-2 format.
    - Additionally, enter a **reference**:
      This reference serves as an identifier in the system of the calling service and will be included in the result if present.
+   - Enter identification **reason**: 
+     Provide a clear explanation of why you are requesting identification. This reason will be displayed to the end-user on the identification form, helping them understand the purpose of the identification request. It is recommended to provide a concise and transparent reason to build trust with the end-user.
+    
 4. **Submit the Request**:
    - Once all required data is entered, submit the form to create a new identification request.
    - The system generates a new identification request and provides a unique link for the end-user:
@@ -1439,4 +1451,4 @@ Comprehensive API documentation is available for the eeID Identification Service
 
 For additional testing, the API is also available in Postman. You can explore the available endpoints, request parameters, and response formats directly in the Postman collection:
 
-[<img src="https://run.pstmn.io/button.svg" alt="Run In Postman" style="width: 128px; height: 32px;">](https://god.gw.postman.com/run-collection/37760758-d649a287-c53e-483c-84d5-3b584a88b706?action=collection%2Ffork&source=rip_markdown&collection-url=entityId%3D37760758-d649a287-c53e-483c-84d5-3b584a88b706%26entityType%3Dcollection%26workspaceId%3D38bd2f07-e8f0-4bd4-ae32-1917d18f19a8)
+[<img src="https://run.pstmn.io/button.svg" alt="Run In Postman" style="width: 128px; height: 32px;">](https://www.postman.com/internetee/public/collection/mtlpwug/eeid-identification-api-v1-0?action=share&creator=37760758)
