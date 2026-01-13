@@ -183,12 +183,7 @@ You can create a new service on your personal account or any organization where 
 * **Service name** - enter the name for your service. NB! This will ultimately appear in-front of your customers. You can provide translations of the service name in multiple languages (English, Estonian, and Russian) by clicking the "Update name translations" link below the service name field. This allows your service to display a localized name to users based on their language preference. If translations are not provided, the default service name will be used.
 * **Description** - provide a brief description of your service. It should be concise, ideally one sentence.
 * **Approval description** - in this field, provide details about what you are building and who your target customers are.
-* **Redirection URLs** (`Authentication`) - specify one or more URLs where users should be redirected to after they have been authenticated. You can enter multiple URLs by placing each URL on a separate line in the textarea field. For example:
-  ```
-  https://domain.com/eeid/callback
-  https://another-domain.com/eeid/callback
-  ```
-  If you do not know what you will use, just enter `http://localhost/callback` for now. The value can be changed later if needed. NB! Ensure that redirect URLs use the HTTPS protocol. HTTP is only permitted for local development environments (e.g., localhost).
+* **Redirection URLs** (`Authentication`) - specify one or more URLs where users should be redirected to after they have been authenticated. You can enter multiple URLs by placing each URL on a separate line in the textarea field. If you do not know what you will use, just enter `http://localhost/callback` for now. The value can be changed later if needed. NB! Ensure that redirect URLs use the HTTPS protocol. HTTP is only permitted for local development environments (e.g., localhost).
 * **Webhook URL** (`Identification`) - specify the URL where the service will send notifications about the status of identification requests. This is a critical field for services that require real-time updates on the verification process. Ensure the provided URL is secure (HTTPS) and can handle incoming requests. The path must contain `eeid/webhooks/identification_requests`.
 * **Environment** - indicate the environment in which you will be using the service. `Test` is free and used for testing purposes.
 * **Authentication scope** - choose the authentication scope you wish to support. See the [Authentication scope](#authentication-scope) section for more details. The following scopes are supported: `openid`, `webauthn`, `phone` and `email`.
