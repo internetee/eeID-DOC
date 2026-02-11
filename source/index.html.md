@@ -190,6 +190,8 @@ You can create a new service on your personal account or any organization where 
 * **Authentication methods** - choose the authentication methods you wish to support. You can select one or more methods based on your preferred country.
 * **Consent screen** (`Authentication`) - configure it to skip the "consent screen", which is the screen where the user must explicitly agree to giving the service access to their data and allow perform operations on their behalf.
 * **Choose logo** (`Authentication`) - upload a logo for your service.
+* **Age restriction** (`Authentication`, optional) - enable age restriction and set a minimum age for your service. When enabled, eeID checks the authenticated user's date of birth (if present) against the configured minimum age before finalizing consent. If the requirement is not met, the authorization is rejected and the client application receives an `access_denied` error.
+  **NB!** Latvian eParaksts and SmartID authentication methods do not provide birthdate at the moment. Age restriction cannot be enforced for users authenticating with these methods, as the required birthdate information will not be available.
 * **Submission** - review all the details entered in the form, and if everything is correct, click on `SUBMIT FOR APPROVAL` to submit your service.
 
 Once you submit the form, it will be reviewed by the service administrators
@@ -390,7 +392,15 @@ The+requested+scope+is+invalid%2C+unknown%2C+or+malformed.+The+OAuth+2.0+Client+
 &state=0b60fe50138f8fdd56afd2a6ab7a40f9
 ```
 <br>
-The redirect request errors are normally resulted by a misconfiguration; therefore the error description in parameter `error_description` is not needed to be displayed for the user directly. The client application should check whether or not an error message has been sent.
+If the service has age restriction enabled and the authenticated user does not meet the configured minimum age, eeID returns an authorization error:
+
+```shell
+GET https://eservice.institution.ee/callback?error=access_denied&error_description=
+User+must+be+at+least+18+years+old.
+&state=0b60fe50138f8fdd56afd2a6ab7a40f9
+```
+<br>
+Redirect request errors can be caused by both technical issues (for example, misconfiguration) and policy decisions (for example, age restriction). The client application should always check whether an `error` parameter is present and handle it accordingly.
 
 ### Identity token request
 
@@ -607,7 +617,7 @@ A prerequisite for testing the eeID authentication service is registering a serv
 Users for successful authentication:
 
 - Mobile ID phone and id numbers: EE - `68000769` | `60001017869`, LT - `60000666` | `50001018865`
-- Smart-ID personal codes: EE - `39901012239`, LV - `040404-10003`, LT - `40504040001`, BE - `05040400032`
+- Smart-ID personal codes: EE - `39901012239`, LV - `050405-10009`, LT - `40504040001`, BE - `05040400032`
 - eIDAS country Czech Republic: select `Testovací profily` from the redirection screen and select a test user for authentication
 
 ### Mobile ID
