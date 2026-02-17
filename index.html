@@ -360,6 +360,9 @@
                     <a href="#requests" class="toc-h2 toc-link" data-title="Requests">Requests</a>
                   </li>
                   <li>
+                    <a href="#pkce-proof-key-for-code-exchange" class="toc-h2 toc-link" data-title="PKCE (Proof Key for Code Exchange)">PKCE (Proof Key for Code Exchange)</a>
+                  </li>
+                  <li>
                     <a href="#protection" class="toc-h2 toc-link" data-title="Protection">Protection</a>
                   </li>
                   <li>
@@ -769,6 +772,8 @@ stored on the server. This setup ensures a secure and password-less authenticati
 <ul>
 <li><code>ui_locales</code> - selection of the user interface language. The following languages are supported: <code>et</code>, <code>en</code>, <code>ru</code></li>
 <li><code>nonce</code> - unique parameter which helps to prevent replay attacks based on the protocol</li>
+<li><code>code_challenge_method</code> - required for <a href="#pkce-proof-key-for-code-exchange">PKCE</a>/public clients, must be <code>S256</code></li>
+<li><code>code_challenge</code> - required for <a href="#pkce-proof-key-for-code-exchange">PKCE</a>/public clients, base64url-encoded SHA-256 hash of <code>code_verifier</code></li>
 </ul>
 
 <p>An example of an authentication request:</p>
@@ -777,6 +782,16 @@ stored on the server. This setup ensures a secure and password-less authenticati
 &amp;response_type<span class="o">=</span>code
 &amp;scope<span class="o">=</span>openid%20webauthn
 &amp;state<span class="o">=</span>f3b2c3e7f4cf0bed3a783ed6ece617e3
+</code></pre></div>
+<p><br>
+Example for <a href="#pkce-proof-key-for-code-exchange">PKCE</a>/public client:</p>
+<div class="highlight"><pre class="highlight shell tab-shell"><code>GET https://auth.eeid.ee/hydra-public/oauth2/auth?client_id<span class="o">=</span>oidc-b8ab3705-c25f-4271-b87d-ecf190aa4982-11
+&amp;redirect_uri<span class="o">=</span>https%3A%2F%2Feservice.institution.ee%2Fcallback
+&amp;response_type<span class="o">=</span>code
+&amp;scope<span class="o">=</span>openid
+&amp;state<span class="o">=</span>f3b2c3e7f4cf0bed3a783ed6ece617e3
+&amp;code_challenge_method<span class="o">=</span>S256
+&amp;code_challenge<span class="o">=</span>R8Kf3up4QxQhM9E7Q4P1H0IrbIee8f4Y2m5kY2C4QGA
 </code></pre></div><h3 id='redirect-request'>Redirect request</h3>
 <p>The redirect request is a HTTP GET request which is used to redirect the user back to the return address entered upon registration of the client application in <a href="https://eeid.ee">eeID manager</a>. In the redirect request an authorization code is sent to the client application, based on which the client application will request the access token in order to get personal identification code, name and other attributes of the authenticated person. The security code state received in the authentication request is mirrored back. Read more about forming and verifying state from <a href="#protection">Protection against false request attacks</a>.</p>
 
@@ -812,7 +827,16 @@ Content_Type: application/x-www-form-urlencoded
 <span class="nv">redirect_uri</span><span class="o">=</span>https%3A%2F%2Feservice.institution.ee%2Fcallback
 </code></pre></div>
 <p><br>
-The client secret code must be provided in the identity token request. For this purpose, the request must include the <code>Authorization</code> request header with the value formed of the word Basic, a space and a string <code>&lt;client_id&gt;:&lt;client_secret&gt;</code> encoded in the Base64 format. The body of the HTTP POST request must be presented in a serialised <a href="https://openid.net/specs/openid-connect-core-1_0.html#FormSerialization">format</a> based on the OpenID Connect protocol. The body of the request must include the <code>code</code> received from the authentication service.</p>
+There are two supported client authentication modes for token request:</p>
+
+<ol>
+<li><strong>Confidential client</strong> (<code>token_endpoint_auth_method=client_secret_basic</code>):
+include <code>Authorization: Basic base64(&lt;client_id&gt;:&lt;client_secret&gt;)</code>.</li>
+<li><strong>Public PKCE client</strong> (<code>token_endpoint_auth_method=none</code>):
+do not send client secret, send <code>client_id</code> and <code>code_verifier</code> in request body.</li>
+</ol>
+
+<p>The body of the HTTP POST request must be presented in a serialised <a href="https://openid.net/specs/openid-connect-core-1_0.html#FormSerialization">format</a> based on the OpenID Connect protocol. The body of the request must include the <code>code</code> received from the authentication service.</p>
 
 <p>The body of the request must include the following parameters:</p>
 
@@ -834,7 +858,26 @@ The client secret code must be provided in the identity token request. For this 
 <td><code>redirect_uri</code></td>
 <td>The redirect URL sent in the authorisation request</td>
 </tr>
+<tr>
+<td><code>client_id</code></td>
+<td>Required for public PKCE clients</td>
+</tr>
+<tr>
+<td><code>code_verifier</code></td>
+<td>Required for public PKCE clients. Must match the <code>code_challenge</code> sent in the auth request</td>
+</tr>
 </tbody></table>
+
+<p>PKCE/public client token request example:</p>
+<div class="highlight"><pre class="highlight shell tab-shell"><code>POST https://auth.eeid.ee/hydra-public/oauth2/token
+Content-Type: application/x-www-form-urlencoded
+</code></pre></div><div class="highlight"><pre class="highlight shell tab-shell"><code><span class="nv">grant_type</span><span class="o">=</span>authorization_code&amp;
+<span class="nv">client_id</span><span class="o">=</span>oidc-b8ab3705-c25f-4271-b87d-ecf190aa4982-11&amp;
+<span class="nv">code</span><span class="o">=</span>71ed5797c3d957817d31&amp;
+<span class="nv">redirect_uri</span><span class="o">=</span>https%3A%2F%2Feservice.institution.ee%2Fcallback&amp;
+<span class="nv">code_verifier</span><span class="o">=</span>Z1YvSmg2a3R0R0l0Y1VxV1A4N3hGQ09mR2xPZTlQd3Y5bnN4WDBqYl91QkN4VQ
+</code></pre></div>
+<p>PKCE requirement follows OAuth2 Authorization Code + PKCE best practices. For flow details and rationale, see Ory documentation: <a href="https://www.ory.com/docs/oauth2-oidc/authorization-code-flow">OAuth2 authorization code flow</a>.</p>
 
 <p>The server verifies that the identity token is requested by the right application and issues the identity token included in the response body. The response body uses JSON format consisting four elements:</p>
 
@@ -1053,7 +1096,46 @@ about the error are returned:</p>
   </span><span class="nl">"error"</span><span class="p">:</span><span class="w"> </span><span class="s2">"invalid_token"</span><span class="p">,</span><span class="w">
   </span><span class="nl">"error_description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Token expired. Access token expired at '2022-10-07 14:55:34 +0000 UTC'."</span><span class="w">
 </span><span class="p">}</span><span class="w">
-</span></code></pre></div><h2 id='protection'>Protection</h2>
+</span></code></pre></div><h2 id='pkce-proof-key-for-code-exchange'>PKCE (Proof Key for Code Exchange)</h2>
+<p><a href="https://datatracker.ietf.org/doc/html/rfc7636">PKCE</a> is a security extension for OAuth2 Authorization Code flow. It protects public clients (for example SPA, mobile app, desktop app) from authorization code interception attacks.</p>
+
+<p>In PKCE flow, the client:</p>
+
+<ol>
+<li>Generates a random <code>code_verifier</code></li>
+<li>Calculates <code>code_challenge</code> from that verifier using SHA-256 (<code>S256</code>)</li>
+<li>Sends <code>code_challenge</code> in authorization request (<code>/oauth2/auth</code>)</li>
+<li>Sends original <code>code_verifier</code> in token request (<code>/oauth2/token</code>)</li>
+</ol>
+
+<p>The authorization server validates that <code>code_verifier</code> matches the original <code>code_challenge</code>. If it does not match, token issuance fails.</p>
+<h3 id='which-mode-to-choose-in-eeid-manager'>Which mode to choose in eeID Manager</h3>
+<ul>
+<li>Use <code>token_endpoint_auth_method=none</code> for public PKCE clients.</li>
+<li>Use <code>token_endpoint_auth_method=client_secret_basic</code> for confidential server-side clients that can safely store a client secret.</li>
+</ul>
+<h3 id='minimal-pkce-checklist'>Minimal PKCE checklist</h3>
+<ul>
+<li>Authorization request must include:
+
+<ul>
+<li><code>code_challenge_method=S256</code></li>
+<li><code>code_challenge=&lt;base64url(sha256(code_verifier))&gt;</code></li>
+</ul></li>
+<li>Token request must include:
+
+<ul>
+<li><code>grant_type=authorization_code</code></li>
+<li><code>client_id</code></li>
+<li><code>code</code></li>
+<li><code>redirect_uri</code></li>
+<li><code>code_verifier</code></li>
+</ul></li>
+<li>For PKCE/public clients, do not send client secret.</li>
+</ul>
+<h3 id='why-this-matters'>Why this matters</h3>
+<p>Without PKCE, a stolen authorization code can be exchanged for tokens by an attacker. PKCE binds the code exchange to the same client that initiated the login flow.</p>
+<h2 id='protection'>Protection</h2>
 <p>The client application must implement protective measures against false request attacks (cross-site request forgery, CSRF). 
 This can be achieved by using <code>state</code> security code. Using <code>state</code> is compulsory.</p>
 
