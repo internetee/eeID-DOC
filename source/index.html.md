@@ -359,6 +359,7 @@ Required query parameters:
 Optional query parameters:
 
 - `ui_locales` - selection of the user interface language. The following languages are supported: `et`, `en`, `ru`
+- `country` - preselects the country on the eeID authentication page. Use an ISO 3166-1 alpha-2 country code in uppercase, for example `EE`, `LV`, `LT`, `SE`. If the provided country is not supported by the service configuration, eeID ignores the parameter.
 - `nonce` - unique parameter which helps to prevent replay attacks based on the protocol
 - `code_challenge_method` - required for [PKCE](#pkce-proof-key-for-code-exchange)/public clients, must be `S256`
 - `code_challenge` - required for [PKCE](#pkce-proof-key-for-code-exchange)/public clients, base64url-encoded SHA-256 hash of `code_verifier`
@@ -371,6 +372,7 @@ GET https://auth.eeid.ee/hydra-public/oauth2/auth?client_id=oidc-b8ab3705-c25f-4
 &response_type=code
 &scope=openid%20webauthn
 &state=f3b2c3e7f4cf0bed3a783ed6ece617e3
+&country=LV
 ```
 
 <br>
@@ -1505,6 +1507,7 @@ To begin using the eeID Identification Service, follow these steps:
 5. **Send the Link to the End-User**:
    - It is your responsibility to send the generated link to the end-user for verification.
    - You can add a `ui_locales` parameter to the link in order to change the UI language. The supported languages are `ru` (Russian), `et` (Estonian), and `en` (English). For example, to change the UI language to Russian, add `?ui_locales=ru` to the end of the link.
+   - You can also add a `country` parameter to preselect the country on the eeID authentication page. Use an ISO 3166-1 alpha-2 country code, for example `EE`, `LV`, `LT`, `SE`. If you need to use both parameters, append them together, for example `?ui_locales=et&country=LV`.
 6. **Verification Process**:
    - The end-user follows the link to complete the verification process with eeID.
    - The identification request is marked as **completed** once the end-user successfully finishes the verification process. An email will be sent to the identification service contact email. If a secure webhook URL was provided, the service will send a POST request with the proof of identity document once it is ready.
