@@ -278,15 +278,15 @@ Passkeys complement eeID's existing authentication methods by providing a secure
 ## Creating a passkey
 
 1. <b>Initial Authentication</b>
-<br>Before creating a WebAuthn credential (passkey), users must first verify their identity using an authentication method provided by the eeID service or, if unavailable, an AI-powered identity verification platform ([Veriff](https://www.veriff.com/)). This step is crucial for ensuring the user's identity is securely verified through a recognized and trusted authentication method.
+Before creating a WebAuthn credential (passkey), users must first verify their identity using an authentication method provided by the eeID service or, if unavailable, an AI-powered identity verification platform ([Veriff](https://www.veriff.com/)). This step is crucial for ensuring the user's identity is securely verified through a recognized and trusted authentication method.
 
 2. <b>eeID as Identity Provider</b>
-<br>Once the initial authentication is successful, the eeID service acts as an identity provider.
+Once the initial authentication is successful, the eeID service acts as an identity provider.
 In this role, it verifies and stores the authenticated data, establishing a secure and
 trusted identity framework for the user.
 
 3. <b>Creating the Webauthn Credential (passkey)</b>
-<br>Following the successful authentication through eeID,
+Following the successful authentication through eeID,
 the user can proceed to create a passkey. This process involves:
   * <b>Registering a Local Authenticator.</b> The user will register a local authenticator,
   such as a biometric identifier (fingerprint, facial recognition, etc.) or a security key.
