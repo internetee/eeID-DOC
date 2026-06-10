@@ -28,8 +28,7 @@ Welcome to the Estonian Internet Foundation's eeID documentation! This document 
 ### [eeID Identification Service](#eeid-identification):
 
 - The identification service complements the authentication service by providing an API for creating identification requests and verifying user identities based on specific criteria, such as unique identifiers (subject) or personal details (name).
-- Organizations can initiate identification requests to confirm user identities. eeID records whether the authenticated data matches the claims you provided (`claims_matched`), but **authentication success is separate from business match** — your service decides how to handle mismatches (for example manual review, approval, or rejection).
-- This service is particularly valuable in sectors that require stringent identity verification, such as finance, healthcare, government, and domain registries, especially in light of the recently applied [NIS2 directive](https://digital-strategy.ec.europa.eu/en/policies/nis2-directive), which emphasizes the importance of robust cybersecurity measures and identity verification processes.
+- Organizations can initiate identification requests to confirm user identities, ensuring accurate matches against the provided information. This service is particularly valuable in sectors that require stringent identity verification, such as finance, healthcare, government, and domain registries, especially in light of the recently applied [NIS2 directive](https://digital-strategy.ec.europa.eu/en/policies/nis2-directive), which emphasizes the importance of robust cybersecurity measures and identity verification processes.
 - By streamlining the identification process, the service enhances security and efficiency, allowing organizations to manage user verification seamlessly.
 
 # OpenID Connect
@@ -1468,10 +1467,9 @@ The eeID Identification Service allows organizations to create identification re
 ## Key Features
 
 - **Secure Identity Verification**: The service provides a secure method for verifying user identities, ensuring that organizations can trust the information they receive.
-- **Claims Comparison and Discovery**: Provide `claims_required` with values to compare the authenticated user against expected data, or use **discovery mode** (supported claim types with empty values) when you do not know the end-user's details upfront. eeID exposes the comparison outcome via `claims_matched`, `mismatched_claims`, and `claims_comparison_errors`. A completed request always includes the authenticated `result`.
 - **Multiple Delivery Methods**: Clients can choose how they receive proof of identity documents, including email (default), API pull, or webhook delivery.
 - **User-Friendly Interface**: The [eeID manager](https://eeid.ee) offers a no-code solution for clients to create identification requests easily.
-- **Real-Time Notifications**: Clients can receive updates on the status of identification requests through webhooks. The completion webhook fires after successful authentication, regardless of whether claims matched.
+- **Real-Time Notifications**: Clients can receive updates on the status of identification requests through webhooks.
 
 ## Getting Started
 
@@ -1490,14 +1488,13 @@ To begin using the eeID Identification Service, follow these steps:
 2. **Create a New Request**:
    - Click the button **"Create New Request"**. A form will appear prompting you to enter the necessary claims:
   ![New Identification Request](images/new_identification_form.png)
-3. **Enter Claims** (comparison or discovery):
-   - `claims_required` must contain at least one supported claim type (`sub`, `name`, `birthdate`, or `country`). You can use either **comparison mode** or **discovery mode**:
-   - **Comparison mode** — provide at least one claim with a non-empty value. eeID compares these against the authenticated user's identity and records the outcome, but a mismatch does not block completion:
-     - **sub**: The unique identifier (subject) for the end-user. The value can be either the national ID number or the document number, and must start with the two-letter country code (e.g., `EE12345678901` or `EEAB1234567`).
-     - **name**: The end-user's full name.
-     - **birthdate**: The end-user's date of birth, in YYYY-MM-DD format.
-     - **country**: The end-user's country, in ISO 3166-1 Alpha-2 format.
-   - **Discovery mode** — when you do not know the end-user's details upfront, include one or more supported claim types with empty values (or omit the `value` field). eeID authenticates the user and returns their identity in `result` without comparing against expected values. `claims_matched` is `true` because no values were provided for comparison. Example: `[{"type": "sub", "value": ""}]`.
+3. **Enter Claims to Match**:
+   - At least one of the following claims must be presented:
+     - **sub**: This field represents the unique identifier (subject) for the end-user. The value of `sub` can be either the national ID number or the document number, and it must start with the two-letter country code (e.g., `EE12345678901` or `EEAB1234567`).  
+       **Important:** Do not provide the `sub` claim if you do not have the end-user's ID number or document number.
+     - **name**: This field allows you to specify the end-user's full name.
+     - **birthdate**: This field captures the end-user's date of birth, represented in YYYY-MM-DD format.
+     - **country**: This field specifies the end-user's country in ISO 3166-1 Alpha-2 format.
    - Additionally, enter a **reference**:
      This reference serves as an identifier in the system of the calling service and will be included in the result if present.
    - Enter identification **reason**: 
@@ -1513,33 +1510,10 @@ To begin using the eeID Identification Service, follow these steps:
    - You can also add a `country` parameter to preselect the country on the eeID authentication page. Use an ISO 3166-1 alpha-2 country code, for example `EE`, `LV`, `LT`, `SE`. If you need to use both parameters, append them together, for example `?ui_locales=et&country=LV`.
 6. **Verification Process**:
    - The end-user follows the link to complete the verification process with eeID.
-   - The identification request is marked as **completed** once the end-user successfully authenticates. **Completed means authentication succeeded**, not necessarily that all claims matched. Check `claims_matched` on the request (via the API or eeID manager) to see whether the authenticated data matched your expectations.
-   - The end-user sees a success message when authentication succeeds, even if claims did not match.
-   - An email will be sent to the identification service contact email. If a secure webhook URL was provided, the service will send a POST request once the proof of identity document is ready. Both the email and webhook are sent for matched and mismatched requests alike.
-7. **Handling Aborted and Mismatched Requests**:
-   - If the end-user aborts the flow **before** authenticating, the status of the identification request remains **pending**. The end-user can follow the link again to complete authentication at a later time.
-   - After the first successful authentication, the identification link **expires** — the end-user cannot use the same link to retry, including to "fix" a claims mismatch.
-   - If claims did not match, your service should review the authenticated `result` and proof of identity, then approve, reject, or send a new identification request as your business rules require.
-   - The generated link is valid for **7 days** while the request is still pending. If authentication is not completed within this time frame, the identification request will expire.
-
-## Claims comparison and business match
-
-eeID separates **authentication** (did the user prove their identity?) from **business match** (does the authenticated data match what you expected?).
-
-| Outcome | Request status | End-user experience | POI / webhook | Your next step |
-| ------- | -------------- | ------------------- | ------------- | -------------- |
-| Discovery mode (no claim values provided) | `completed`, `claims_matched: true` | Success | Delivered | Use `result` to identify the authenticated user |
-| Authentication succeeded, claims matched | `completed`, `claims_matched: true` | Success | Delivered | Auto-approve or apply your own checks |
-| Authentication succeeded, claims mismatched | `completed`, `claims_matched: false` | Success | Delivered | Review `result`, `mismatched_claims`, and POI; approve, reject, or send a new request |
-| Authentication not completed | `pending` | Can retry via the same link (within 7 days) | Not sent | Wait for the user or expire the request |
-| Authentication failed (policy, technical error) | `pending` or error | Failure shown to user | Not sent | Investigate or send a new request |
-
-When retrieving a completed identification request via the API, the following fields describe the comparison outcome:
-
-- **`claims_matched`** (`true` / `false`) — whether all non-blank required claims matched. `true` in discovery mode (no values to compare) as well as when all provided values matched.
-- **`mismatched_claims`** — per-claim expected vs actual values when `claims_matched` is `false`.
-- **`claims_comparison_errors`** — human-readable comparison messages.
-- **`result`** — the authenticated user's identity data (always present on completed requests).
+   - The identification request is marked as **completed** once the end-user successfully finishes the verification process. An email will be sent to the identification service contact email. If a secure webhook URL was provided, the service will send a POST request with the proof of identity document once it is ready.
+7. **Handling Aborted Requests**:
+   - If the end-user aborts the flow without completing the assignment, the status of the identification request remains unchanged.
+   - The end-user can follow the link again to complete the assignment at a later time. The generated link will be valid for **7 days**. If the verification process is not completed within this time frame, the identification request will expire.
 
 ## Identification Requests API
 
@@ -1548,7 +1522,7 @@ In addition to the no-code solution provided by the [eeID manager](https://eeid.
 ### API Features
 
 - **Create Identification Requests**: Easily submit new identification requests by providing the necessary claims, including the subject identifier (`sub`), full name (`name`), `country` or `birthdate`. This allows for automated request creation directly from your application.
-- **Retrieve Identification Requests**: Access existing identification requests to check their status, comparison outcome (`claims_matched`, `mismatched_claims`, `claims_comparison_errors`), or retrieve detailed information including the authenticated `result`. This feature enables applications to monitor the progress of requests and respond accordingly.
+- **Retrieve Identification Requests**: Access existing identification requests to check their status or retrieve detailed information. This feature enables applications to monitor the progress of requests and respond accordingly.
 - **Proof of Identity Request**: Retrieve the proof of identity document in PDF format for a specific identification request. This feature is essential for applications that require access to verified identity documents for further processing or record-keeping.
 - **Authorization**: The requests must be authenticated using a valid access token. Ensure that the token is included in the request header as follows:
 ```
