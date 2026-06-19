@@ -483,7 +483,7 @@ Element        | Description
 `expires_in`| The validity period of the OAuth 2.0 access token
 `id_token` | Identity token. Presented in [JWS Compact Serialization](https://tools.ietf.org/html/rfc7515#section-3.1) form
 
-The identity token is a certificate of the fact of authentication issued by eeID. The identity token is issued in [JSON Web Token](https://jwt.io/), JWT format. The identity token is always [signed](https://tools.ietf.org/html/rfc7515#section-5.2). Example:
+The identity token is a certificate of the fact of authentication issued by eeID. The identity token is issued in [JSON Web Token](https://jwt.io/), JWT format. The identity token is always [signed](https://tools.ietf.org/html/rfc7515#section-5.2). Example: 
 
 ```json
 {
