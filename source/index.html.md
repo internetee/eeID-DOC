@@ -363,6 +363,7 @@ Optional query parameters:
 - `nonce` - unique parameter which helps to prevent replay attacks based on the protocol
 - `code_challenge_method` - required for [PKCE](#pkce-proof-key-for-code-exchange)/public clients, must be `S256`
 - `code_challenge` - required for [PKCE](#pkce-proof-key-for-code-exchange)/public clients, base64url-encoded SHA-256 hash of `code_verifier`
+- `display=popup` - request the compact eeID login UI suited for popup windows. Can also be set in the Hydra authorize request OIDC context. See [Popup authentication](#popup-authentication).
 
 An example of an authentication request:
 
@@ -714,7 +715,31 @@ The eeID test environment is directed to the Smart-ID demo environment. There ar
 ## Run in Postman
 [<img src="https://run.pstmn.io/button.svg" alt="Run In Postman" style="width: 128px; height: 32px;">](https://www.postman.com/internetee/public/collection/o8k10xt/eeid-authentication-api-v1-0?action=share&creator=37760758)
 
+## Popup authentication
 
+Popup mode lets users stay on your page while authentication runs in a separate window. The flow follows the standard authorization code pattern: Hydra redirects the popup to your registered `redirect_uri`; your callback page delivers the code to the parent via `postMessage`; the parent POSTs the code to your backend for token exchange.
+
+1. Parent page opens the authorize URL in a popup (add `display=popup` for the compact eeID layout).
+2. User completes authentication inside the popup.
+3. Hydra redirects the popup to your `redirect_uri?code=…&state=…`.
+4. Callback page calls `window.opener.postMessage({ type: 'eeid:oauth:callback', … }, window.location.origin)` and closes.
+5. Parent page POSTs `code` and `state` to your backend; backend validates `state` and exchanges the code at the token endpoint.
+
+Reference callback templates are included in this repository under `source/templates/`:
+
+- `eeid-popup-callback.html` — standalone HTML
+- `eeid-popup-callback.php` — PHP variant
+
+The eeID login service ships a small helper at `/eeid-popup.js` (`EeidPopup.open`, `EeidPopup.onCallback`, `EeidPopup.exchangeCode`). Copy it into your app or load it from your eeID deployment.
+
+<b>Security notes</b>
+
+- Use `window.location.origin` as the `postMessage` target — never `'*'` in production.
+- Validate `event.origin` and message `type` on the parent page.
+- Exchange the authorization code on the server only; do not pass tokens through `postMessage`.
+- Open the popup from a direct user click handler to avoid popup blockers.
+
+See the [PHP popup OAuth example](#php-popup-oauth-example) for a working integration.
 
 ## Code examples
 
@@ -1079,6 +1104,73 @@ configuring the service in the [eeID manager](https://eeid.ee) (see [Getting Sta
 After signing in you will be sent back and then on the attributes page.
 
 ![Claims](images/claims.png)
+
+### PHP popup OAuth example
+
+This example demonstrates popup-mode authentication with eeID. The user stays on the homepage while sign-in runs in a popup; the authorization code is delivered via `postMessage` and exchanged on the server.
+
+Repository: `eeid_php_oauth2_popup_example`
+
+<b>Setup</b>
+
+1. [Configure an authentication service](#getting-started) in [eeID manager](https://eeid.ee). Register `http://localhost:8083/callback.php` as a redirect URL.
+2. Copy `.env.sample` to `.env` and fill in your client credentials.
+3. Install dependencies and start the container:
+
+```shell
+cd eeid_php_oauth2_popup_example
+cp .env.sample .env
+docker-compose run --rm app composer install
+docker-compose up --build
+```
+
+4. Open `http://localhost:8083/` and click **Sign In with eeID**.
+
+<b>Callback page</b>
+
+Serve HTML at your registered `redirect_uri`. When opened in a popup, post the result to the parent and close:
+
+```html
+<script>
+  var params = new URLSearchParams(window.location.search);
+  window.opener.postMessage({
+    type: 'eeid:oauth:callback',
+    code: params.get('code'),
+    state: params.get('state'),
+    error: params.get('error'),
+    error_description: params.get('error_description')
+  }, window.location.origin);
+  window.close();
+</script>
+```
+
+The full template is in `source/templates/eeid-popup-callback.html`.
+
+<b>Parent page</b>
+
+Load `eeid-popup.js`, fetch an authorize URL from your backend (with `state` stored in session), open the popup on click, listen for the callback message, and POST the code to your exchange endpoint:
+
+```html
+<script src="eeid-popup.js"></script>
+<button id="login">Sign In with eeID</button>
+<script>
+  document.getElementById('login').addEventListener('click', function () {
+    EeidPopup.onCallback(function (result) {
+      if (result.error) return;
+      EeidPopup.exchangeCode({
+        url: '/exchange_code.php',
+        code: result.code,
+        state: result.state
+      }).then(function () { window.location.assign('/authenticated.php'); });
+    });
+    fetch('/authorize_url.php').then(function (r) { return r.json(); }).then(function (data) {
+      EeidPopup.open({ authorizeUrl: data.authorizeUrl });
+    });
+  });
+</script>
+```
+
+See the example source for `authorize_url.php`, `exchange_code.php`, and `callback.php`.
 
 ### Rails on Rails with OmniAuth::OpenIDConnect
 
