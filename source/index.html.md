@@ -1461,6 +1461,364 @@ Start up rails server and point browser to [http://localhost:3000](http://localh
 bin/dev
 ```
 
+# Embedded sign-in
+
+The embedded sign-in form (the *eeID widget*) runs the authentication inside an iframe on your
+own page, instead of redirecting the user to eeID and back. The user never leaves your site.
+
+Everything else stays the same: the same service, the same client credentials, the same scopes
+and the same ID token. Only the beginning of the flow differs — instead of sending the browser
+to the [authentication request](#authentication-request) URL, your backend asks eeID for a
+session and your page frames it.
+
+**The authorization code never reaches the browser.** Your backend creates the session with your
+client credentials, the widget hands your page a single-use `result_token`, and your backend
+exchanges that token for the code. A user with developer tools open sees nothing they can replay.
+
+A complete, runnable integration in PHP is published at
+[github.com/internetee/eeid_php_embedded_demo](https://github.com/internetee/eeid_php_embedded_demo).
+
+## Should you use it?
+
+Use the embedded form when you want the sign-in to feel part of your own page, and you have a
+backend that can hold a client secret.
+
+Keep the classic [redirect flow](#eeid-authentication) when your client is public (a single-page
+app or a mobile application using [PKCE](#pkce-proof-key-for-code-exchange)), or when you cannot
+run the two server-side calls the embedded form requires. The embedded form is **not** available
+to public clients: creating a session requires your client secret.
+
+Both flows can be enabled on the same service at the same time.
+
+## Requirements
+
+- A registered and approved `Authentication` service — see [Creating a new service](#creating-a-new-service)
+- Its `Client ID` and `Secret`, used from your backend only
+- **Embedded mode enabled** on the service, with your page's origin allowlisted (below)
+
+## Enabling embedded mode
+
+In [eeID manager](https://eeid.ee), open your service and edit it:
+
+1. Tick **Enable embedded widget**.
+2. In **Embedded widget allowed origins**, add every origin that will frame the widget, one per
+   line — for example `https://www.example.com`.
+3. Save.
+
+Only the listed origins may frame the widget or receive its messages. A page served from any
+other origin is refused by the browser, and session creation is rejected.
+
+An origin is a scheme, a host and an optional port — nothing else:
+
+* `https://www.example.com` — correct
+* `https://www.example.com:8443` — correct
+* `https://www.example.com/signin` — rejected, a path is not part of an origin
+* `https://*.example.com` — rejected, wildcards cannot be used to address a browser window
+
+`http://` is accepted only for local development origins such as `http://localhost:8081`.
+
+<aside class="notice">
+Origins are compared exactly. <code>https://example.com</code> and <code>https://www.example.com</code>
+are different origins, and so are <code>http://localhost:8081</code> and <code>http://127.0.0.1:8081</code>.
+</aside>
+
+## How it works
+
+Four steps. Two of them are server-to-server calls from your backend, one is the widget in your
+page, and the last is the ordinary OAuth2 token request you already make today.
+
+1. Your backend calls **`POST /api/embedded/sessions`** with your client credentials and receives
+   a `session_token`.
+2. Your page loads the widget script and renders `<eeid-widget>` with that token. The user picks
+   a method and authenticates inside the iframe.
+3. The widget tells your page it succeeded, handing over a single-use `result_token`.
+4. Your backend calls **`POST /api/embedded/sessions/{result_token}/redeem`** to obtain the
+   OAuth2 `code`, then exchanges it at the [identity token request](#identity-token-request) exactly as in
+   the redirect flow.
+
+The browser never talks to the OAuth2 server: eeID performs the authorization request and the
+login/consent steps server-side. That is what allows the flow to work when third-party cookies
+are blocked.
+
+## Creating a session
+
+> Create a session
+
+```shell
+curl -X POST https://auth.eeid.ee/api/embedded/sessions \
+  -u "$EEID_CLIENT_ID:$EEID_CLIENT_SECRET" \
+  -H "Content-Type: application/json" \
+  -d '{
+        "redirect_uri": "https://www.example.com/auth/callback",
+        "scope": "openid",
+        "state": "f3b2c3e7f4cf0bed3a783ed6ece617e3",
+        "nonce": "9a1f4b0c2d8e6f37",
+        "locale": "en",
+        "return_url": "https://www.example.com/signin"
+      }'
+```
+
+> Response
+
+```json
+{
+  "session_token": "gW7s8x1Qm2...",
+  "expires_in": 600,
+  "allowed_methods": null,
+  "locales": ["en", "et", "ru"]
+}
+```
+
+URL: `POST https://auth.eeid.ee/api/embedded/sessions`
+
+Authentication: HTTP Basic, with your `Client ID` as the user name and your `Secret` as the
+password. **This call must be made from your backend.** Never expose the secret to a browser.
+
+Required parameters:
+
+- `redirect_uri` - one of the redirection URLs registered on the service. The browser is not sent
+  there in the embedded flow, but a real authorization request is started with it and the same
+  value is presented again at the token request, so it must match exactly.
+
+Optional parameters:
+
+- `scope` - authentication scope, defaults to `openid`. Must correspond to the scope selected for
+  the service. See [Authentication scope](#authentication-scope)
+- `state` - security code against false request attacks. It is returned to you by the redeem call,
+  where you verify it. See [Protection](#protection)
+- `nonce` - unique parameter which helps to prevent replay attacks. Verify it in the ID token
+- `locale` - user interface language: `et`, `en` or `ru`. `ui_locales` is accepted as an alias
+- `return_url` - the page hosting the widget. Required for the authentication methods that must
+  leave the iframe — see [Methods that leave the frame](#methods-that-leave-the-frame). Its origin
+  must be on the service's allowlist
+- `theme` - a JSON object styling the widget, see [Theming](#theming)
+
+Response fields:
+
+- `session_token` - the opaque token the widget is mounted with. It is not a credential of yours
+  and is safe to render into the page: it works only from an allowlisted origin
+- `expires_in` - seconds the session remains valid (600 by default). Create a session when the
+  user is about to sign in, not on every page render
+- `allowed_methods` - the authentication methods the widget will offer, or `null` for all methods
+  configured on the service
+- `locales` - the languages the widget supports
+
+## Embedding the widget
+
+> Load the SDK and mount the widget
+
+```html
+<script src="https://auth.eeid.ee/widget/eeid-widget.js"></script>
+
+<eeid-widget
+  base-url="https://auth.eeid.ee"
+  session-token="gW7s8x1Qm2..."
+  height="420px"></eeid-widget>
+```
+
+> React to the outcome
+
+```javascript
+const widget = document.querySelector("eeid-widget")
+
+widget.addEventListener("eeid:success", async (event) => {
+  widget.remove()                       // required, see the note below
+
+  await fetch("/signin", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ result_token: event.detail.resultToken })
+  })
+
+  location.reload()
+})
+
+widget.addEventListener("eeid:error",  (e) => showError(e.detail.error))
+widget.addEventListener("eeid:cancel", ()  => showChooserAgain())
+```
+
+The SDK is served by eeID itself — there is nothing to install and no build step. It defines one
+custom element that frames the sign-in form, delegates the browser permissions the framed methods
+need, tracks the iframe height, and re-emits the widget's messages as ordinary DOM events.
+
+Attributes of `<eeid-widget>`:
+
+- `base-url` (required) - `https://auth.eeid.ee`, or `https://test-auth.eeid.ee` for a service in
+  the `Test` environment
+- `session-token` (required) - the token from the create call
+- `height` - initial height, for example `420px`. The widget resizes itself afterwards
+- `theme` - a JSON theme, applied without creating a new session
+- `title` - accessible title of the iframe
+
+Method:
+
+- `setTheme(partial)` - merges and applies a theme at runtime, for example when your page switches
+  to dark mode
+
+Events, dispatched on the element with their data in `detail`:
+
+- `eeid:ready` - the form is loaded
+- `eeid:resize` - the content height changed; the SDK has already applied it
+- `eeid:success` - authentication finished. `detail.resultToken` is the single-use token to redeem,
+  `detail.state` is the `state` you supplied
+- `eeid:error` - authentication failed. `detail.error` and `detail.errorDescription` carry the
+  OAuth2 error
+- `eeid:cancel` - the user cancelled
+- `eeid:expand` / `eeid:collapse` - a method asked for the whole viewport (identity verification
+  does this). The SDK handles it; listen only if your own layout needs to react
+
+<aside class="warning">
+On <code>eeid:success</code> you must remove or hide the iframe yourself. The widget hands over the
+result token and then deliberately stops — it never navigates your page, because that decision is
+yours. If you leave it mounted it keeps showing "Signing you in…", and a completed sign-in looks
+like it hung.
+</aside>
+
+## Redeeming the result
+
+> Redeem the result token, then exchange the code
+
+```shell
+curl -X POST https://auth.eeid.ee/api/embedded/sessions/$RESULT_TOKEN/redeem \
+  -u "$EEID_CLIENT_ID:$EEID_CLIENT_SECRET"
+```
+
+> Response
+
+```json
+{
+  "code": "71ed5797c3d957817d31",
+  "state": "f3b2c3e7f4cf0bed3a783ed6ece617e3"
+}
+```
+
+URL: `POST https://auth.eeid.ee/api/embedded/sessions/{result_token}/redeem`
+
+Authenticated with the same client credentials as the create call, and made from your backend.
+
+The result token is **single-use and bound to your client**: the first valid call returns the code
+and destroys the session. A replay, an expired token, or a token belonging to another client is
+answered with `410 Gone` and nothing else — an attacker who intercepts a result token cannot learn
+whether it ever existed.
+
+Verify that the returned `state` matches the one you sent, then exchange the `code` with an
+[identity token request](#identity-token-request), using the same `redirect_uri` you used when creating the session.
+From that point the flow is identical to the redirect flow, including verification of the ID
+token and its `nonce`.
+
+## Methods that leave the frame
+
+Smart-ID+ and the cross-border methods (eIDAS, eParaksts, Freja, MojeID) cannot complete inside an
+iframe: a mobile app link is only honoured from a top-level navigation, and a foreign identity
+provider refuses to be framed. For those methods the widget takes over the whole window and then
+returns to your page.
+
+That is what `return_url` is for. Pass the URL of the page hosting the widget when you create the
+session. When the user comes back, that URL carries a query parameter:
+
+> Resuming after a method that left the frame
+
+```php
+<?php
+$sessionToken = $_GET['eeid_session_token'] ?? null;
+
+if ($sessionToken === null) {
+    $sessionToken = create_session()['session_token'];
+}
+// mount <eeid-widget> with $sessionToken as usual
+```
+
+Mount the widget with that token and the flow finishes normally through `eeid:success`. Strip the
+parameter from the address bar as you consume it — it is single-use, so a reload would otherwise
+try to resume a session that is already spent.
+
+If you omit `return_url`, those methods fall back to a plain top-level redirect to your
+`redirect_uri?code=…`, exactly like the classic redirect flow.
+
+## Theming
+
+> A theme covering most needs
+
+```json
+{
+  "preset": "light",
+  "colorScheme": "system",
+  "color": { "primary": "#0B5FFF", "onPrimary": "#FFFFFF" },
+  "typography": { "fontFamily": "\"Inter\", system-ui, sans-serif" },
+  "shape": { "radiusButton": "8px" },
+  "branding": { "showFooter": false }
+}
+```
+
+The widget is styled with a JSON theme, supplied either as the `theme` parameter when creating the
+session, as the `theme` attribute on the element, or at runtime with `setTheme()` — for example
+when your page switches to dark mode.
+
+The main groups are `preset`, `colorScheme` (`light`, `dark`, `system`), `density`
+(`comfortable`, `compact`), `color`, `typography`, `shape`, `spacing`, `components`, `layout`,
+`branding` and `messages`. Unknown keys are rejected rather than ignored, so a typo is reported
+when the session is created instead of silently doing nothing.
+
+Note that the first screen the user sees — the list of authentication methods — takes its colours
+from `components.methodList`, not from `color.primary`, which paints buttons. Changing only the
+primary colour therefore looks like nothing happened until a method is selected.
+
+For a stylesheet of your own, `advanced.themeCssUrl` loads one extra CSS file inside the widget.
+It must be served from an origin that is already on the service's allowlist.
+
+## Errors
+
+| Status | Meaning |
+| ------ | ------- |
+| `400 Bad Request` | A parameter is invalid, for example a `return_url` whose origin is not allowlisted |
+| `401 Unauthorized` | The client id or secret is wrong, or the service belongs to a different environment |
+| `403 Forbidden` | Embedded mode is not enabled for this client, or no valid origin is allowlisted |
+| `410 Gone` | The result token is invalid, already redeemed, or expired |
+| `422 Unprocessable Entity` | The theme did not validate, or a required parameter is missing |
+| `429 Too Many Requests` | Rate limited, see below. `Retry-After` gives the seconds to wait |
+| `502 Bad Gateway` | eeID could not reach its authorization server. Retry later |
+
+Errors that happen *during* authentication reach your page as an `eeid:error` event rather than as
+a status code — the session was created successfully, the authentication itself failed.
+
+## Rate limits
+
+The embedded API is rate limited per client and per source address. The limits are set well above
+normal traffic and exist to stop credential guessing: **failed** authentications are counted far
+more strictly than ordinary calls, and a successful call clears that count.
+
+If you receive `429 Too Many Requests`, wait the number of seconds given in the `Retry-After`
+header before retrying. Repeated `401`s from a misconfigured secret are the usual way to reach it,
+so fix the credentials rather than retrying in a loop.
+
+## Test environment
+
+A service in the `Test` environment uses `https://test-auth.eeid.ee` for all three URLs — the
+session API, the widget script and the `base-url` attribute — and the matching token endpoint.
+Test authentications are free. A service exists in exactly one environment at a time, so use the
+host that matches the service your credentials belong to.
+
+## Example application
+
+A complete integration, small enough to read in one sitting, is published at
+[github.com/internetee/eeid_php_embedded_demo](https://github.com/internetee/eeid_php_embedded_demo).
+
+It is a single PHP file plus a `<script>` tag, and it runs the whole loop: creating the session
+server-side, framing the widget, redeeming the result token, exchanging it for the ID token and
+displaying the claims. It also demonstrates theming, locale selection, signing out and signing in
+again, and the resume path for the methods that leave the frame.
+
+```shell
+git clone https://github.com/internetee/eeid_php_embedded_demo.git
+cd eeid_php_embedded_demo
+cp .env.example .env      # fill in EEID_CLIENT_ID and EEID_CLIENT_SECRET
+docker compose up --build
+```
+
+Then open [http://localhost:8081](http://localhost:8081). Remember to add `http://localhost:8081`
+to your service's **Embedded widget allowed origins** first, or the browser will refuse to display
+the widget.
+
 # eeID Identification
 
 The eeID Identification Service allows organizations to create identification requests and verify user identities based on specific criteria. It is built on a robust framework that ensures security, compliance, and ease of use.
