@@ -380,6 +380,50 @@
               </ul>
           </li>
           <li>
+            <a href="#embedded-sign-in" class="toc-h1 toc-link" data-title="Embedded sign-in">Embedded sign-in</a>
+              <ul class="toc-list-h2">
+                  <li>
+                    <a href="#should-you-use-it" class="toc-h2 toc-link" data-title="Should you use it?">Should you use it?</a>
+                  </li>
+                  <li>
+                    <a href="#requirements" class="toc-h2 toc-link" data-title="Requirements">Requirements</a>
+                  </li>
+                  <li>
+                    <a href="#enabling-embedded-mode" class="toc-h2 toc-link" data-title="Enabling embedded mode">Enabling embedded mode</a>
+                  </li>
+                  <li>
+                    <a href="#how-it-works" class="toc-h2 toc-link" data-title="How it works">How it works</a>
+                  </li>
+                  <li>
+                    <a href="#creating-a-session" class="toc-h2 toc-link" data-title="Creating a session">Creating a session</a>
+                  </li>
+                  <li>
+                    <a href="#embedding-the-widget" class="toc-h2 toc-link" data-title="Embedding the widget">Embedding the widget</a>
+                  </li>
+                  <li>
+                    <a href="#redeeming-the-result" class="toc-h2 toc-link" data-title="Redeeming the result">Redeeming the result</a>
+                  </li>
+                  <li>
+                    <a href="#methods-that-leave-the-frame" class="toc-h2 toc-link" data-title="Methods that leave the frame">Methods that leave the frame</a>
+                  </li>
+                  <li>
+                    <a href="#theming" class="toc-h2 toc-link" data-title="Theming">Theming</a>
+                  </li>
+                  <li>
+                    <a href="#errors" class="toc-h2 toc-link" data-title="Errors">Errors</a>
+                  </li>
+                  <li>
+                    <a href="#rate-limits" class="toc-h2 toc-link" data-title="Rate limits">Rate limits</a>
+                  </li>
+                  <li>
+                    <a href="#test-environment" class="toc-h2 toc-link" data-title="Test environment">Test environment</a>
+                  </li>
+                  <li>
+                    <a href="#example-application" class="toc-h2 toc-link" data-title="Example application">Example application</a>
+                  </li>
+              </ul>
+          </li>
+          <li>
             <a href="#eeid-identification" class="toc-h1 toc-link" data-title="eeID Identification">eeID Identification</a>
               <ul class="toc-list-h2">
                   <li>
@@ -1942,7 +1986,372 @@ Open up <code>config/routes.rb</code> to update our routes with the action we ju
 <p><br>
 Start up rails server and point browser to <a href="http://localhost:3000">http://localhost:3000</a>.</p>
 <div class="highlight"><pre class="highlight shell tab-shell"><code>bin/dev
-</code></pre></div><h1 id='eeid-identification'>eeID Identification</h1>
+</code></pre></div><h1 id='embedded-sign-in'>Embedded sign-in</h1>
+<p>The embedded sign-in form (the <em>eeID widget</em>) runs the authentication inside an iframe on your
+own page, instead of redirecting the user to eeID and back. The user never leaves your site.</p>
+
+<p>Everything else stays the same: the same service, the same client credentials, the same scopes
+and the same ID token. Only the beginning of the flow differs — instead of sending the browser
+to the <a href="#authentication-request">authentication request</a> URL, your backend asks eeID for a
+session and your page frames it.</p>
+
+<p><strong>The authorization code never reaches the browser.</strong> Your backend creates the session with your
+client credentials, the widget hands your page a single-use <code>result_token</code>, and your backend
+exchanges that token for the code. A user with developer tools open sees nothing they can replay.</p>
+
+<p>A complete, runnable integration in PHP is published at
+<a href="https://github.com/internetee/eeid_php_embedded_demo">github.com/internetee/eeid_php_embedded_demo</a>.</p>
+<h2 id='should-you-use-it'>Should you use it?</h2>
+<p>Use the embedded form when you want the sign-in to feel part of your own page, and you have a
+backend that can hold a client secret.</p>
+
+<p>Keep the classic <a href="#eeid-authentication">redirect flow</a> when your client is public (a single-page
+app or a mobile application using <a href="#pkce-proof-key-for-code-exchange">PKCE</a>), or when you cannot
+run the two server-side calls the embedded form requires. The embedded form is <strong>not</strong> available
+to public clients: creating a session requires your client secret.</p>
+
+<p>Both flows can be enabled on the same service at the same time.</p>
+<h2 id='requirements'>Requirements</h2>
+<ul>
+<li>A registered and approved <code>Authentication</code> service — see <a href="#creating-a-new-service">Creating a new service</a></li>
+<li>Its <code>Client ID</code> and <code>Secret</code>, used from your backend only</li>
+<li><strong>Embedded mode enabled</strong> on the service, with your page&#39;s origin allowlisted (below)</li>
+</ul>
+<h2 id='enabling-embedded-mode'>Enabling embedded mode</h2>
+<p>In <a href="https://eeid.ee">eeID manager</a>, open your service and edit it:</p>
+
+<ol>
+<li>Tick <strong>Enable embedded widget</strong>.</li>
+<li>In <strong>Embedded widget allowed origins</strong>, add every origin that will frame the widget, one per
+line — for example <code>https://www.example.com</code>.</li>
+<li>Save.</li>
+</ol>
+
+<p>Only the listed origins may frame the widget or receive its messages. A page served from any
+other origin is refused by the browser, and session creation is rejected.</p>
+
+<p>An origin is a scheme, a host and an optional port — nothing else:</p>
+
+<ul>
+<li><code>https://www.example.com</code> — correct</li>
+<li><code>https://www.example.com:8443</code> — correct</li>
+<li><code>https://www.example.com/signin</code> — rejected, a path is not part of an origin</li>
+<li><code>https://*.example.com</code> — rejected, wildcards cannot be used to address a browser window</li>
+</ul>
+
+<p><code>http://</code> is accepted only for local development origins such as <code>http://localhost:8081</code>.</p>
+
+<aside class="notice">
+Origins are compared exactly. <code>https://example.com</code> and <code>https://www.example.com</code>
+are different origins, and so are <code>http://localhost:8081</code> and <code>http://127.0.0.1:8081</code>.
+</aside>
+<h2 id='how-it-works'>How it works</h2>
+<p>Four steps. Two of them are server-to-server calls from your backend, one is the widget in your
+page, and the last is the ordinary OAuth2 token request you already make today.</p>
+
+<ol>
+<li>Your backend calls <strong><code>POST /api/embedded/sessions</code></strong> with your client credentials and receives
+a <code>session_token</code>.</li>
+<li>Your page loads the widget script and renders <code>&lt;eeid-widget&gt;</code> with that token. The user picks
+a method and authenticates inside the iframe.</li>
+<li>The widget tells your page it succeeded, handing over a single-use <code>result_token</code>.</li>
+<li>Your backend calls <strong><code>POST /api/embedded/sessions/{result_token}/redeem</code></strong> to obtain the
+OAuth2 <code>code</code>, then exchanges it at the <a href="#identity-token-request">identity token request</a> exactly as in
+the redirect flow.</li>
+</ol>
+
+<p>The browser never talks to the OAuth2 server: eeID performs the authorization request and the
+login/consent steps server-side. That is what allows the flow to work when third-party cookies
+are blocked.</p>
+<h2 id='creating-a-session'>Creating a session</h2>
+<blockquote>
+<p>Create a session</p>
+</blockquote>
+<div class="highlight"><pre class="highlight shell tab-shell"><code>curl <span class="nt">-X</span> POST https://auth.eeid.ee/api/embedded/sessions <span class="se">\</span>
+  <span class="nt">-u</span> <span class="s2">"</span><span class="nv">$EEID_CLIENT_ID</span><span class="s2">:</span><span class="nv">$EEID_CLIENT_SECRET</span><span class="s2">"</span> <span class="se">\</span>
+  <span class="nt">-H</span> <span class="s2">"Content-Type: application/json"</span> <span class="se">\</span>
+  <span class="nt">-d</span> <span class="s1">'{
+        "redirect_uri": "https://www.example.com/auth/callback",
+        "scope": "openid",
+        "state": "f3b2c3e7f4cf0bed3a783ed6ece617e3",
+        "nonce": "9a1f4b0c2d8e6f37",
+        "locale": "en",
+        "return_url": "https://www.example.com/signin"
+      }'</span>
+</code></pre></div>
+<blockquote>
+<p>Response</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"session_token"</span><span class="p">:</span><span class="w"> </span><span class="s2">"gW7s8x1Qm2..."</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"expires_in"</span><span class="p">:</span><span class="w"> </span><span class="mi">600</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"allowed_methods"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"locales"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"en"</span><span class="p">,</span><span class="w"> </span><span class="s2">"et"</span><span class="p">,</span><span class="w"> </span><span class="s2">"ru"</span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<p>URL: <code>POST https://auth.eeid.ee/api/embedded/sessions</code></p>
+
+<p>Authentication: HTTP Basic, with your <code>Client ID</code> as the user name and your <code>Secret</code> as the
+password. <strong>This call must be made from your backend.</strong> Never expose the secret to a browser.</p>
+
+<p>Required parameters:</p>
+
+<ul>
+<li><code>redirect_uri</code> - one of the redirection URLs registered on the service. The browser is not sent
+there in the embedded flow, but a real authorization request is started with it and the same
+value is presented again at the token request, so it must match exactly.</li>
+</ul>
+
+<p>Optional parameters:</p>
+
+<ul>
+<li><code>scope</code> - authentication scope, defaults to <code>openid</code>. Must correspond to the scope selected for
+the service. See <a href="#authentication-scope">Authentication scope</a></li>
+<li><code>state</code> - security code against false request attacks. It is returned to you by the redeem call,
+where you verify it. See <a href="#protection">Protection</a></li>
+<li><code>nonce</code> - unique parameter which helps to prevent replay attacks. Verify it in the ID token</li>
+<li><code>locale</code> - user interface language: <code>et</code>, <code>en</code> or <code>ru</code>. <code>ui_locales</code> is accepted as an alias</li>
+<li><code>return_url</code> - the page hosting the widget. Required for the authentication methods that must
+leave the iframe — see <a href="#methods-that-leave-the-frame">Methods that leave the frame</a>. Its origin
+must be on the service&#39;s allowlist</li>
+<li><code>theme</code> - a JSON object styling the widget, see <a href="#theming">Theming</a></li>
+</ul>
+
+<p>Response fields:</p>
+
+<ul>
+<li><code>session_token</code> - the opaque token the widget is mounted with. It is not a credential of yours
+and is safe to render into the page: it works only from an allowlisted origin</li>
+<li><code>expires_in</code> - seconds the session remains valid (600 by default). Create a session when the
+user is about to sign in, not on every page render</li>
+<li><code>allowed_methods</code> - the authentication methods the widget will offer, or <code>null</code> for all methods
+configured on the service</li>
+<li><code>locales</code> - the languages the widget supports</li>
+</ul>
+<h2 id='embedding-the-widget'>Embedding the widget</h2>
+<blockquote>
+<p>Load the SDK and mount the widget</p>
+</blockquote>
+<div class="highlight"><pre class="highlight html tab-html"><code><span class="nt">&lt;script </span><span class="na">src=</span><span class="s">"https://auth.eeid.ee/widget/eeid-widget.js"</span><span class="nt">&gt;&lt;/script&gt;</span>
+
+<span class="nt">&lt;eeid-widget</span>
+  <span class="na">base-url=</span><span class="s">"https://auth.eeid.ee"</span>
+  <span class="na">session-token=</span><span class="s">"gW7s8x1Qm2..."</span>
+  <span class="na">height=</span><span class="s">"420px"</span><span class="nt">&gt;&lt;/eeid-widget&gt;</span>
+</code></pre></div>
+<blockquote>
+<p>React to the outcome</p>
+</blockquote>
+<div class="highlight"><pre class="highlight javascript tab-javascript"><code><span class="kd">const</span> <span class="nx">widget</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="dl">"</span><span class="s2">eeid-widget</span><span class="dl">"</span><span class="p">)</span>
+
+<span class="nx">widget</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="dl">"</span><span class="s2">eeid:success</span><span class="dl">"</span><span class="p">,</span> <span class="k">async</span> <span class="p">(</span><span class="nx">event</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+  <span class="nx">widget</span><span class="p">.</span><span class="nx">remove</span><span class="p">()</span>                       <span class="c1">// required, see the note below</span>
+
+  <span class="k">await</span> <span class="nx">fetch</span><span class="p">(</span><span class="dl">"</span><span class="s2">/signin</span><span class="dl">"</span><span class="p">,</span> <span class="p">{</span>
+    <span class="na">method</span><span class="p">:</span> <span class="dl">"</span><span class="s2">POST</span><span class="dl">"</span><span class="p">,</span>
+    <span class="na">headers</span><span class="p">:</span> <span class="p">{</span> <span class="dl">"</span><span class="s2">Content-Type</span><span class="dl">"</span><span class="p">:</span> <span class="dl">"</span><span class="s2">application/json</span><span class="dl">"</span> <span class="p">},</span>
+    <span class="na">body</span><span class="p">:</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">({</span> <span class="na">result_token</span><span class="p">:</span> <span class="nx">event</span><span class="p">.</span><span class="nx">detail</span><span class="p">.</span><span class="nx">resultToken</span> <span class="p">})</span>
+  <span class="p">})</span>
+
+  <span class="nx">location</span><span class="p">.</span><span class="nx">reload</span><span class="p">()</span>
+<span class="p">})</span>
+
+<span class="nx">widget</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="dl">"</span><span class="s2">eeid:error</span><span class="dl">"</span><span class="p">,</span>  <span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="nx">showError</span><span class="p">(</span><span class="nx">e</span><span class="p">.</span><span class="nx">detail</span><span class="p">.</span><span class="nx">error</span><span class="p">))</span>
+<span class="nx">widget</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="dl">"</span><span class="s2">eeid:cancel</span><span class="dl">"</span><span class="p">,</span> <span class="p">()</span>  <span class="o">=&gt;</span> <span class="nx">showChooserAgain</span><span class="p">())</span>
+</code></pre></div>
+<p>The SDK is served by eeID itself — there is nothing to install and no build step. It defines one
+custom element that frames the sign-in form, delegates the browser permissions the framed methods
+need, tracks the iframe height, and re-emits the widget&#39;s messages as ordinary DOM events.</p>
+
+<p>Attributes of <code>&lt;eeid-widget&gt;</code>:</p>
+
+<ul>
+<li><code>base-url</code> (required) - <code>https://auth.eeid.ee</code>, or <code>https://test-auth.eeid.ee</code> for a service in
+the <code>Test</code> environment</li>
+<li><code>session-token</code> (required) - the token from the create call</li>
+<li><code>height</code> - initial height, for example <code>420px</code>. The widget resizes itself afterwards</li>
+<li><code>theme</code> - a JSON theme, applied without creating a new session</li>
+<li><code>title</code> - accessible title of the iframe</li>
+</ul>
+
+<p>Method:</p>
+
+<ul>
+<li><code>setTheme(partial)</code> - merges and applies a theme at runtime, for example when your page switches
+to dark mode</li>
+</ul>
+
+<p>Events, dispatched on the element with their data in <code>detail</code>:</p>
+
+<ul>
+<li><code>eeid:ready</code> - the form is loaded</li>
+<li><code>eeid:resize</code> - the content height changed; the SDK has already applied it</li>
+<li><code>eeid:success</code> - authentication finished. <code>detail.resultToken</code> is the single-use token to redeem,
+<code>detail.state</code> is the <code>state</code> you supplied</li>
+<li><code>eeid:error</code> - authentication failed. <code>detail.error</code> and <code>detail.errorDescription</code> carry the
+OAuth2 error</li>
+<li><code>eeid:cancel</code> - the user cancelled</li>
+<li><code>eeid:expand</code> / <code>eeid:collapse</code> - a method asked for the whole viewport (identity verification
+does this). The SDK handles it; listen only if your own layout needs to react</li>
+</ul>
+
+<aside class="warning">
+On <code>eeid:success</code> you must remove or hide the iframe yourself. The widget hands over the
+result token and then deliberately stops — it never navigates your page, because that decision is
+yours. If you leave it mounted it keeps showing "Signing you in…", and a completed sign-in looks
+like it hung.
+</aside>
+<h2 id='redeeming-the-result'>Redeeming the result</h2>
+<blockquote>
+<p>Redeem the result token, then exchange the code</p>
+</blockquote>
+<div class="highlight"><pre class="highlight shell tab-shell"><code>curl <span class="nt">-X</span> POST https://auth.eeid.ee/api/embedded/sessions/<span class="nv">$RESULT_TOKEN</span>/redeem <span class="se">\</span>
+  <span class="nt">-u</span> <span class="s2">"</span><span class="nv">$EEID_CLIENT_ID</span><span class="s2">:</span><span class="nv">$EEID_CLIENT_SECRET</span><span class="s2">"</span>
+</code></pre></div>
+<blockquote>
+<p>Response</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"code"</span><span class="p">:</span><span class="w"> </span><span class="s2">"71ed5797c3d957817d31"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"state"</span><span class="p">:</span><span class="w"> </span><span class="s2">"f3b2c3e7f4cf0bed3a783ed6ece617e3"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<p>URL: <code>POST https://auth.eeid.ee/api/embedded/sessions/{result_token}/redeem</code></p>
+
+<p>Authenticated with the same client credentials as the create call, and made from your backend.</p>
+
+<p>The result token is <strong>single-use and bound to your client</strong>: the first valid call returns the code
+and destroys the session. A replay, an expired token, or a token belonging to another client is
+answered with <code>410 Gone</code> and nothing else — an attacker who intercepts a result token cannot learn
+whether it ever existed.</p>
+
+<p>Verify that the returned <code>state</code> matches the one you sent, then exchange the <code>code</code> with an
+<a href="#identity-token-request">identity token request</a>, using the same <code>redirect_uri</code> you used when creating the session.
+From that point the flow is identical to the redirect flow, including verification of the ID
+token and its <code>nonce</code>.</p>
+<h2 id='methods-that-leave-the-frame'>Methods that leave the frame</h2>
+<p>Smart-ID+ and the cross-border methods (eIDAS, eParaksts, Freja, MojeID) cannot complete inside an
+iframe: a mobile app link is only honoured from a top-level navigation, and a foreign identity
+provider refuses to be framed. For those methods the widget takes over the whole window and then
+returns to your page.</p>
+
+<p>That is what <code>return_url</code> is for. Pass the URL of the page hosting the widget when you create the
+session. When the user comes back, that URL carries a query parameter:</p>
+
+<blockquote>
+<p>Resuming after a method that left the frame</p>
+</blockquote>
+<div class="highlight"><pre class="highlight php tab-php"><code><span class="cp">&lt;?php</span>
+<span class="nv">$sessionToken</span> <span class="o">=</span> <span class="nv">$_GET</span><span class="p">[</span><span class="s1">'eeid_session_token'</span><span class="p">]</span> <span class="o">??</span> <span class="kc">null</span><span class="p">;</span>
+
+<span class="k">if</span> <span class="p">(</span><span class="nv">$sessionToken</span> <span class="o">===</span> <span class="kc">null</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nv">$sessionToken</span> <span class="o">=</span> <span class="nf">create_session</span><span class="p">()[</span><span class="s1">'session_token'</span><span class="p">];</span>
+<span class="p">}</span>
+<span class="c1">// mount &lt;eeid-widget&gt; with $sessionToken as usual</span>
+</code></pre></div>
+<p>Mount the widget with that token and the flow finishes normally through <code>eeid:success</code>. Strip the
+parameter from the address bar as you consume it — it is single-use, so a reload would otherwise
+try to resume a session that is already spent.</p>
+
+<p>If you omit <code>return_url</code>, those methods fall back to a plain top-level redirect to your
+<code>redirect_uri?code=…</code>, exactly like the classic redirect flow.</p>
+<h2 id='theming'>Theming</h2>
+<blockquote>
+<p>A theme covering most needs</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"preset"</span><span class="p">:</span><span class="w"> </span><span class="s2">"light"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"colorScheme"</span><span class="p">:</span><span class="w"> </span><span class="s2">"system"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"color"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nl">"primary"</span><span class="p">:</span><span class="w"> </span><span class="s2">"#0B5FFF"</span><span class="p">,</span><span class="w"> </span><span class="nl">"onPrimary"</span><span class="p">:</span><span class="w"> </span><span class="s2">"#FFFFFF"</span><span class="w"> </span><span class="p">},</span><span class="w">
+  </span><span class="nl">"typography"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nl">"fontFamily"</span><span class="p">:</span><span class="w"> </span><span class="s2">"</span><span class="se">\"</span><span class="s2">Inter</span><span class="se">\"</span><span class="s2">, system-ui, sans-serif"</span><span class="w"> </span><span class="p">},</span><span class="w">
+  </span><span class="nl">"shape"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nl">"radiusButton"</span><span class="p">:</span><span class="w"> </span><span class="s2">"8px"</span><span class="w"> </span><span class="p">},</span><span class="w">
+  </span><span class="nl">"branding"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nl">"showFooter"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w"> </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<p>The widget is styled with a JSON theme, supplied either as the <code>theme</code> parameter when creating the
+session, as the <code>theme</code> attribute on the element, or at runtime with <code>setTheme()</code> — for example
+when your page switches to dark mode.</p>
+
+<p>The main groups are <code>preset</code>, <code>colorScheme</code> (<code>light</code>, <code>dark</code>, <code>system</code>), <code>density</code>
+(<code>comfortable</code>, <code>compact</code>), <code>color</code>, <code>typography</code>, <code>shape</code>, <code>spacing</code>, <code>components</code>, <code>layout</code>,
+<code>branding</code> and <code>messages</code>. Unknown keys are rejected rather than ignored, so a typo is reported
+when the session is created instead of silently doing nothing.</p>
+
+<p>Note that the first screen the user sees — the list of authentication methods — takes its colours
+from <code>components.methodList</code>, not from <code>color.primary</code>, which paints buttons. Changing only the
+primary colour therefore looks like nothing happened until a method is selected.</p>
+
+<p>For a stylesheet of your own, <code>advanced.themeCssUrl</code> loads one extra CSS file inside the widget.
+It must be served from an origin that is already on the service&#39;s allowlist.</p>
+<h2 id='errors'>Errors</h2>
+<table><thead>
+<tr>
+<th>Status</th>
+<th>Meaning</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>400 Bad Request</code></td>
+<td>A parameter is invalid, for example a <code>return_url</code> whose origin is not allowlisted</td>
+</tr>
+<tr>
+<td><code>401 Unauthorized</code></td>
+<td>The client id or secret is wrong, or the service belongs to a different environment</td>
+</tr>
+<tr>
+<td><code>403 Forbidden</code></td>
+<td>Embedded mode is not enabled for this client, or no valid origin is allowlisted</td>
+</tr>
+<tr>
+<td><code>410 Gone</code></td>
+<td>The result token is invalid, already redeemed, or expired</td>
+</tr>
+<tr>
+<td><code>422 Unprocessable Entity</code></td>
+<td>The theme did not validate, or a required parameter is missing</td>
+</tr>
+<tr>
+<td><code>429 Too Many Requests</code></td>
+<td>Rate limited, see below. <code>Retry-After</code> gives the seconds to wait</td>
+</tr>
+<tr>
+<td><code>502 Bad Gateway</code></td>
+<td>eeID could not reach its authorization server. Retry later</td>
+</tr>
+</tbody></table>
+
+<p>Errors that happen <em>during</em> authentication reach your page as an <code>eeid:error</code> event rather than as
+a status code — the session was created successfully, the authentication itself failed.</p>
+<h2 id='rate-limits'>Rate limits</h2>
+<p>The embedded API is rate limited per client and per source address. The limits are set well above
+normal traffic and exist to stop credential guessing: <strong>failed</strong> authentications are counted far
+more strictly than ordinary calls, and a successful call clears that count.</p>
+
+<p>If you receive <code>429 Too Many Requests</code>, wait the number of seconds given in the <code>Retry-After</code>
+header before retrying. Repeated <code>401</code>s from a misconfigured secret are the usual way to reach it,
+so fix the credentials rather than retrying in a loop.</p>
+<h2 id='test-environment'>Test environment</h2>
+<p>A service in the <code>Test</code> environment uses <code>https://test-auth.eeid.ee</code> for all three URLs — the
+session API, the widget script and the <code>base-url</code> attribute — and the matching token endpoint.
+Test authentications are free. A service exists in exactly one environment at a time, so use the
+host that matches the service your credentials belong to.</p>
+<h2 id='example-application'>Example application</h2>
+<p>A complete integration, small enough to read in one sitting, is published at
+<a href="https://github.com/internetee/eeid_php_embedded_demo">github.com/internetee/eeid_php_embedded_demo</a>.</p>
+
+<p>It is a single PHP file plus a <code>&lt;script&gt;</code> tag, and it runs the whole loop: creating the session
+server-side, framing the widget, redeeming the result token, exchanging it for the ID token and
+displaying the claims. It also demonstrates theming, locale selection, signing out and signing in
+again, and the resume path for the methods that leave the frame.</p>
+<div class="highlight"><pre class="highlight shell tab-shell"><code>git clone https://github.com/internetee/eeid_php_embedded_demo.git
+<span class="nb">cd </span>eeid_php_embedded_demo
+<span class="nb">cp</span> .env.example .env      <span class="c"># fill in EEID_CLIENT_ID and EEID_CLIENT_SECRET</span>
+docker compose up <span class="nt">--build</span>
+</code></pre></div>
+<p>Then open <a href="http://localhost:8081">http://localhost:8081</a>. Remember to add <code>http://localhost:8081</code>
+to your service&#39;s <strong>Embedded widget allowed origins</strong> first, or the browser will refuse to display
+the widget.</p>
+<h1 id='eeid-identification'>eeID Identification</h1>
 <p>The eeID Identification Service allows organizations to create identification requests and verify user identities based on specific criteria. It is built on a robust framework that ensures security, compliance, and ease of use.</p>
 <h2 id='key-features'>Key Features</h2>
 <ul>
