@@ -2050,7 +2050,12 @@ curl -X POST https://auth.eeid.ee/api/signing/sessions \
 the finished container and serves it back to you.
 
 **Hash only** — send `sha256`, `sha512` and `byte_size` instead, and no `content`. eeID never
-receives the document; you show it to the signer and assemble the final container yourself.
+receives the document; you show it to the signer and assemble the final container yourself
+from the **hashcode container** eeID produces.
+
+Pick full file unless you have a reason not to. Hash-only exists for documents you cannot hand
+to a third party, and it moves two jobs to you — showing the signer what they are signing, and
+merging the container — in exchange for eeID never holding the file.
 
 > A hash-only document
 
@@ -2175,6 +2180,11 @@ An ASiC-E container carrying an XAdES signature with an RFC 3161 timestamp and a
 what "long-term valid" means, and what lets the signature still be verified years later when the
 certificate has expired.
 
+In **hash-only** ingest this is the hashcode container instead: the same signature, with
+`META-INF/hashcodes-sha256.xml` and `-sha512.xml` in place of the documents eeID never
+received. Its filename ends in `-hashcode.asice` so it cannot be mistaken for a finished
+document, and [finishing it](#finishing-a-hash-only-container) is the last step.
+
 `container_hash` in the status response is the SHA-256 of that file, so you can prove which one
 you received.
 
@@ -2238,7 +2248,9 @@ is no browser to keep responsive, and those round-trips happen inside the reques
 
 In hash-only mode the response carries `hashcode_container` — an ASiC-E whose data files have been
 replaced by `META-INF/hashcodes-sha256.xml` and `-sha512.xml`, because eeID never had the files.
-It is returned here and nowhere else; eeID keeps no copy.
+
+The same container is also what `GET …/container` serves for a hash-only signing, so this step
+applies whether you drove the signing yourself or sent the signer to eeID's page.
 
 To finish it: copy every entry, drop those two manifests, and add your own bytes. Two details are
 not cosmetic:
