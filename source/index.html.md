@@ -1938,6 +1938,13 @@ A qualified signature is legally equivalent to a handwritten one across the EU
 signing key under the signer's sole control can produce one, which is why signing is offered with
 Smart-ID, Mobile-ID and the ID card, and not with every method eeID can authenticate.
 
+<aside class="notice">
+Today the hosted page signs with <strong>Smart-ID</strong> only. Mobile-ID, the ID card and
+Smart-ID+ can be configured on a service and will be offered as their flows are built; until
+then a signer is shown Smart-ID, and the headless endpoints below accept any of them, because
+there you drive the device yourself.
+</aside>
+
 Your backend creates a signing and sends the signer to a page eeID hosts, or drives its own
 interface and uses eeID only to build the container. Either way you authenticate with the
 **client credentials you already have** — there is no separate token step.
@@ -2083,8 +2090,15 @@ arrangement as authentication, from the same `auth_methods` configuration, so th
 drift.
 
 The list is narrowed twice before a signer sees it: to methods that can produce a qualified
-signature at all, and to those eeID has built a flow for. A `signing_method` parameter on this
-endpoint is **refused**, rather than ignored, so that a caller who sends one finds out.
+signature at all, and to those eeID has built a flow for — which today means Smart-ID. A
+`signing_method` parameter on this endpoint is **refused**, rather than ignored, so that a
+caller who sends one finds out.
+
+Smart-ID+ is a separate method, not a variant of Smart-ID: in eeID it is the device-link flow,
+a deeplink into the app on mobile and a QR code on desktop. Signing drives the notification API
+only, so a service configured for Smart-ID+ is not offered it here — showing the notification
+flow to someone who picked Smart-ID+ would be a different experience billed as the one they
+chose.
 
 ## What the signer sees
 
