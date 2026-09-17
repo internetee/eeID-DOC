@@ -2007,7 +2007,6 @@ curl -X POST https://auth.eeid.ee/api/signing/sessions \
   -u "$EEID_CLIENT_ID:$EEID_CLIENT_SECRET" \
   -H "Content-Type: application/json" \
   -d '{
-        "signing_method": "smart-id",
         "purpose": "Contact data disclosure request",
         "redirect_uri": "https://www.example.com/signing/done",
         "postback_url": "https://www.example.com/hooks/eeid-signing",
@@ -2037,7 +2036,6 @@ curl -X POST https://auth.eeid.ee/api/signing/sessions \
 
 | Parameter | Required | Description |
 | --------- | -------- | ----------- |
-| `signing_method` | yes | `smart-id`, `smart-id-plus`, `mobile-id` or `id-card`. Must be one your service offers |
 | `documents` | yes | At most 10, at most 5 MB each. See below |
 | `purpose` | no | What the signature is for. Shown on the signing page **and** on the signer's phone |
 | `signer` | no | Who is expected to sign. With a Smart-ID `document_number` the signer is not asked to identify themselves and their device is prompted once instead of twice |
@@ -2076,6 +2074,17 @@ none, and half of each is a container it cannot assemble.
 A **filename is a filename, not a path**. Separators, `..`, leading dots and control characters
 are refused: the name becomes an entry inside the signed container, and a container that writes
 outside its extraction directory is not something eeID will sign for you.
+
+### Which methods are offered
+
+**You do not choose.** The methods and countries a service signs with are configured on the
+service in [eeID manager](https://eeid.ee), and the signer picks among them — the same
+arrangement as authentication, from the same `auth_methods` configuration, so the two cannot
+drift.
+
+The list is narrowed twice before a signer sees it: to methods that can produce a qualified
+signature at all, and to those eeID has built a flow for. A `signing_method` parameter on this
+endpoint is **refused**, rather than ignored, so that a caller who sends one finds out.
 
 ## What the signer sees
 
@@ -2202,7 +2211,7 @@ the signer never sees an eeID page.
 curl -X POST https://auth.eeid.ee/api/signing/sessions/$UUID/prepare \
   -u "$EEID_CLIENT_ID:$EEID_CLIENT_SECRET" \
   -H "Content-Type: application/json" \
-  -d '{ "certificate": "MIIHQTCCBsigAwIBAgIQ..." }'
+  -d '{ "certificate": "MIIHQTCCBsigAwIBAgIQ...", "signing_method": "id-card" }'
 ```
 
 > Response
@@ -2219,6 +2228,11 @@ curl -X POST https://auth.eeid.ee/api/signing/sessions/$UUID/prepare \
 
 You send the signer's **signing certificate** — eeID cannot fetch it, because it is not driving
 the method — and receive the digest of the XAdES `SignedInfo` that eeID built.
+
+`signing_method` is required here, and this is the only endpoint that takes it: there is no
+signer page on this path, so nobody else can say which method signed. It must still be one the
+service is configured for, but it need not be one eeID has built a flow for — you are driving
+the device, so the ID card and Mobile-ID work here today.
 
 <aside class="warning">
 Sign the <code>digest</code>, never the document. The signature commits to the
