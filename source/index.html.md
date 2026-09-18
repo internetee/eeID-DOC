@@ -2005,6 +2005,29 @@ session. The `session_token` inside `sign_url` is the *signer's* capability: it 
 page and the signed document, it expires with their session, and it should not appear in your
 logs or your URLs.
 
+## API reference
+
+The whole surface. Every endpoint is authenticated with HTTP Basic using your OAuth2 client
+credentials, takes and returns JSON unless noted, and is scoped to your own service — a
+`signing_uuid` belonging to another service answers *not found*.
+
+| | Endpoint | What it does |
+| --- | --- | --- |
+| **POST** | `/api/signing/sessions` | [Creates a signing](#creating-a-signing). Documents as bytes or digests. Answers `signing_uuid`, `session_token`, `sign_url` |
+| **GET** | `/api/signing/sessions/{id}` | [What happened to it](#asking) — `status`, the signer, `container_hash`, `erased_at` |
+| **GET** | `/api/signing/sessions/{id}/container` | [The signed ASiC-E](#collecting-the-signed-document). In hash-only ingest, the hashcode container to merge into. Not JSON |
+| **DELETE** | `/api/signing/sessions/{id}` | [Erases the personal data](#erasing-a-signing) — documents, container, signer. Cannot be undone |
+| **POST** | `/api/signing/sessions/{id}/prepare` | [Headless](#signing-without-eeid-s-page): send the certificate, receive the digest to sign |
+| **POST** | `/api/signing/sessions/{id}/sign` | [Headless](#signing-without-eeid-s-page): send the signature value, receive the container |
+| **POST** | *your `postback_url`* | [What eeID sends you](#learning-the-outcome): `signer_signed`, `signing_completed`, `signing_failed` |
+
+`{id}` is always the `signing_uuid` from the create response, never the `session_token`.
+
+Two things this table cannot show, and both catch people out: **there is no `signing_method`
+parameter** on create — the service's configuration and the signer decide ([why](#which-methods-are-offered))
+— and the browser-facing `sign_url` is not part of this API. Your backend never calls it; the
+signer's browser does.
+
 ## Creating a signing
 
 > Create a signing
