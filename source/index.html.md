@@ -2181,6 +2181,12 @@ the result, exactly as you would on a first signature.
 same container produce two containers with one new signature each — and those cannot be
 combined. Feed the container from round N into round N+1, and wait for each to finish.
 
+You may still hand out several `sign_url`s at once: the invitations are parallel and only the
+signing itself is serialised. A headless `prepare` for a document another round holds answers
+`409`, and on the hosted page the signer simply waits — eeID retries for about half a minute
+before giving up, on the expectation that a round is seconds from finishing or minutes from
+expiring.
+
 Each round is its own `signing_uuid`. eeID does not relate them: it will not tell you that a
 document has three signatures, because it holds three separate records. You can, because you
 hold the container. Keep your own link between the rounds if you need to report on progress.
@@ -2467,7 +2473,7 @@ systems.
 | `401 Unauthorized` | The client id or secret is wrong, or the service belongs to a different environment |
 | `403 Forbidden` | Signing is not enabled for this service, or `container` was sent by a service not permitted [several signatures on one document](#enabling-signing) |
 | `404 Not Found` | No such signing, or it belongs to another service. The two are one answer on purpose |
-| `409 Conflict` | The signing has no open session — it expired 30 minutes after creation. Create a new one |
+| `409 Conflict` | Either the signing has no open session — it expired 30 minutes after creation, so create a new one — or another signature is being added to this document right now, in which case try again shortly. The message says which |
 | `422 Unprocessable Entity` | The signature was accepted but the container did not validate as a qualified signature. The signing is recorded as failed |
 | `429 Too Many Requests` | Rate limited. `Retry-After` gives the seconds to wait |
 | `502 Bad Gateway` | eeID could not reach a service it depends on. Retry later |
