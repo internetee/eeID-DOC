@@ -2389,13 +2389,35 @@ curl -X DELETE https://auth.eeid.ee/api/signing/sessions/$UUID \
   -u "$EEID_CLIENT_ID:$EEID_CLIENT_SECRET"
 ```
 
+> Response
+
+```json
+{
+  "signing_uuid": "d51dfc24-3060-4e03-8086-66886022d04f",
+  "erased": true,
+  "erasure": {
+    "complete": true,
+    "signatures_erased": [
+      { "uuid": "9f1a5d2e-1111-2222-3333-444455556666", "sequence": 1 }
+    ],
+    "retained": null,
+    "signers_remaining": false
+  }
+}
+```
+
 For a data-subject erasure request that reaches you. You are the controller for the signings you
 create; eeID is the processor, and this is eeID acting on your instruction.
 
 Everything that names a person goes: the source documents, the signed container — the identity
-code is inside the signature itself, so an erasure that left the container would be no erasure at
-all — and the signer's name and identity code. What remains is that a signing happened: the uuid,
+code is inside the signature itself, so a container left behind would keep the identity code with
+it — and the signer's name and identity code. What remains is that a signing happened: the uuid,
 the status, the timestamps, the method and the document digests.
+
+**Read the response rather than assuming.** It reports what was erased and whether anything had
+to be kept. For a document with a single signature nothing does, and `erasure.complete` is
+`true`. eeID tells you when it could not finish, because you are the one who has to answer the
+data subject.
 
 **Collect anything you need first.** This cannot be undone.
 
