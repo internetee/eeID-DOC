@@ -1939,10 +1939,11 @@ signing key under the signer's sole control can produce one, which is why signin
 Smart-ID, Mobile-ID and the ID card, and not with every method eeID can authenticate.
 
 <aside class="notice">
-Today the hosted page signs with <strong>Smart-ID</strong> only. Mobile-ID, the ID card and
-Smart-ID+ can be configured on a service and will be offered as their flows are built; until
-then a signer is shown Smart-ID, and the headless endpoints below accept any of them, because
-there you drive the device yourself.
+Today the hosted page signs with <strong>Smart-ID</strong> only. Mobile-ID and the ID card can be
+configured on a service and will be offered as their flows are built; until then a signer is
+shown Smart-ID, and the headless endpoints below accept either, because there you drive the
+device yourself. <strong>Smart-ID+ cannot be configured for signing</strong> — see
+<a href="#which-methods-are-offered">Which methods are offered</a>.
 </aside>
 
 Your backend creates a signing and sends the signer to a page eeID hosts, or drives its own
@@ -1981,11 +1982,20 @@ In [eeID manager](https://eeid.ee), open your service and edit it:
 
 1. Tick **Enable signing**.
 2. In **Signing redirect URIs**, add every address a signer may be returned to, one per line.
-3. Save.
+3. Tick **Allow several signatures on one document** only if you need it — see below.
+4. Save.
 
 A `redirect_uri` that is not on that list is refused when you create a signing. The list is
 compared exactly — a prefix is not a match, which is what stops a registered address being used
 to reach somewhere else.
+
+**Several signatures on one document is off unless you ask for it.** Without it,
+[`container`](#adding-a-signature-to-a-signed-container) is refused with `403`. It is a separate
+switch because a document that collects signatures from several people raises a question eeID
+cannot yet answer: a signer's identity code sits inside their signature, which shares a container
+with everyone else's, so one person asking to be erased cannot be fully honoured without
+destroying the other signers' only proof that they signed. A service signing with one signer is
+not exposed to that and does not have to wait for it to be settled.
 
 ## How it works
 
@@ -2014,7 +2024,7 @@ credentials, takes and returns JSON unless noted, and is scoped to your own serv
 | | Endpoint | What it does |
 | --- | --- | --- |
 | **POST** | `/api/signing/sessions` | [Creates a signing](#creating-a-signing). Documents as bytes or digests, or a [container to add a signature to](#adding-a-signature-to-a-signed-container). Answers `signing_uuid`, `session_token`, `sign_url` |
-| **GET** | `/api/signing/sessions/{id}` | [What happened to it](#asking) — `status`, the signer, `container_hash`, `erased_at` |
+| **GET** | `/api/signing/sessions/{id}` | [What happened to it](#asking) — `status`, `signatures`, `container_hash`, `erased_at` |
 | **GET** | `/api/signing/sessions/{id}/container` | [The signed ASiC-E](#collecting-the-signed-document). In hash-only ingest, the hashcode container to merge into. Not JSON |
 | **DELETE** | `/api/signing/sessions/{id}` | [Erases the personal data](#erasing-a-signing) — documents, container, signer. Cannot be undone |
 | **POST** | `/api/signing/sessions/{id}/prepare` | [Headless](#signing-without-eeid-s-page): send the certificate, receive the digest to sign |
@@ -2150,6 +2160,10 @@ Send `container` **instead of** `documents` and eeID adds a signature to a conta
 already has one. That is all a multi-signature ASiC-E is: signatures sit side by side in the
 same container, each over the same documents, and DigiDoc4 lists them.
 
+**Your service has to be permitted this**, and is not by default: without
+**Allow several signatures on one document** ([enabling signing](#enabling-signing)) a request
+carrying `container` is refused with `403`.
+
 The documents are not sent again — eeID takes them out of the container, along with the media
 type each one is declared as in `META-INF/manifest.xml`. The signatures already on it travel
 through untouched, and what comes back has one more.
@@ -2185,9 +2199,9 @@ caller who sends one finds out.
 
 Smart-ID+ is a separate method, not a variant of Smart-ID: in eeID it is the device-link flow,
 a deeplink into the app on mobile and a QR code on desktop. Signing drives the notification API
-only, so a service configured for Smart-ID+ is not offered it here — showing the notification
-flow to someone who picked Smart-ID+ would be a different experience billed as the one they
-chose.
+only, so **Smart-ID+ is not a signing method at all** — it cannot be selected for signing even on
+a service that offers it for authentication. Showing the notification flow to somebody who picked
+Smart-ID+ would be a different experience billed as the one they chose.
 
 ## What the signer sees
 
@@ -2278,6 +2292,12 @@ curl https://auth.eeid.ee/api/signing/sessions/d51dfc24-3060-4e03-8086-66886022d
 `failed`: from your side both mean the same thing. This answers from eeID's durable record, so a
 signing that finished a day ago is still reported.
 
+`signatures` lists every signature on the document, in the order they were collected — sequence,
+signer, method, `status` and `erased_at` each. `signer` above is the first of them, kept for
+callers written before a document could carry several. A document reads `signed` once **anybody**
+has signed it, so a `pending` entry in `signatures` beside a `signed` status is a round still
+waiting for its signer, not a contradiction.
+
 ## Collecting the signed document
 
 > Collect the container
@@ -2300,7 +2320,7 @@ document, and [finishing it](#finishing-a-hash-only-container) is the last step.
 `container_hash` in the status response is the SHA-256 of that file, so you can prove which one
 you received.
 
-**Keep your own copy.** eeID stores the container for 180 days and then purges it; the record that
+**Keep your own copy.** eeID stores the container for 30 days and then purges it; the record that
 the signing happened, and the digests of what was signed, remain.
 
 ## Signing without eeID's page
@@ -2424,13 +2444,20 @@ data subject.
 | What | How long |
 | ---- | -------- |
 | The documents you sent | Until the container exists, then purged immediately |
-| The signed container | 180 days |
+| …on a service permitted several signatures | Until the container is purged |
+| The signed container | 30 days |
 | The record and the digests | Kept |
 | The signer's flow state | 30 minutes, in memory, never on disk |
 
-The container carries the documents, so eeID does not keep a second copy of them. The identity
-code appears inside every qualified signature by design — that is what makes it attributable —
-so a signed container is personal data wherever it is stored, including in your systems.
+The container carries the documents, so eeID does not keep a second copy of them — unless your
+service may collect several signatures, because a further round needs the bytes to show the next
+signer what they are signing and to merge the container again. That is the cost of the
+capability: on such a service a document stays with eeID until its container is purged, rather
+than for minutes.
+
+The identity code appears inside every qualified signature by design — that is what makes it
+attributable — so a signed container is personal data wherever it is stored, including in your
+systems.
 
 ## Errors
 
@@ -2438,7 +2465,7 @@ so a signed container is personal data wherever it is stored, including in your 
 | ------ | ------- |
 | `400 Bad Request` | An unregistered `redirect_uri`, a method your service may not use, a filename that is a path, a document over the limit, a `postback_url` that is not a public address, or a signature that does not verify |
 | `401 Unauthorized` | The client id or secret is wrong, or the service belongs to a different environment |
-| `403 Forbidden` | Signing is not enabled for this service |
+| `403 Forbidden` | Signing is not enabled for this service, or `container` was sent by a service not permitted [several signatures on one document](#enabling-signing) |
 | `404 Not Found` | No such signing, or it belongs to another service. The two are one answer on purpose |
 | `409 Conflict` | The signing has no open session — it expired 30 minutes after creation. Create a new one |
 | `422 Unprocessable Entity` | The signature was accepted but the container did not validate as a qualified signature. The signing is recorded as failed |
