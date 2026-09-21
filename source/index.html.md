@@ -2013,7 +2013,7 @@ credentials, takes and returns JSON unless noted, and is scoped to your own serv
 
 | | Endpoint | What it does |
 | --- | --- | --- |
-| **POST** | `/api/signing/sessions` | [Creates a signing](#creating-a-signing). Documents as bytes or digests. Answers `signing_uuid`, `session_token`, `sign_url` |
+| **POST** | `/api/signing/sessions` | [Creates a signing](#creating-a-signing). Documents as bytes or digests, or a [container to add a signature to](#adding-a-signature-to-a-signed-container). Answers `signing_uuid`, `session_token`, `sign_url` |
 | **GET** | `/api/signing/sessions/{id}` | [What happened to it](#asking) — `status`, the signer, `container_hash`, `erased_at` |
 | **GET** | `/api/signing/sessions/{id}/container` | [The signed ASiC-E](#collecting-the-signed-document). In hash-only ingest, the hashcode container to merge into. Not JSON |
 | **DELETE** | `/api/signing/sessions/{id}` | [Erases the personal data](#erasing-a-signing) — documents, container, signer. Cannot be undone |
@@ -2066,7 +2066,8 @@ curl -X POST https://auth.eeid.ee/api/signing/sessions \
 
 | Parameter | Required | Description |
 | --------- | -------- | ----------- |
-| `documents` | yes | At most 10, at most 5 MB each. See below |
+| `documents` | yes, unless `container` | At most 10, at most 5 MB each. See below |
+| `container` | instead of `documents` | A signed ASiC-E, Base64-encoded, to [add a signature to](#adding-a-signature-to-a-signed-container). At most 50 MB |
 | `purpose` | no | What the signature is for. Shown on the signing page **and** on the signer's phone |
 | `signer` | no | Who is expected to sign. With a Smart-ID `document_number` the signer is not asked to identify themselves and their device is prompted once instead of twice |
 | `redirect_uri` | no | Where the signer goes when they leave the result page. Must be registered |
@@ -2104,6 +2105,73 @@ none, and half of each is a container it cannot assemble.
 A **filename is a filename, not a path**. Separators, `..`, leading dots and control characters
 are refused: the name becomes an entry inside the signed container, and a container that writes
 outside its extraction directory is not something eeID will sign for you.
+
+### Adding a signature to a signed container
+
+> Add a signature to a container that already has one
+
+```shell
+curl -X POST https://auth.eeid.ee/api/signing/sessions \
+  -u "$EEID_CLIENT_ID:$EEID_CLIENT_SECRET" \
+  -H "Content-Type: application/json" \
+  -d '{
+        "purpose": "Second signature on the contract",
+        "redirect_uri": "https://www.example.com/signing/done",
+        "container": "UEsDBBQACAgIAAAAAAA..."
+      }'
+```
+
+> Response — a new signing, and a new signer to send
+
+```json
+{
+  "signing_uuid": "8a2f4c11-77b0-4e52-9d14-2c61f0a3ee90",
+  "session_token": "kK2mDq7pVn4tZ1sXbYcR8fLhJ0wEuQiA3oNgTzM5vBs",
+  "sign_url": "https://auth.eeid.ee/sign/kK2mDq7pVn4tZ1sXbYcR8fLhJ0wEuQiA3oNgTzM5vBs",
+  "ingest_mode": "full_file",
+  "expires_in": 1800,
+  "status": "pending"
+}
+```
+
+Send `container` **instead of** `documents` and eeID adds a signature to a container that
+already has one. That is all a multi-signature ASiC-E is: signatures sit side by side in the
+same container, each over the same documents, and DigiDoc4 lists them.
+
+The documents are not sent again — eeID takes them out of the container, along with the media
+type each one is declared as in `META-INF/manifest.xml`. The signatures already on it travel
+through untouched, and what comes back has one more.
+
+From the response onwards nothing is different: send the signer to `sign_url`, they pick a
+method and sign, and you collect the container as usual. The next signer identifies themselves
+on the signing page, so a different signer needs no extra parameter.
+
+`ingest_mode` tells you which kind of container you sent. A complete ASiC-E carries the
+documents, so ingest is `full_file` and eeID assembles the finished container for you. A
+**hashcode** container carries none, so ingest is `hash_only` and you merge your own bytes into
+the result, exactly as you would on a first signature.
+
+<aside class="warning">
+Do not send a signed container in <code>documents</code>, and do not rely on eeID to stop you.
+Signing a container as a <em>file</em> would otherwise nest the old container inside a new one
+carrying a single signature — the new one. The original is still in there a level down, where
+no validator and no signature list will look, so the result reads as though the second
+signature had replaced the first rather than joined it. Nothing fails, and the answer is wrong.
+<br><br>
+eeID refuses this when it can see it: sending <code>content</code>, it recognises an already
+signed ASiC-E and answers <code>400</code> naming <code>container</code> as the parameter you
+wanted. In <strong>hash-only</strong> ingest it cannot — eeID never receives the file, so only
+the digests arrive and nothing about them says "container". There the mistake is yours to
+avoid.
+</aside>
+
+**One round at a time.** Each round rewrites the container, so two signers starting from the
+same container produce two containers with one new signature each — and those cannot be
+combined. Feed the container from round N into round N+1, and wait for each to finish.
+
+Each round is its own `signing_uuid`. eeID does not relate them: it will not tell you that a
+document has three signatures, because it holds three separate records. You can, because you
+hold the container. Keep your own link between the rounds if you need to report on progress.
 
 ### Which methods are offered
 
