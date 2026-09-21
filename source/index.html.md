@@ -2102,6 +2102,18 @@ The digests are Base64 of the raw digest bytes, not hex. eeID derives the mode f
 a request that mixes files with digests is refused, because eeID either holds every document or
 none, and half of each is a container it cannot assemble.
 
+<aside class="warning">
+An already signed <code>.asice</code> is not a document to sign. Signing one as a file nests it
+inside a new container carrying a single signature — the new one — leaving the original a level
+down where no validator and no signature list will look, so it reads as though the new
+signature had replaced the earlier ones. To add a signature to a container, send it as
+<a href="#adding-a-signature-to-a-signed-container"><code>container</code></a>.
+<br><br>
+eeID refuses it when it can see it: with <code>content</code> it recognises a signed ASiC-E and
+answers <code>400</code>. In <strong>hash-only</strong> ingest it cannot, because only digests
+arrive and nothing about a digest says "container".
+</aside>
+
 A **filename is a filename, not a path**. Separators, `..`, leading dots and control characters
 are refused: the name becomes an entry inside the signed container, and a container that writes
 outside its extraction directory is not something eeID will sign for you.
@@ -2150,20 +2162,6 @@ on the signing page, so a different signer needs no extra parameter.
 documents, so ingest is `full_file` and eeID assembles the finished container for you. A
 **hashcode** container carries none, so ingest is `hash_only` and you merge your own bytes into
 the result, exactly as you would on a first signature.
-
-<aside class="warning">
-Do not send a signed container in <code>documents</code>, and do not rely on eeID to stop you.
-Signing a container as a <em>file</em> would otherwise nest the old container inside a new one
-carrying a single signature — the new one. The original is still in there a level down, where
-no validator and no signature list will look, so the result reads as though the second
-signature had replaced the first rather than joined it. Nothing fails, and the answer is wrong.
-<br><br>
-eeID refuses this when it can see it: sending <code>content</code>, it recognises an already
-signed ASiC-E and answers <code>400</code> naming <code>container</code> as the parameter you
-wanted. In <strong>hash-only</strong> ingest it cannot — eeID never receives the file, so only
-the digests arrive and nothing about them says "container". There the mistake is yours to
-avoid.
-</aside>
 
 **One round at a time.** Each round rewrites the container, so two signers starting from the
 same container produce two containers with one new signature each — and those cannot be
