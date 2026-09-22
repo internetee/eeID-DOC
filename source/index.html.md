@@ -2076,10 +2076,12 @@ curl -X POST https://auth.eeid.ee/api/signing/sessions \
 
 | Parameter | Required | Description |
 | --------- | -------- | ----------- |
-| `documents` | yes, unless `container` | At most 10, at most 5 MB each. See below |
+| `documents` | yes, unless `container` or `signing_uuid` | At most 10, at most 5 MB each. See below |
 | `container` | instead of `documents` | A signed ASiC-E, Base64-encoded, to [add a signature to](#adding-a-signature-to-a-signed-container). At most 50 MB |
+| `signing_uuid` | instead of `documents` | A signing eeID already holds. Starts a new round on it — no documents, because eeID kept them. Use it when a round ended without a signature: re-uploading the same bytes makes a second signing record of the same document |
 | `purpose` | no | What the signature is for. Shown on the signing page **and** on the signer's phone |
 | `signer` | no | Who is expected to sign. With a Smart-ID `document_number` the signer is not asked to identify themselves and their device is prompted once instead of twice |
+| `locale` | no | Which language the signing page opens in: `et`, `en` or `ru`. `ui_locales` is accepted as an alias, and a comma-separated list is taken first-usable-wins, so an OIDC `ui_locales` string passes through unchanged. An unrecognised value is ignored rather than refused, and the signer can always switch language on the page |
 | `redirect_uri` | no | Where the signer goes when they leave the result page. Must be registered |
 | `postback_url` | no | Where eeID tells your server what happened. Must be a public `https` address |
 
@@ -2211,9 +2213,10 @@ Smart-ID+ would be a different experience billed as the one they chose.
 
 ## What the signer sees
 
-The page names the document, shows its SHA-256, shows your `purpose`, and displays a PDF in place
-so it can be read without downloading. Nothing reaches the signer's device until they have
-confirmed the document explicitly — a signature means nothing if the signer never saw what they
+The page names the document, shows its SHA-256, shows your `purpose`, and links the document so
+it opens in a new tab — a PDF is displayed there by the browser, anything else downloads, and the
+signing page itself is never navigated away from. Nothing reaches the signer's device until they
+have confirmed the document explicitly — a signature means nothing if the signer never saw what they
 were signing, and that confirmation is the only way out of the first state.
 
 Then their method runs. With Smart-ID their phone is asked twice: once to confirm which Smart-ID
@@ -2246,7 +2249,27 @@ If you gave a `postback_url`, eeID POSTs to it:
 | ----- | ------- |
 | `signer_signed` | The signature arrived and the signer's device is released. The container does not exist yet |
 | `signing_completed` | The container exists and validated. Collect it |
-| `signing_failed` | Stop waiting. Refused, cancelled, unusable or invalid — `state` tells you which |
+| `signing_failed` | The round ended without a signature. Refused, cancelled, unusable or invalid — `state` tells you which |
+
+**`signing_failed` is not always the last word.** A round that failed *technically* can be tried
+again on the same link: nothing was signed, so eeID keeps the document, the signer's confirmation
+of it and their place in the flow, and the result page offers them **Try signing again**. If they
+succeed, `signing_completed` follows and supersedes the failure. Handle postbacks so that the
+latest one wins rather than treating the first `signing_failed` as final.
+
+When a link is spent — cancelled, or the session expired — you do not have to upload the document
+again to get another. `POST /api/signing/sessions` with `signing_uuid` and nothing else starts a
+fresh round on the signing eeID already holds, and answers with a new `sign_url` and the *same*
+`signing_uuid`, so it stays one record for one document. It works whether the last round failed,
+was cancelled or simply ran out, and while the document is unsigned it also returns the signing to
+`pending`. A document that already carries a signature is a countersignature, so the service must
+be permitted several signatures per document.
+
+A signer who *cancelled* is different: that was their own decision, and their link is spent. Both
+arrive as `signing_failed` because you need the same thing from both — stop waiting — and both
+read `failed` on the signing. To tell them apart, read `signer_can_retry` on the status response:
+true only while the signer's link can still produce a signature. It is false for a cancellation,
+false once the session has expired, and false while a signing is still in flight.
 
 **Do not rely on the redirect to tell you anything.** It only fires if the signer chooses to come
 back, and they may have closed the tab — the signature is produced regardless — or opened the link
@@ -2295,8 +2318,15 @@ curl https://auth.eeid.ee/api/signing/sessions/d51dfc24-3060-4e03-8086-66886022d
 ```
 
 `status` is `pending`, `signed`, `failed` or `expired`. A signer who refused or cancelled shows as
-`failed`: from your side both mean the same thing. This answers from eeID's durable record, so a
-signing that finished a day ago is still reported.
+`failed`: from your side both mean the same thing — stop waiting. This answers from eeID's durable
+record, so a signing that finished a day ago is still reported.
+
+`signer_can_retry` says whether the signer's link can still produce a signature. A round that
+failed technically can be tried again on the same link, and then `signing_completed` follows the
+`signing_failed` you already received — so this is how you tell "failed, and they may yet sign"
+from "failed, and that is the end of it". It is true only for a technical failure with a live
+session: false for a cancellation, false once the session has expired, and false while a signing
+is still in flight.
 
 `signatures` lists every signature on the document, in the order they were collected — sequence,
 signer, method, `status` and `erased_at` each. `signer` above is the first of them, kept for
