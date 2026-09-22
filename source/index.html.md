@@ -2026,7 +2026,7 @@ credentials, takes and returns JSON unless noted, and is scoped to your own serv
 | **POST** | `/api/signing/sessions` | [Creates a signing](#creating-a-signing). Documents as bytes or digests, or a [container to add a signature to](#adding-a-signature-to-a-signed-container). Answers `signing_uuid`, `session_token`, `sign_url` |
 | **GET** | `/api/signing/sessions/{id}` | [What happened to it](#asking) — `status`, `signatures`, `container_hash`, `erased_at` |
 | **GET** | `/api/signing/sessions/{id}/container` | [The signed ASiC-E](#collecting-the-signed-document). In hash-only ingest, the hashcode container to merge into. Not JSON |
-| **DELETE** | `/api/signing/sessions/{id}` | [Erases the personal data](#erasing-a-signing) — documents, container, signer. Cannot be undone |
+| **DELETE** | `/api/signing/sessions/{id}` | [Purges the content](#purging-and-erasing) — documents and container; who signed stays. `signer_id_code` or `erase_signers` erases instead. Cannot be undone |
 | **POST** | `/api/signing/sessions/{id}/prepare` | [Headless](#signing-without-eeid-s-page): send the certificate, receive the digest to sign |
 | **POST** | `/api/signing/sessions/{id}/sign` | [Headless](#signing-without-eeid-s-page): send the signature value, receive the container |
 | **POST** | *your `postback_url`* | [What eeID sends you](#learning-the-outcome): `signer_signed`, `signing_completed`, `signing_failed` |
@@ -2434,12 +2434,58 @@ not cosmetic:
 - check each file's hash and size against the manifests before inserting it. Nothing else
   guarantees that the bytes you are adding are the bytes that were signed.
 
-## Erasing a signing
+## Purging and erasing
 
-> Erase
+Two different requests, from two different people, and `DELETE` asks which one you mean.
+
+| Call | What it does |
+| ---- | ------------ |
+| `DELETE /api/signing/sessions/{uuid}` | **Purge.** The source documents and the signed container go. Who signed stays |
+| `…?signer_id_code=<code>` | **Erase one person.** Their name and identity code go from the record |
+| `…?erase_signers=true` | **Erase everybody** named on the document |
+
+Neither destroys the record that a signing happened: the uuid, the status, the timestamps, the
+method and the document digests remain in every case. That record names nobody, and deleting it
+would erase the evidence eeID behaved correctly rather than anybody's personal data.
+
+### Purging
+
+> Purge: the content goes, the signers stay
 
 ```shell
 curl -X DELETE https://auth.eeid.ee/api/signing/sessions/$UUID \
+  -u "$EEID_CLIENT_ID:$EEID_CLIENT_SECRET"
+```
+
+> Response
+
+```json
+{
+  "signing_uuid": "d51dfc24-3060-4e03-8086-66886022d04f",
+  "purged": true,
+  "purge": {
+    "documents_removed": true,
+    "container_removed": true,
+    "signers_retained": [
+      { "uuid": "9f1a5d2e-1111-2222-3333-444455556666", "sequence": 1 }
+    ],
+    "note": "The documents and the container are gone. Who signed is retained: this is a purge, not an erasure."
+  }
+}
+```
+
+For you finishing with a document — a contract you no longer need to hold. The content goes and
+the signing goes on saying who signed it.
+
+**This is not an erasure and does not answer one.** If somebody has asked you to forget them, use
+one of the calls below; a purge leaves their name and identity code in eeID's record.
+
+### Erasing a signer
+
+> Erase one person
+
+```shell
+curl -X DELETE "https://auth.eeid.ee/api/signing/sessions/$UUID?signer_id_code=38001085718" \
   -u "$EEID_CLIENT_ID:$EEID_CLIENT_SECRET"
 ```
 
@@ -2463,17 +2509,24 @@ curl -X DELETE https://auth.eeid.ee/api/signing/sessions/$UUID \
 For a data-subject erasure request that reaches you. You are the controller for the signings you
 create; eeID is the processor, and this is eeID acting on your instruction.
 
-Everything that names a person goes: the source documents, the signed container — the identity
-code is inside the signature itself, so a container left behind would keep the identity code with
-it — and the signer's name and identity code. What remains is that a signing happened: the uuid,
-the status, the timestamps, the method and the document digests.
+A data-subject request comes from a person, not about a document, so name them. `erase_signers=true`
+erases everybody on the document instead, for a request that covers all of them.
+
+Their name and identity code go from the record, and the source documents with them.
+
+The signed container goes too — the identity code is inside the signature itself, so a container
+left behind would keep it — **unless somebody else signed the same document**. Then it stays: it
+is the other signers' only proof that they signed, and deleting it would answer one person's
+request by destroying other people's records. Their code survives inside that container, which is
+why the response tells you rather than reporting a clean success.
 
 **Read the response rather than assuming.** It reports what was erased and whether anything had
 to be kept. For a document with a single signature nothing does, and `erasure.complete` is
-`true`. eeID tells you when it could not finish, because you are the one who has to answer the
-data subject.
+`true`. Where several people signed, the container is the others' only proof that they signed, so
+it stays and `retained` says so with the reason — eeID tells you when it could not finish,
+because you are the one who has to answer the data subject.
 
-**Collect anything you need first.** This cannot be undone.
+**Collect anything you need first.** None of this can be undone.
 
 ## Retention
 
