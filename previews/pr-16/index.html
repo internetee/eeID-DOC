@@ -453,7 +453,7 @@
                     <a href="#requirements-2" class="toc-h2 toc-link" data-title="Requirements">Requirements</a>
                   </li>
                   <li>
-                    <a href="#enabling-signing" class="toc-h2 toc-link" data-title="Enabling signing">Enabling signing</a>
+                    <a href="#setting-up-a-signing-service" class="toc-h2 toc-link" data-title="Setting up a signing service">Setting up a signing service</a>
                   </li>
                   <li>
                     <a href="#how-it-works-2" class="toc-h2 toc-link" data-title="How it works">How it works</a>
@@ -687,7 +687,7 @@ Every person who uses eeID signs in to a user account. Your user account is your
 </ol>
 
 <ul>
-<li><strong>Type</strong> - enter the type of your service (<code>Authentication</code> or <code>Identification</code>).</li>
+<li><strong>Type</strong> - enter the type of your service (<code>Authentication</code>, <code>Identification</code> or <code>Signing</code>). A signing service has its own, shorter form — see <a href="#setting-up-a-signing-service">Setting up a signing service</a>.</li>
 <li><strong>Owner</strong> - select who will own this service - either your personal account or an organization you belong to. The owner will be responsible for managing the service settings, billing, and access control.</li>
 <li><strong>Service name</strong> - enter the name for your service. NB! This will ultimately appear in-front of your customers. You can provide translations of the service name in multiple languages (English, Estonian, and Russian) by clicking the &quot;Update name translations&quot; link below the service name field. This allows your service to display a localized name to users based on their language preference. If translations are not provided, the default service name will be used.</li>
 <li><strong>Description</strong> - provide a brief description of your service. It should be concise, ideally one sentence.</li>
@@ -2575,16 +2575,15 @@ signing key under the signer&#39;s sole control can produce one, which is why si
 Smart-ID, Mobile-ID and the ID card, and not with every method eeID can authenticate.</p>
 
 <aside class="notice">
-Today the hosted page signs with <strong>Smart-ID</strong> only. Mobile-ID and the ID card can be
-configured on a service and will be offered as their flows are built; until then a signer is
-shown Smart-ID, and the headless endpoints below accept either, because there you drive the
-device yourself. <strong>Smart-ID+ cannot be configured for signing</strong> — see
+The hosted page signs with <strong>Smart-ID</strong>, <strong>Mobile-ID</strong> and the
+<strong>ID card</strong>. <strong>Smart-ID+ cannot be configured for signing</strong> — see
 <a href="#which-methods-are-offered">Which methods are offered</a>.
 </aside>
 
 <p>Your backend creates a signing and sends the signer to a page eeID hosts, or drives its own
 interface and uses eeID only to build the container. Either way you authenticate with the
-<strong>client credentials you already have</strong> — there is no separate token step.</p>
+<strong><code>Client ID</code> and <code>Secret</code> of a signing service</strong> over HTTP Basic — there is no separate token
+step.</p>
 <h2 id='should-you-use-it-2'>Should you use it?</h2>
 <p>Use the <strong>hosted page</strong> when you want signing to work without building one: eeID shows the
 document, takes the explicit confirmation that makes the signature mean anything, walks the signer
@@ -2597,31 +2596,42 @@ files, and eeID never receives the document.</p>
 <p>Both are the same API and the same signing, and a service may use either at any time.</p>
 <h2 id='requirements-2'>Requirements</h2>
 <ul>
-<li>A registered and approved service — see <a href="#creating-a-new-service">Creating a new service</a></li>
+<li>A registered and approved service of type <strong>Signing</strong> — see
+<a href="#setting-up-a-signing-service">Setting up a signing service</a></li>
 <li>Its <code>Client ID</code> and <code>Secret</code>, used from your backend only</li>
-<li><strong>Signing enabled</strong> on the service, with the redirect addresses you will use registered</li>
-<li>At least one of Smart-ID, Mobile-ID or the ID card among the service&#39;s authentication methods —
-signing methods are taken from that list, so a service that does not offer Smart-ID cannot sign
-with it</li>
+<li>At least one signing method — Smart-ID, Mobile-ID or the ID card — selected on the service</li>
+<li>At least one signing redirect URI registered on the service</li>
 </ul>
 
 <aside class="notice">
 Signing is priced per completed signature and per method, separately from authentication. A
 signing that the signer abandons or refuses is not charged.
 </aside>
-<h2 id='enabling-signing'>Enabling signing</h2>
-<p>In <a href="https://eeid.ee">eeID manager</a>, open your service and edit it:</p>
+<h2 id='setting-up-a-signing-service'>Setting up a signing service</h2>
+<p>Signing is a <strong>type of service</strong>, beside authentication and identification. A service has one
+type, so signing is not something you switch on for an authentication service: it is a service
+of its own, with its own <code>Client ID</code> and <code>Secret</code>. The credentials of an authentication or
+identification service are refused here with <code>403</code>.</p>
+
+<p>In <a href="https://eeid.ee">eeID manager</a>, <a href="#creating-a-new-service">create a new service</a> and:</p>
 
 <ol>
-<li>Tick <strong>Enable signing</strong>.</li>
-<li>In <strong>Signing redirect URIs</strong>, add every address a signer may be returned to, one per line.</li>
+<li>Choose <strong>Signing</strong> as the <strong>Type</strong>. The form narrows to what signing reads.</li>
+<li>Choose the <strong>Environment</strong> — <code>Test</code> is free.</li>
+<li>In <strong>Signing methods</strong>, pick the methods a signer may use, per country. Only Smart-ID,
+Mobile-ID and the ID card are offered, because only they can sign.</li>
+<li>In <strong>Signing redirect URIs</strong>, add every address a signer may be returned to, one per line. At
+least one is required.</li>
 <li>Tick <strong>Allow several signatures on one document</strong> only if you need it — see below.</li>
-<li>Save.</li>
+<li>Submit the service for approval.</li>
 </ol>
 
-<p>A <code>redirect_uri</code> that is not on that list is refused when you create a signing. The list is
-compared exactly — a prefix is not a match, which is what stops a registered address being used
-to reach somewhere else.</p>
+<p>A signing service has no OIDC callback URLs, scopes, logo or consent settings, and its
+credentials cannot be used to authenticate users. If you need both, register two services.</p>
+
+<p>A <code>redirect_uri</code> that is not on the registered list is refused when you create a signing. The
+list is compared exactly — a prefix is not a match, which is what stops a registered address
+being used to reach somewhere else.</p>
 
 <p><strong>Several signatures on one document is off unless you ask for it.</strong> Without it,
 <a href="#adding-a-signature-to-a-signed-container"><code>container</code></a> is refused with <code>403</code>. It is a separate
@@ -2630,6 +2640,14 @@ cannot yet answer: a signer&#39;s identity code sits inside their signature, whi
 with everyone else&#39;s, so one person asking to be erased cannot be fully honoured without
 destroying the other signers&#39; only proof that they signed. A service signing with one signer is
 not exposed to that and does not have to wait for it to be settled.</p>
+
+<aside class="warning">
+Decide this <strong>before a document's first signature</strong>. A service that collects one
+signature per document drops its copy of the documents as soon as the container exists, so
+switching the setting on afterwards does not make an already signed document countersignable:
+eeID no longer holds the bytes to build the next container from, and a further round on it is
+refused with <code>400</code>.
+</aside>
 <h2 id='how-it-works-2'>How it works</h2>
 <p>Four steps, and only the second one involves a browser.</p>
 
@@ -2649,9 +2667,9 @@ session. The <code>session_token</code> inside <code>sign_url</code> is the <em>
 page and the signed document, it expires with their session, and it should not appear in your
 logs or your URLs.</p>
 <h2 id='api-reference'>API reference</h2>
-<p>The whole surface. Every endpoint is authenticated with HTTP Basic using your OAuth2 client
-credentials, takes and returns JSON unless noted, and is scoped to your own service — a
-<code>signing_uuid</code> belonging to another service answers <em>not found</em>.</p>
+<p>The whole surface. Every endpoint is authenticated with HTTP Basic using your signing service&#39;s
+<code>Client ID</code> and <code>Secret</code>, takes and returns JSON unless noted, and is scoped to your own service
+— a <code>signing_uuid</code> belonging to another service answers <em>not found</em>.</p>
 
 <table><thead>
 <tr>
@@ -2668,7 +2686,7 @@ credentials, takes and returns JSON unless noted, and is scoped to your own serv
 <tr>
 <td><strong>GET</strong></td>
 <td><code>/api/signing/sessions/{id}</code></td>
-<td><a href="#asking">What happened to it</a> — <code>status</code>, <code>signatures</code>, <code>container_hash</code>, <code>erased_at</code></td>
+<td><a href="#asking">What happened to it</a> — <code>status</code>, <code>signatures</code>, <code>documents</code>, <code>container_hash</code>, <code>signer_can_retry</code>, <code>purged_at</code>, <code>erased_at</code></td>
 </tr>
 <tr>
 <td><strong>GET</strong></td>
@@ -2766,24 +2784,28 @@ signer&#39;s browser does.</p>
 <tr>
 <td><code>signer</code></td>
 <td>no</td>
-<td>Who is expected to sign. With a Smart-ID <code>document_number</code> the signer is not asked to identify themselves and their device is prompted once instead of twice</td>
+<td>Who is expected to sign: <code>id_code</code>, <code>country_code</code>, <code>name</code>, <code>document_number</code>. With a Smart-ID <code>document_number</code> the signer is not asked to identify themselves and their device is prompted once instead of twice. It is a hint, not a restriction — the record names whoever the signing certificate says signed</td>
 </tr>
 <tr>
 <td><code>locale</code></td>
 <td>no</td>
-<td>Which language the signing page opens in: <code>et</code>, <code>en</code> or <code>ru</code>. <code>ui_locales</code> is accepted as an alias, and a comma-separated list is taken first-usable-wins, so an OIDC <code>ui_locales</code> string passes through unchanged. An unrecognised value is ignored rather than refused, and the signer can always switch language on the page</td>
+<td>Which language the signing page opens in: <code>et</code>, <code>en</code> or <code>ru</code>. <code>ui_locales</code> is accepted as an alias, and of a comma-separated list the first entry is used, so an OIDC <code>ui_locales</code> string passes through unchanged. An unrecognised value is ignored rather than refused, and the signer can always switch language on the page</td>
 </tr>
 <tr>
 <td><code>redirect_uri</code></td>
 <td>no</td>
-<td>Where the signer goes when they leave the result page. Must be registered</td>
+<td>Where the signer goes when they leave the result page. Must be one of the service&#39;s signing redirect URIs</td>
 </tr>
 <tr>
 <td><code>postback_url</code></td>
 <td>no</td>
-<td>Where eeID tells your server what happened. Must be a public <code>https</code> address</td>
+<td>Where eeID tells your server what happened. Must be an absolute <code>http(s)</code> URL whose host resolves to a public address; use <code>https</code></td>
 </tr>
 </tbody></table>
+
+<p><code>sign_url</code> and <code>session_token</code> are good for <code>expires_in</code> seconds — 30 minutes. The clock restarts
+each time the signing moves a step forward, so it is 30 minutes of inactivity rather than 30
+minutes in all.</p>
 <h3 id='sending-documents-or-only-their-digests'>Sending documents, or only their digests</h3>
 <p><strong>Full file</strong> — send <code>content</code>, the document Base64-encoded. eeID shows it to the signer, builds
 the finished container and serves it back to you.</p>
@@ -2824,8 +2846,15 @@ arrive and nothing about a digest says "container".
 </aside>
 
 <p>A <strong>filename is a filename, not a path</strong>. Separators, <code>..</code>, leading dots and control characters
-are refused: the name becomes an entry inside the signed container, and a container that writes
-outside its extraction directory is not something eeID will sign for you.</p>
+are refused, as is a name over 255 characters: the name becomes an entry inside the signed
+container, and a container that writes outside its extraction directory is not something eeID
+will sign for you.</p>
+
+<p><strong>Not every file type is accepted</strong> when you send <code>content</code>. eeID takes PDF, Word and Excel
+(<code>.docx</code>, <code>.xlsx</code>, <code>.doc</code>, <code>.xls</code>), OpenDocument text and spreadsheets, plain text, CSV, and
+JPEG, PNG and TIFF images. Anything else is refused with <code>422</code>, and the response names the
+document. <code>mime_type</code> is optional — eeID works it out from the bytes and the filename when you
+leave it out — but what you declare is what the container&#39;s manifest will say.</p>
 <h3 id='adding-a-signature-to-a-signed-container'>Adding a signature to a signed container</h3>
 <blockquote>
 <p>Add a signature to a container that already has one</p>
@@ -2840,10 +2869,10 @@ outside its extraction directory is not something eeID will sign for you.</p>
       }'</span>
 </code></pre></div>
 <blockquote>
-<p>Response — a new signing, and a new signer to send</p>
+<p>Response — the same signing, and a new signer to send</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
-  </span><span class="nl">"signing_uuid"</span><span class="p">:</span><span class="w"> </span><span class="s2">"8a2f4c11-77b0-4e52-9d14-2c61f0a3ee90"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"signing_uuid"</span><span class="p">:</span><span class="w"> </span><span class="s2">"d51dfc24-3060-4e03-8086-66886022d04f"</span><span class="p">,</span><span class="w">
   </span><span class="nl">"session_token"</span><span class="p">:</span><span class="w"> </span><span class="s2">"kK2mDq7pVn4tZ1sXbYcR8fLhJ0wEuQiA3oNgTzM5vBs"</span><span class="p">,</span><span class="w">
   </span><span class="nl">"sign_url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://auth.eeid.ee/sign/kK2mDq7pVn4tZ1sXbYcR8fLhJ0wEuQiA3oNgTzM5vBs"</span><span class="p">,</span><span class="w">
   </span><span class="nl">"ingest_mode"</span><span class="p">:</span><span class="w"> </span><span class="s2">"full_file"</span><span class="p">,</span><span class="w">
@@ -2856,8 +2885,16 @@ already has one. That is all a multi-signature ASiC-E is: signatures sit side by
 same container, each over the same documents, and DigiDoc4 lists them.</p>
 
 <p><strong>Your service has to be permitted this</strong>, and is not by default: without
-<strong>Allow several signatures on one document</strong> (<a href="#enabling-signing">enabling signing</a>) a request
-carrying <code>container</code> is refused with <code>403</code>.</p>
+<strong>Allow several signatures on one document</strong>
+(<a href="#setting-up-a-signing-service">setting up a signing service</a>) a request carrying <code>container</code>
+is refused with <code>403</code>. The permission has to be in place before the document&#39;s <em>first</em>
+signature — a document signed while the service collected one signature per document cannot be
+countersigned later, and is refused with <code>400</code>.</p>
+
+<p><strong>When eeID still holds the signing, you do not need to upload anything.</strong> Send its
+<code>signing_uuid</code> instead of <code>container</code> and eeID starts the next round from the container it
+already has. <code>container</code> is for a container eeID is not holding — one signed elsewhere, or a
+hash-only one whose documents only you have.</p>
 
 <p>The documents are not sent again — eeID takes them out of the container, along with the media
 type each one is declared as in <code>META-INF/manifest.xml</code>. The signatures already on it travel
@@ -2882,35 +2919,74 @@ signing itself is serialised. A headless <code>prepare</code> for a document ano
 before giving up, on the expectation that a round is seconds from finishing or minutes from
 expiring.</p>
 
-<p>Each round is its own <code>signing_uuid</code>. eeID does not relate them: it will not tell you that a
-document has three signatures, because it holds three separate records. You can, because you
-hold the container. Keep your own link between the rounds if you need to report on progress.</p>
+<p><strong>Rounds on a container eeID produced are one signing.</strong> eeID recognises its own container by
+hash — the latest one it built for your service — and adds the round to the signing that
+container belongs to: the response carries the <em>same</em> <code>signing_uuid</code>, and
+<a href="#asking"><code>signatures</code></a> on the status response lists every round with its signer, method and
+outcome. You can name the signing yourself by sending <code>signing_uuid</code> alongside <code>container</code>.</p>
+
+<p>A container eeID has never seen — signed elsewhere, or an earlier version than the latest —
+starts a new signing with a new <code>signing_uuid</code>. That is a real capability rather than an error,
+but eeID knows nothing about the signatures already inside it: <code>signatures</code> lists only the
+rounds eeID ran.</p>
 <h3 id='which-methods-are-offered'>Which methods are offered</h3>
 <p><strong>You do not choose.</strong> The methods and countries a service signs with are configured on the
-service in <a href="https://eeid.ee">eeID manager</a>, and the signer picks among them — the same
-arrangement as authentication, from the same <code>auth_methods</code> configuration, so the two cannot
-drift.</p>
+signing service in <a href="https://eeid.ee">eeID manager</a>, and the signer picks among them — the same
+arrangement as authentication. Smart-ID, Mobile-ID and the ID card can be configured, and the
+hosted page has a flow for each.</p>
 
-<p>The list is narrowed twice before a signer sees it: to methods that can produce a qualified
-signature at all, and to those eeID has built a flow for — which today means Smart-ID. A
-<code>signing_method</code> parameter on this endpoint is <strong>refused</strong>, rather than ignored, so that a
-caller who sends one finds out.</p>
+<p>A <code>signing_method</code> parameter on this endpoint is <strong>refused</strong>, rather than ignored, so that a
+caller who sends one finds out. What a signer is offered is fixed when the signing is created:
+editing the service while somebody is mid-flow does not change the choice in front of them.</p>
 
 <p>Smart-ID+ is a separate method, not a variant of Smart-ID: in eeID it is the device-link flow,
 a deeplink into the app on mobile and a QR code on desktop. Signing drives the notification API
-only, so <strong>Smart-ID+ is not a signing method at all</strong> — it cannot be selected for signing even on
-a service that offers it for authentication. Showing the notification flow to somebody who picked
-Smart-ID+ would be a different experience billed as the one they chose.</p>
+only, so <strong>Smart-ID+ is not a signing method at all</strong> — a signing service cannot select it.
+Showing the notification flow to somebody who picked Smart-ID+ would be a different experience
+billed as the one they chose.</p>
 <h2 id='what-the-signer-sees'>What the signer sees</h2>
-<p>The page names the document, shows its SHA-256, shows your <code>purpose</code>, and links the document so
-it opens in a new tab — a PDF is displayed there by the browser, anything else downloads, and the
-signing page itself is never navigated away from. Nothing reaches the signer&#39;s device until they
-have confirmed the document explicitly — a signature means nothing if the signer never saw what they
-were signing, and that confirmation is the only way out of the first state.</p>
+<p>The page names each document, shows its size and SHA-256, shows your <code>purpose</code>, and links the
+document so it opens in a new tab — a PDF is displayed there by the browser, anything else
+downloads, and the signing page itself is never navigated away from. In <strong>hash-only</strong> ingest
+there is no link, because eeID has no file to serve: the page says the document is held by the
+service that asked for the signature, and showing it is your job.</p>
 
-<p>Then their method runs. With Smart-ID their phone is asked twice: once to confirm which Smart-ID
-account signs, then for PIN2 with the verification code the page displays. The page says so
-before either prompt arrives.</p>
+<p>Nothing reaches the signer&#39;s device until they have confirmed the document explicitly — a
+signature means nothing if the signer never saw what they were signing. The only other way out
+of that first page is <strong>Cancel</strong>, which ends the round and tells you so at once rather than
+leaving the signing pending until it expires.</p>
+
+<p>Then the signer picks a method — and a country, when the service offers more than one — and it
+runs:</p>
+
+<table><thead>
+<tr>
+<th>Method</th>
+<th>What the signer does</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><strong>Smart-ID</strong></td>
+<td>Enters their identity code. Their phone is asked twice: once to confirm which Smart-ID account signs, then for PIN2 with the verification code the page displays. With a <code>document_number</code> in <code>signer</code> the first step is skipped</td>
+</tr>
+<tr>
+<td><strong>Mobile-ID</strong></td>
+<td>Enters their phone number and identity code. Their phone is asked once, for PIN2 with the verification code the page displays</td>
+</tr>
+<tr>
+<td><strong>ID card</strong></td>
+<td>Needs the <a href="https://web-eid.eu">Web eID</a> extension and a card in a reader on the machine the page is open on. The card is read, then PIN2 is asked for once</td>
+</tr>
+</tbody></table>
+
+<p>The page says how many prompts to expect before the first one arrives. A mistyped identity code
+or phone number is not a failed signing: nothing has been asked of a device yet, so the signer
+is shown the error and the form again, and you are told nothing.</p>
+
+<p>It ends on a result page. After a signature it offers the signed container to download — except
+in hash-only ingest, where eeID has no finished container to offer — and <strong>Continue</strong>, which
+takes the signer to your <code>redirect_uri</code> if you gave one. After a round that failed technically
+it offers <strong>Try signing again</strong> first.</p>
 
 <p>The signer may open <code>sign_url</code> on a different device from the one that started the flow — it is
 addressed by a token rather than a cookie precisely so a link can be handed over.</p>
@@ -2929,7 +3005,8 @@ addressed by a token rather than a cookie precisely so a link can be handed over
   </span><span class="nl">"container_available"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
-<p>If you gave a <code>postback_url</code>, eeID POSTs to it:</p>
+<p>If you gave a <code>postback_url</code>, eeID POSTs to it. The event is also sent as the <code>X-EEID-Event</code>
+header, and a <code>signing_failed</code> body carries an <code>error_code</code> saying why.</p>
 
 <table><thead>
 <tr>
@@ -3002,8 +3079,10 @@ body alone with <code>X-HMAC-Signature</code>. Signing postbacks include the tim
 verifications are not interchangeable.
 </aside>
 
-<p>A delivery that does not answer 2xx is retried with backoff, so make handling idempotent. If
-delivery fails for long enough, ask instead.</p>
+<p>A delivery that does not answer 2xx within 10 seconds is retried with backoff, up to five times,
+so make handling idempotent. Retries stop when the signer&#39;s session expires — 30 minutes after
+its last step — so a postback is a prompt, not a guarantee. If one does not arrive,
+ask instead.</p>
 <h3 id='asking'>Asking</h3>
 <blockquote>
 <p>Ask what happened</p>
@@ -3027,6 +3106,13 @@ signer, method, <code>status</code> and <code>erased_at</code> each. <code>signe
 callers written before a document could carry several. A document reads <code>signed</code> once <strong>anybody</strong>
 has signed it, so a <code>pending</code> entry in <code>signatures</code> beside a <code>signed</code> status is a round still
 waiting for its signer, not a contradiction.</p>
+
+<p>The rest says what eeID still holds. <code>container_available</code> is whether the container can be
+<a href="#collecting-the-signed-document">collected</a> right now, and <code>documents</code> lists each document with
+its digests and whether eeID still has its bytes (<code>stored</code>). <code>purged_at</code> is set once the content
+has been <a href="#purging">purged</a>, and <code>erased_at</code> once the signers have been
+<a href="#erasing-a-signer">erased</a> — a signing can have either without the other. The response also
+carries <code>ingest_mode</code>, <code>signing_method</code> and <code>signed_at</code>.</p>
 <h2 id='collecting-the-signed-document'>Collecting the signed document</h2>
 <blockquote>
 <p>Collect the container</p>
@@ -3050,8 +3136,9 @@ you received.</p>
 <p><strong>Keep your own copy.</strong> eeID stores the container for 30 days and then purges it; the record that
 the signing happened, and the digests of what was signed, remain.</p>
 <h2 id='signing-without-eeid-39-s-page'>Signing without eeID&#39;s page</h2>
-<p>For an interface of your own, with your own signing method. eeID never speaks to Smart-ID here and
-the signer never sees an eeID page.</p>
+<p>For an interface of your own, where you drive the signing method yourself. eeID never speaks to
+Smart-ID, Mobile-ID or a card here, and the signer never sees an eeID page. You create the
+signing as usual, ignore its <code>sign_url</code>, and make two calls before its session expires.</p>
 
 <blockquote>
 <p>Prepare</p>
@@ -3072,13 +3159,14 @@ the signer never sees an eeID page.</p>
   </span><span class="nl">"data_to_sign"</span><span class="p">:</span><span class="w"> </span><span class="s2">"PGRzOlNpZ25lZEluZm8geG1sbnM6ZHM9Imh0dHA..."</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
-<p>You send the signer&#39;s <strong>signing certificate</strong> — eeID cannot fetch it, because it is not driving
-the method — and receive the digest of the XAdES <code>SignedInfo</code> that eeID built.</p>
+<p>You send the signer&#39;s <strong>signing certificate</strong>, as PEM or Base64-encoded DER — eeID cannot fetch
+it, because it is not driving the method — and receive the digest of the XAdES <code>SignedInfo</code> that
+eeID built. <code>data_to_sign</code> is what the digest was taken over, for a caller that hashes it
+themselves.</p>
 
 <p><code>signing_method</code> is required here, and this is the only endpoint that takes it: there is no
-signer page on this path, so nobody else can say which method signed. It must still be one the
-service is configured for, but it need not be one eeID has built a flow for — you are driving
-the device, so the ID card and Mobile-ID work here today.</p>
+signer page on this path, so nobody else can say which method signed. It must be one the service
+is configured for — <code>smart-id</code>, <code>mobile-id</code> or <code>id-card</code>.</p>
 
 <aside class="warning">
 Sign the <code>digest</code>, never the document. The signature commits to the
@@ -3087,9 +3175,9 @@ certificate. Hashing the document and signing that produces a signature which ve
 nothing, inside a container that looks perfectly plausible.
 </aside>
 
-<p>For Smart-ID, note that the signing certificate is a different certificate from the authentication
-one: only the signing certificate carries non-repudiation and the qualified policy, so a
-certificate kept from a login cannot be reused here.</p>
+<p>Note that the signing certificate is a different certificate from the authentication one, for
+every method: only the signing certificate carries non-repudiation and the qualified policy, so
+a certificate kept from a login cannot be reused here.</p>
 
 <blockquote>
 <p>Submit the signature</p>
@@ -3102,6 +3190,11 @@ certificate kept from a login cannot be reused here.</p>
 <p>eeID verifies the signature against the prepared data before building anything around it, adds the
 timestamp and OCSP response, validates the result, and records it. The call is synchronous: there
 is no browser to keep responsive, and those round-trips happen inside the request.</p>
+
+<p>The answer carries <code>status</code>, <code>signed_at</code>, <code>container_hash</code> and <code>container_available</code>; collect
+the container <a href="#collecting-the-signed-document">as usual</a>. The two calls go in order, once each:
+<code>prepare</code> on a signing that has already been prepared, or <code>sign</code> before <code>prepare</code>, is refused
+with <code>400</code>.</p>
 <h3 id='finishing-a-hash-only-container'>Finishing a hash-only container</h3>
 <p>In hash-only mode the response carries <code>hashcode_container</code> — an ASiC-E whose data files have been
 replaced by <code>META-INF/hashcodes-sha256.xml</code> and <code>-sha512.xml</code>, because eeID never had the files.</p>
@@ -3242,7 +3335,7 @@ because you are the one who has to answer the data subject.</p>
 </tr>
 <tr>
 <td>The signer&#39;s flow state</td>
-<td>30 minutes, in memory, never on disk</td>
+<td>30 minutes after its last step, in memory, never on disk</td>
 </tr>
 </tbody></table>
 
@@ -3264,7 +3357,7 @@ systems.</p>
 </thead><tbody>
 <tr>
 <td><code>400 Bad Request</code></td>
-<td>An unregistered <code>redirect_uri</code>, a method your service may not use, a filename that is a path, a document over the limit, a <code>postback_url</code> that is not a public address, or a signature that does not verify</td>
+<td>An unregistered <code>redirect_uri</code>, a <code>signing_method</code> sent on create, a method your service may not use, a filename that is a path, a document over the limit, a signed container sent as a document, a <code>postback_url</code> that is not a public address, a headless call out of order, a signature that does not verify, or a further signature asked for on a signing whose documents eeID no longer holds or that has been erased</td>
 </tr>
 <tr>
 <td><code>401 Unauthorized</code></td>
@@ -3272,7 +3365,7 @@ systems.</p>
 </tr>
 <tr>
 <td><code>403 Forbidden</code></td>
-<td>Signing is not enabled for this service, or <code>container</code> was sent by a service not permitted <a href="#enabling-signing">several signatures on one document</a></td>
+<td>The credentials are not a signing service&#39;s, or <code>container</code> was sent by a service not permitted <a href="#setting-up-a-signing-service">several signatures on one document</a></td>
 </tr>
 <tr>
 <td><code>404 Not Found</code></td>
@@ -3280,11 +3373,11 @@ systems.</p>
 </tr>
 <tr>
 <td><code>409 Conflict</code></td>
-<td>Either the signing has no open session — it expired 30 minutes after creation, so create a new one — or another signature is being added to this document right now, in which case try again shortly. The message says which</td>
+<td>Either the signing has no open session — it expired after 30 minutes without a step, so start a new round with its <code>signing_uuid</code> — or another signature is being added to this document right now, in which case try again shortly. The message says which</td>
 </tr>
 <tr>
 <td><code>422 Unprocessable Entity</code></td>
-<td>The signature was accepted but the container did not validate as a qualified signature. The signing is recorded as failed</td>
+<td>A document eeID will not accept — a file type that is not allowed, say; <code>details</code> names it. Or, from <code>sign</code>, the signature was accepted but the container did not validate as a qualified signature, and the signing is recorded as failed</td>
 </tr>
 <tr>
 <td><code>429 Too Many Requests</code></td>
@@ -3299,14 +3392,20 @@ systems.</p>
 <p>A container that does not validate is never returned. It would look like a signed document and not
 be one, which is worse than returning nothing at all.</p>
 <h2 id='test-environment-2'>Test environment</h2>
-<p>A service in the <code>Test</code> environment uses <code>https://test-auth.eeid.ee</code>. Test signings are free and
-produce real containers signed with <strong>demo</strong> certificates — they validate as test signatures and
-have no legal effect.</p>
+<p>A signing service in the <code>Test</code> environment uses <code>https://test-auth.eeid.ee</code>. Test signings are
+free and produce real containers signed with <strong>demo</strong> certificates — they validate as test
+signatures and have no legal effect.</p>
 
-<p>Smart-ID&#39;s demo accounts are documented at
-<a href="https://sk-eid.github.io/smart-id-documentation/test_accounts.html">sk-eid.github.io/smart-id-documentation/test_accounts.html</a>.
-The <code>MOCK</code> accounts answer without a phone, which is what makes an automated end-to-end test
-possible.</p>
+<p>Smart-ID and Mobile-ID are directed to SK&#39;s demo environments, as they are for
+<a href="#testing">authentication</a>. Smart-ID&#39;s demo accounts are documented at
+<a href="https://sk-eid.github.io/smart-id-documentation/test_accounts.html">sk-eid.github.io/smart-id-documentation/test_accounts.html</a>,
+and Mobile-ID&#39;s test numbers
+<a href="https://github.com/SK-EID/MID/wiki/Test-number-for-automated-testing-in-DEMO">here</a>. The
+accounts that answer without a phone are what make an automated end-to-end test possible — for
+Mobile-ID, <code>+37200000766</code> with identity code <code>60001019906</code> signs by itself.</p>
+
+<p>Signing with the ID card needs a card, a reader and the Web eID extension, so it cannot be
+automated the same way.</p>
 
       </div>
     </div>
