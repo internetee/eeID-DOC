@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Signing in…</title>
+</head>
+<body>
+<!--
+  eeID popup OAuth callback page.
+
+  Register this URL (or an equivalent server route) as your redirect_uri in eeID manager.
+  When Hydra redirects here after authentication, this page delivers the authorization
+  code to the parent window via postMessage. The parent page POSTs the code to your
+  backend for server-side token exchange — never exchange tokens in the browser.
+
+  See: https://github.com/internetee/eeID-DOC — Popup authentication
+-->
+<script>
+  (function () {
+    var params = new URLSearchParams(window.location.search);
+    var payload = {
+      type: 'eeid:oauth:callback',
+      code: params.get('code'),
+      state: params.get('state'),
+      error: params.get('error'),
+      error_description: params.get('error_description')
+    };
+
+    if (window.opener && !window.opener.closed) {
+      window.opener.postMessage(payload, window.location.origin);
+      window.close();
+      return;
+    }
+
+    // Full-page redirect flow: forward query parameters to your server-side handler.
+    // Replace the path below with your application's token-exchange route.
+    window.location.replace('/oauth/callback' + window.location.search);
+  })();
+</script>
+<noscript>
+  <p>JavaScript is required to complete sign-in. You can close this window and try again.</p>
+</noscript>
+</body>
+</html>
