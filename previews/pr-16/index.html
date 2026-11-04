@@ -474,7 +474,7 @@
                     <a href="#collecting-the-signed-document" class="toc-h2 toc-link" data-title="Collecting the signed document">Collecting the signed document</a>
                   </li>
                   <li>
-                    <a href="#signing-without-eeid-39-s-page" class="toc-h2 toc-link" data-title="Signing without eeID's page">Signing without eeID's page</a>
+                    <a href="#signing-without-the-hosted-page" class="toc-h2 toc-link" data-title="Signing without the hosted page">Signing without the hosted page</a>
                   </li>
                   <li>
                     <a href="#purging-and-erasing" class="toc-h2 toc-link" data-title="Purging and erasing">Purging and erasing</a>
@@ -484,6 +484,12 @@
                   </li>
                   <li>
                     <a href="#errors-2" class="toc-h2 toc-link" data-title="Errors">Errors</a>
+                  </li>
+                  <li>
+                    <a href="#billing" class="toc-h2 toc-link" data-title="Billing">Billing</a>
+                  </li>
+                  <li>
+                    <a href="#signings-in-eeid-manager" class="toc-h2 toc-link" data-title="Signings in eeID manager">Signings in eeID manager</a>
                   </li>
                   <li>
                     <a href="#test-environment-2" class="toc-h2 toc-link" data-title="Test environment">Test environment</a>
@@ -725,7 +731,7 @@ been approved or rejected.</p>
 <li>You can transfer a service owned by an organization to your personal account or to another organization only if you have an owner role in the source organization</li>
 </ul>
 
-<p>Note that when a service is transferred, all new transactions and authentication records will also be transferred to the new owner.</p>
+<p>Note that when a service is transferred, all new transactions and authentication records will also be transferred to the new owner. A signing service&#39;s signings move with it too; charges made before the transfer stay with the previous owner.</p>
 
 <ol>
 <li><p>Navigate to the main page of the service.</p></li>
@@ -2605,13 +2611,18 @@ files, and eeID never receives the document.</p>
 
 <aside class="notice">
 Signing is priced per completed signature and per method, separately from authentication. A
-signing that the signer abandons or refuses is not charged.
+signing that the signer abandons or refuses is not charged. See [Billing](#billing).
 </aside>
 <h2 id='setting-up-a-signing-service'>Setting up a signing service</h2>
 <p>Signing is a <strong>type of service</strong>, beside authentication and identification. A service has one
 type, so signing is not something you switch on for an authentication service: it is a service
 of its own, with its own <code>Client ID</code> and <code>Secret</code>. The credentials of an authentication or
-identification service are refused here with <code>403</code>.</p>
+identification service are refused with <code>403</code> when they create a signing.</p>
+
+<p>An existing authentication service can be changed to type <strong>Signing</strong> when it is edited, but it
+then stops being an authentication service: its callback URLs and scopes are cleared, and its
+methods narrow to the ones that can sign. Register a second service instead if you still need
+the first to sign users in.</p>
 
 <p>In <a href="https://eeid.ee">eeID manager</a>, <a href="#creating-a-new-service">create a new service</a> and:</p>
 
@@ -2626,12 +2637,17 @@ least one is required.</li>
 <li>Submit the service for approval.</li>
 </ol>
 
+<p>Methods are offered for the environment you chose, and the service is refused without at least
+one that can sign. Once a service is approved, changes to its signing methods, signing redirect
+URIs and the several-signatures setting apply at once, without another approval.</p>
+
 <p>A signing service has no OIDC callback URLs, scopes, logo or consent settings, and its
 credentials cannot be used to authenticate users. If you need both, register two services.</p>
 
 <p>A <code>redirect_uri</code> that is not on the registered list is refused when you create a signing. The
 list is compared exactly — a prefix is not a match, which is what stops a registered address
-being used to reach somewhere else.</p>
+being used to reach somewhere else. <code>http</code> addresses are accepted, for local development; use
+<code>https</code> for anything else.</p>
 
 <p><strong>Several signatures on one document is off unless you ask for it.</strong> Without it,
 <a href="#adding-a-signature-to-a-signed-container"><code>container</code></a> is refused with <code>403</code>. It is a separate
@@ -2646,7 +2662,8 @@ Decide this <strong>before a document's first signature</strong>. A service that
 signature per document drops its copy of the documents as soon as the container exists, so
 switching the setting on afterwards does not make an already signed document countersignable:
 eeID no longer holds the bytes to build the next container from, and a further round on it is
-refused with <code>400</code>.
+refused with <code>400</code>. Switching it off again does not drop documents already kept for
+signed documents; they go when their container is purged.
 </aside>
 <h2 id='how-it-works-2'>How it works</h2>
 <p>Four steps, and only the second one involves a browser.</p>
@@ -2681,7 +2698,7 @@ logs or your URLs.</p>
 <tr>
 <td><strong>POST</strong></td>
 <td><code>/api/signing/sessions</code></td>
-<td><a href="#creating-a-signing">Creates a signing</a>. Documents as bytes or digests, or a <a href="#adding-a-signature-to-a-signed-container">container to add a signature to</a>. Answers <code>signing_uuid</code>, <code>session_token</code>, <code>sign_url</code></td>
+<td><a href="#creating-a-signing">Creates a signing</a>. Documents as bytes or digests, or a <a href="#adding-a-signature-to-a-signed-container">container to add a signature to</a>. Answers <code>201</code> with <code>signing_uuid</code>, <code>session_token</code>, <code>sign_url</code></td>
 </tr>
 <tr>
 <td><strong>GET</strong></td>
@@ -2691,7 +2708,7 @@ logs or your URLs.</p>
 <tr>
 <td><strong>GET</strong></td>
 <td><code>/api/signing/sessions/{id}/container</code></td>
-<td><a href="#collecting-the-signed-document">The signed ASiC-E</a>. In hash-only ingest, the hashcode container to merge into. Not JSON</td>
+<td><a href="#collecting-the-signed-document">The signed ASiC-E</a>, as <code>application/vnd.etsi.asic-e+zip</code>. In hash-only ingest, the hashcode container to merge into. <code>404</code> while there is none</td>
 </tr>
 <tr>
 <td><strong>DELETE</strong></td>
@@ -2701,17 +2718,17 @@ logs or your URLs.</p>
 <tr>
 <td><strong>POST</strong></td>
 <td><code>/api/signing/sessions/{id}/prepare</code></td>
-<td><a href="#signing-without-eeid-s-page">Headless</a>: send the certificate, receive the digest to sign</td>
+<td><a href="#signing-without-the-hosted-page">Headless</a>: send the certificate, receive the digest to sign</td>
 </tr>
 <tr>
 <td><strong>POST</strong></td>
 <td><code>/api/signing/sessions/{id}/sign</code></td>
-<td><a href="#signing-without-eeid-s-page">Headless</a>: send the signature value, receive the container</td>
+<td><a href="#signing-without-the-hosted-page">Headless</a>: send the signature value, receive the container</td>
 </tr>
 <tr>
 <td><strong>POST</strong></td>
 <td><em>your <code>postback_url</code></em></td>
-<td><a href="#learning-the-outcome">What eeID sends you</a>: <code>signer_signed</code>, <code>signing_completed</code>, <code>signing_failed</code></td>
+<td><a href="#learning-the-outcome">What eeID sends you</a> from the hosted page: <code>signer_signed</code>, <code>signing_completed</code>, <code>signing_failed</code></td>
 </tr>
 </tbody></table>
 
@@ -2764,7 +2781,7 @@ signer&#39;s browser does.</p>
 <tr>
 <td><code>documents</code></td>
 <td>yes, unless <code>container</code> or <code>signing_uuid</code></td>
-<td>At most 10, at most 5 MB each. See below</td>
+<td>At most 10, at most 5 MB each. Not together with <code>container</code> or <code>signing_uuid</code>. See below</td>
 </tr>
 <tr>
 <td><code>container</code></td>
@@ -2774,22 +2791,22 @@ signer&#39;s browser does.</p>
 <tr>
 <td><code>signing_uuid</code></td>
 <td>instead of <code>documents</code></td>
-<td>A signing eeID already holds. Starts a new round on it — no documents, because eeID kept them. Use it when a round ended without a signature: re-uploading the same bytes makes a second signing record of the same document</td>
+<td>A signing eeID already holds. Starts a new round on it — no documents, because eeID kept them. Use it when a round ended without a signature: re-uploading the same bytes makes a second signing record of the same document. Only while eeID still holds the documents — see <a href="#retention">Retention</a></td>
 </tr>
 <tr>
 <td><code>purpose</code></td>
 <td>no</td>
-<td>What the signature is for. Shown on the signing page <strong>and</strong> on the signer&#39;s phone</td>
+<td>What the signature is for. Shown on the signing page <strong>and</strong>, for Smart-ID and Mobile-ID, on the signer&#39;s phone as &quot;Sign <em>document</em> — <em>purpose</em>&quot;. The phone shortens it — Mobile-ID shows about 40 characters — so put what matters first. Not shown for the ID card</td>
 </tr>
 <tr>
 <td><code>signer</code></td>
 <td>no</td>
-<td>Who is expected to sign: <code>id_code</code>, <code>country_code</code>, <code>name</code>, <code>document_number</code>. With a Smart-ID <code>document_number</code> the signer is not asked to identify themselves and their device is prompted once instead of twice. It is a hint, not a restriction — the record names whoever the signing certificate says signed</td>
+<td>Who is expected to sign: <code>id_code</code>, <code>country_code</code>, <code>name</code>, <code>document_number</code>. With a Smart-ID <code>document_number</code> the signer is not asked to identify themselves and their device is prompted once instead of twice; <code>country_code</code> preselects the country on the signing page. <code>id_code</code> does not fill in the form — the signer types their own. It is a hint, not a restriction — the record names whoever the signing certificate says signed</td>
 </tr>
 <tr>
 <td><code>locale</code></td>
 <td>no</td>
-<td>Which language the signing page opens in: <code>et</code>, <code>en</code> or <code>ru</code>. <code>ui_locales</code> is accepted as an alias, and of a comma-separated list the first entry is used, so an OIDC <code>ui_locales</code> string passes through unchanged. An unrecognised value is ignored rather than refused, and the signer can always switch language on the page</td>
+<td>Which language the signing page opens in: <code>et</code>, <code>en</code> or <code>ru</code>. <code>ui_locales</code> is accepted as an alias, and of a comma-separated list the first entry is used, so an OIDC <code>ui_locales</code> string passes through unchanged. An unrecognised value is ignored rather than refused, and the signer can always switch language on the page. Adding <code>?lang=et</code> to <code>sign_url</code> does the same</td>
 </tr>
 <tr>
 <td><code>redirect_uri</code></td>
@@ -2845,10 +2862,11 @@ answers <code>400</code>. In <strong>hash-only</strong> ingest it cannot, becaus
 arrive and nothing about a digest says "container".
 </aside>
 
-<p>A <strong>filename is a filename, not a path</strong>. Separators, <code>..</code>, leading dots and control characters
-are refused, as is a name over 255 characters: the name becomes an entry inside the signed
-container, and a container that writes outside its extraction directory is not something eeID
-will sign for you.</p>
+<p>A <strong>filename is a filename, not a path</strong>. Separators, <code>..</code> anywhere in the name (so
+<code>report..pdf</code> too), leading dots and control characters are refused, as is a name over 255
+characters: the name becomes an entry inside the signed container, and a container that writes
+outside its extraction directory is not something eeID will sign for you. Each document in a
+signing needs its own name, and an empty document — or a <code>byte_size</code> of 0 — is refused.</p>
 
 <p><strong>Not every file type is accepted</strong> when you send <code>content</code>. eeID takes PDF, Word and Excel
 (<code>.docx</code>, <code>.xlsx</code>, <code>.doc</code>, <code>.xls</code>), OpenDocument text and spreadsheets, plain text, CSV, and
@@ -2877,7 +2895,7 @@ leave it out — but what you declare is what the container&#39;s manifest will 
   </span><span class="nl">"sign_url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://auth.eeid.ee/sign/kK2mDq7pVn4tZ1sXbYcR8fLhJ0wEuQiA3oNgTzM5vBs"</span><span class="p">,</span><span class="w">
   </span><span class="nl">"ingest_mode"</span><span class="p">:</span><span class="w"> </span><span class="s2">"full_file"</span><span class="p">,</span><span class="w">
   </span><span class="nl">"expires_in"</span><span class="p">:</span><span class="w"> </span><span class="mi">1800</span><span class="p">,</span><span class="w">
-  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"pending"</span><span class="w">
+  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"signed"</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <p>Send <code>container</code> <strong>instead of</strong> <code>documents</code> and eeID adds a signature to a container that
@@ -2929,6 +2947,10 @@ outcome. You can name the signing yourself by sending <code>signing_uuid</code> 
 starts a new signing with a new <code>signing_uuid</code>. That is a real capability rather than an error,
 but eeID knows nothing about the signatures already inside it: <code>signatures</code> lists only the
 rounds eeID ran.</p>
+
+<p><code>status</code> in the response is the signing&#39;s, not the new round&#39;s. A document that already carries
+a signature reads <code>signed</code> — as in the example — while the next signer is still to come; a
+signing new to eeID reads <code>pending</code>.</p>
 <h3 id='which-methods-are-offered'>Which methods are offered</h3>
 <p><strong>You do not choose.</strong> The methods and countries a service signs with are configured on the
 signing service in <a href="https://eeid.ee">eeID manager</a>, and the signer picks among them — the same
@@ -2989,7 +3011,12 @@ takes the signer to your <code>redirect_uri</code> if you gave one. After a roun
 it offers <strong>Try signing again</strong> first.</p>
 
 <p>The signer may open <code>sign_url</code> on a different device from the one that started the flow — it is
-addressed by a token rather than a cookie precisely so a link can be handed over.</p>
+addressed by a token rather than a cookie precisely so a link can be handed over. A link whose
+session has expired opens an error page saying so; start a new round with <code>signing_uuid</code> to give
+the signer a fresh one.</p>
+
+<p>For Mobile-ID the page checks the phone number (3–15 digits) and the identity code before
+anything is sent to SK; for Smart-ID it checks the identity code for Estonia and Lithuania.</p>
 <h2 id='learning-the-outcome'>Learning the outcome</h2>
 <blockquote>
 <p>A postback</p>
@@ -3006,7 +3033,7 @@ addressed by a token rather than a cookie precisely so a link can be handed over
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <p>If you gave a <code>postback_url</code>, eeID POSTs to it. The event is also sent as the <code>X-EEID-Event</code>
-header, and a <code>signing_failed</code> body carries an <code>error_code</code> saying why.</p>
+header. Fields with no value are left out of the body.</p>
 
 <table><thead>
 <tr>
@@ -3024,33 +3051,44 @@ header, and a <code>signing_failed</code> body carries an <code>error_code</code
 </tr>
 <tr>
 <td><code>signing_failed</code></td>
-<td>The round ended without a signature. Refused, cancelled, unusable or invalid — <code>state</code> tells you which</td>
+<td>The round ended without a signature. <code>state</code> is <code>CANCELED</code> when the signer pressed <strong>Cancel</strong> on eeID&#39;s page and <code>FAILED</code> for anything else; <code>error_code</code> says why — <code>SID_USER_REFUSED</code> for a signer who refused on their phone, <code>SIGNATURE_VALIDATION_ERROR</code> for a container that did not validate, and so on</td>
 </tr>
 </tbody></table>
 
-<p><strong><code>signing_failed</code> is not always the last word.</strong> A round that failed <em>technically</em> can be tried
-again on the same link: nothing was signed, so eeID keeps the document, the signer&#39;s confirmation
-of it and their place in the flow, and the result page offers them <strong>Try signing again</strong>. If they
-succeed, <code>signing_completed</code> follows and supersedes the failure. Handle postbacks so that the
-latest one wins rather than treating the first <code>signing_failed</code> as final.</p>
+<p>Postbacks come from the hosted page. On the <a href="#signing-without-the-hosted-page">headless path</a> a
+successful <code>sign</code> answers with the result itself and sends no <code>signer_signed</code> or
+<code>signing_completed</code>; a headless round that fails still sends <code>signing_failed</code>.</p>
+
+<p><strong><code>signing_failed</code> is not always the last word.</strong> A round that ended with <code>state</code> <code>FAILED</code> can be
+tried again on the same link — a technical failure, a timeout, a container that did not validate,
+and also a signer who refused on their phone: nothing was signed, so eeID keeps the document, the
+signer&#39;s confirmation of it and their place in the flow, and the result page offers them <strong>Try
+signing again</strong>. If they succeed, <code>signing_completed</code> follows and supersedes the failure. Handle
+postbacks so that the latest one wins rather than treating the first <code>signing_failed</code> as final.</p>
 
 <p>When a link is spent — cancelled, or the session expired — you do not have to upload the document
-again to get another. <code>POST /api/signing/sessions</code> with <code>signing_uuid</code> and nothing else starts a
+again to get another, as long as eeID still holds it (<a href="#retention">Retention</a>). <code>POST /api/signing/sessions</code> with <code>signing_uuid</code> and nothing else starts a
 fresh round on the signing eeID already holds, and answers with a new <code>sign_url</code> and the <em>same</em>
 <code>signing_uuid</code>, so it stays one record for one document. It works whether the last round failed,
 was cancelled or simply ran out, and while the document is unsigned it also returns the signing to
 <code>pending</code>. A document that already carries a signature is a countersignature, so the service must
 be permitted several signatures per document.</p>
 
-<p>A signer who <em>cancelled</em> is different: that was their own decision, and their link is spent. Both
-arrive as <code>signing_failed</code> because you need the same thing from both — stop waiting — and both
-read <code>failed</code> on the signing. To tell them apart, read <code>signer_can_retry</code> on the status response:
-true only while the signer&#39;s link can still produce a signature. It is false for a cancellation,
-false once the session has expired, and false while a signing is still in flight.</p>
+<p>A signer who pressed <strong>Cancel</strong> is different: that was their own decision, and their link is
+spent. Both arrive as <code>signing_failed</code> because you need the same thing from both — stop waiting —
+and both read <code>failed</code> on the signing. To tell them apart, read <code>signer_can_retry</code> on the status
+response: true only while the signer&#39;s link can still produce a signature. It is false for a
+cancellation, false once the session has expired, and false while a signing is still in flight.</p>
 
 <p><strong>Do not rely on the redirect to tell you anything.</strong> It only fires if the signer chooses to come
 back, and they may have closed the tab — the signature is produced regardless — or opened the link
 on their phone while your session is on their laptop.</p>
+
+<p>When they do come back, eeID adds <code>signing_uuid</code> and <code>status</code> to your <code>redirect_uri</code>, keeping any
+query it already had: <code>?signing_uuid=d51dfc24-…&amp;status=completed</code>. That <code>status</code> is where the
+signer&#39;s session ended — <code>completed</code>, <code>failed</code> or <code>canceled</code> — not the signing&#39;s status from the
+API, and the <code>session_token</code> is never in it. Treat it as a hint for what to show, and ask the API
+for the answer.</p>
 <h3 id='verifying-a-postback'>Verifying a postback</h3>
 <blockquote>
 <p>Verifying in Ruby</p>
@@ -3067,7 +3105,7 @@ on their phone while your session is on their laptop.</p>
 <p>Your postback endpoint is public and unauthenticated: anything on the internet can POST to it, and
 a service that acts on <code>signing_completed</code> would be acting on whatever arrived. Every delivery
 carries <code>X-EEID-Signature</code>, an HMAC-SHA256 over <code>&quot;&lt;X-EEID-Timestamp&gt;.&lt;raw body&gt;&quot;</code> keyed with your
-client secret, sent as <code>sha256=&lt;hex&gt;</code>.</p>
+client secret, sent as <code>sha256=&lt;hex&gt;</code>. <code>X-EEID-Timestamp</code> is in Unix seconds.</p>
 
 <p>Use the <strong>raw</strong> body, exactly as received. Reject a timestamp far from your own clock — the
 timestamp is inside what is signed so that a delivery captured today cannot be replayed at you
@@ -3081,8 +3119,8 @@ verifications are not interchangeable.
 
 <p>A delivery that does not answer 2xx within 10 seconds is retried with backoff, up to five times,
 so make handling idempotent. Retries stop when the signer&#39;s session expires — 30 minutes after
-its last step — so a postback is a prompt, not a guarantee. If one does not arrive,
-ask instead.</p>
+its last step — or when you <code>DELETE</code> the signing, so a postback is a prompt, not a guarantee. If
+one does not arrive, ask instead.</p>
 <h3 id='asking'>Asking</h3>
 <blockquote>
 <p>Ask what happened</p>
@@ -3090,28 +3128,74 @@ ask instead.</p>
 <div class="highlight"><pre class="highlight shell tab-shell"><code>curl https://auth.eeid.ee/api/signing/sessions/d51dfc24-3060-4e03-8086-66886022d04f <span class="se">\</span>
   <span class="nt">-u</span> <span class="s2">"</span><span class="nv">$EEID_CLIENT_ID</span><span class="s2">:</span><span class="nv">$EEID_CLIENT_SECRET</span><span class="s2">"</span>
 </code></pre></div>
+<blockquote>
+<p>Response</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"signing_uuid"</span><span class="p">:</span><span class="w"> </span><span class="s2">"d51dfc24-3060-4e03-8086-66886022d04f"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"signed"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"signing_method"</span><span class="p">:</span><span class="w"> </span><span class="s2">"smart-id"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"ingest_mode"</span><span class="p">:</span><span class="w"> </span><span class="s2">"full_file"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"signed_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-09-16T12:00:00Z"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"container_hash"</span><span class="p">:</span><span class="w"> </span><span class="s2">"53a027853a0c31210980fc65ff49ca02c9446d02568a6beb46756c68538e14df"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"container_available"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"signer"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nl">"id_code"</span><span class="p">:</span><span class="w"> </span><span class="s2">"40504040001"</span><span class="p">,</span><span class="w"> </span><span class="nl">"country"</span><span class="p">:</span><span class="w"> </span><span class="s2">"EE"</span><span class="p">,</span><span class="w"> </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"OK TESTNUMBER"</span><span class="w"> </span><span class="p">},</span><span class="w">
+  </span><span class="nl">"signatures"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="nl">"uuid"</span><span class="p">:</span><span class="w"> </span><span class="s2">"9f1a5d2e-1111-2222-3333-444455556666"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"sequence"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"signer_id_code"</span><span class="p">:</span><span class="w"> </span><span class="s2">"40504040001"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"signer_country"</span><span class="p">:</span><span class="w"> </span><span class="s2">"EE"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"signer_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"OK TESTNUMBER"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"signing_method"</span><span class="p">:</span><span class="w"> </span><span class="s2">"smart-id"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"signed"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"signed_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-09-16T12:00:00Z"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"erased_at"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">],</span><span class="w">
+  </span><span class="nl">"documents"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="nl">"uuid"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0b7c3e1a-5555-6666-7777-888899990000"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"filename"</span><span class="p">:</span><span class="w"> </span><span class="s2">"contract.pdf"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"mime_type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"application/pdf"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"byte_size"</span><span class="p">:</span><span class="w"> </span><span class="mi">18</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"sha256"</span><span class="p">:</span><span class="w"> </span><span class="s2">"3HrAuqu4vi4g/WLhYsVVj/M04/H9CS52XugUKCfxZBo="</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"sha512"</span><span class="p">:</span><span class="w"> </span><span class="s2">"z4PhNX7vuL3xVChQ1m2AB9Yg5AULVxXcg/SpIdNs6c5H0NE8XYXysP+DGNKHfuwvY7kxvUdBeoGlODJ6+SfaPg=="</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"stored"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">],</span><span class="w">
+  </span><span class="nl">"signer_can_retry"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
 <p><code>status</code> is <code>pending</code>, <code>signed</code>, <code>failed</code> or <code>expired</code>. A signer who refused or cancelled shows as
 <code>failed</code>: from your side both mean the same thing — stop waiting. This answers from eeID&#39;s durable
-record, so a signing that finished a day ago is still reported.</p>
+record, so a signing that finished a day ago is still reported. Top-level fields with no value are
+left out.</p>
+
+<p>A signer&#39;s session running out does not change <code>status</code>: a signing nobody finished still reads
+<code>pending</code>, with <code>signer_can_retry</code> false, until eeID declares it <code>expired</code> — a day after it was
+created. Read <code>signer_can_retry</code> rather than waiting for <code>expired</code>.</p>
 
 <p><code>signer_can_retry</code> says whether the signer&#39;s link can still produce a signature. A round that
-failed technically can be tried again on the same link, and then <code>signing_completed</code> follows the
+ended <code>FAILED</code> can be tried again on the same link, and then <code>signing_completed</code> follows the
 <code>signing_failed</code> you already received — so this is how you tell &quot;failed, and they may yet sign&quot;
-from &quot;failed, and that is the end of it&quot;. It is true only for a technical failure with a live
-session: false for a cancellation, false once the session has expired, and false while a signing
-is still in flight.</p>
+from &quot;failed, and that is the end of it&quot;. It is true only for such a round with a live session:
+false for a cancellation, false once the session has expired, and false while a signing is still
+in flight. On the headless path it does not apply — see <a href="#signing-without-the-hosted-page">below</a>.</p>
 
 <p><code>signatures</code> lists every signature on the document, in the order they were collected — sequence,
 signer, method, <code>status</code> and <code>erased_at</code> each. <code>signer</code> above is the first of them, kept for
-callers written before a document could carry several. A document reads <code>signed</code> once <strong>anybody</strong>
+callers written before a document could carry several; note that it says <code>country</code> where the
+request says <code>country_code</code>. A document reads <code>signed</code> once <strong>anybody</strong>
 has signed it, so a <code>pending</code> entry in <code>signatures</code> beside a <code>signed</code> status is a round still
 waiting for its signer, not a contradiction.</p>
 
 <p>The rest says what eeID still holds. <code>container_available</code> is whether the container can be
 <a href="#collecting-the-signed-document">collected</a> right now, and <code>documents</code> lists each document with
 its digests and whether eeID still has its bytes (<code>stored</code>). <code>purged_at</code> is set once the content
-has been <a href="#purging">purged</a>, and <code>erased_at</code> once the signers have been
-<a href="#erasing-a-signer">erased</a> — a signing can have either without the other. The response also
+has been <a href="#purging">purged</a>, and <code>erased_at</code> once every signer has been
+<a href="#erasing-a-signer">erased</a> — a signing can have either without the other. Erasing one person
+while others remain sets <code>erased_at</code> on their entry in <code>signatures</code> only. The response also
 carries <code>ingest_mode</code>, <code>signing_method</code> and <code>signed_at</code>.</p>
 <h2 id='collecting-the-signed-document'>Collecting the signed document</h2>
 <blockquote>
@@ -3133,9 +3217,9 @@ document, and <a href="#finishing-a-hash-only-container">finishing it</a> is the
 <p><code>container_hash</code> in the status response is the SHA-256 of that file, so you can prove which one
 you received.</p>
 
-<p><strong>Keep your own copy.</strong> eeID stores the container for 30 days and then purges it; the record that
-the signing happened, and the digests of what was signed, remain.</p>
-<h2 id='signing-without-eeid-39-s-page'>Signing without eeID&#39;s page</h2>
+<p><strong>Keep your own copy.</strong> eeID stores the container for 30 days from its latest signature and then
+purges it; the record that the signing happened, and the digests of what was signed, remain.</p>
+<h2 id='signing-without-the-hosted-page'>Signing without the hosted page</h2>
 <p>For an interface of your own, where you drive the signing method yourself. eeID never speaks to
 Smart-ID, Mobile-ID or a card here, and the signer never sees an eeID page. You create the
 signing as usual, ignore its <code>sign_url</code>, and make two calls before its session expires.</p>
@@ -3192,9 +3276,14 @@ timestamp and OCSP response, validates the result, and records it. The call is s
 is no browser to keep responsive, and those round-trips happen inside the request.</p>
 
 <p>The answer carries <code>status</code>, <code>signed_at</code>, <code>container_hash</code> and <code>container_available</code>; collect
-the container <a href="#collecting-the-signed-document">as usual</a>. The two calls go in order, once each:
-<code>prepare</code> on a signing that has already been prepared, or <code>sign</code> before <code>prepare</code>, is refused
-with <code>400</code>.</p>
+the container <a href="#collecting-the-signed-document">as usual</a>. No <code>signer_signed</code> or
+<code>signing_completed</code> postback follows — this answer is the result.</p>
+
+<p>The two calls go in order: <code>prepare</code> on a signing that has already been prepared, or <code>sign</code>
+before <code>prepare</code>, is refused with <code>400</code>. A <code>sign</code> whose signature does not verify is refused with
+<code>400</code> and leaves the round prepared, so you can send <code>sign</code> again with a corrected value. A <code>sign</code>
+that answers <code>422</code> has failed the round; <code>prepare</code> is not accepted on it again, so start a new
+round with <code>signing_uuid</code> and prepare that.</p>
 <h3 id='finishing-a-hash-only-container'>Finishing a hash-only container</h3>
 <p>In hash-only mode the response carries <code>hashcode_container</code> — an ASiC-E whose data files have been
 replaced by <code>META-INF/hashcodes-sha256.xml</code> and <code>-sha512.xml</code>, because eeID never had the files.</p>
@@ -3257,12 +3346,14 @@ would erase the evidence eeID behaved correctly rather than anybody&#39;s person
     </span><span class="nl">"signers_retained"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
       </span><span class="p">{</span><span class="w"> </span><span class="nl">"uuid"</span><span class="p">:</span><span class="w"> </span><span class="s2">"9f1a5d2e-1111-2222-3333-444455556666"</span><span class="p">,</span><span class="w"> </span><span class="nl">"sequence"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="p">}</span><span class="w">
     </span><span class="p">],</span><span class="w">
-    </span><span class="nl">"note"</span><span class="p">:</span><span class="w"> </span><span class="s2">"The documents and the container are gone. Who signed is retained: this is a purge, not an erasure."</span><span class="w">
+    </span><span class="nl">"note"</span><span class="p">:</span><span class="w"> </span><span class="s2">"The documents and the container are gone. Who signed is retained: this is a purge, not an erasure. To remove a signer, pass signer_id_code for one person or erase_signers=true for everybody on the document."</span><span class="w">
   </span><span class="p">}</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <p>For you finishing with a document — a contract you no longer need to hold. The content goes and
-the signing goes on saying who signed it.</p>
+the signing goes on saying who signed it. A round still waiting for its signer is expired with
+it, so a <code>sign_url</code> you have handed out stops working, and no further round can be started on a
+purged signing.</p>
 
 <p><strong>This is not an erasure and does not answer one.</strong> If somebody has asked you to forget them, use
 one of the calls below; a purge leaves their name and identity code in eeID&#39;s record.</p>
@@ -3295,19 +3386,45 @@ create; eeID is the processor, and this is eeID acting on your instruction.</p>
 <p>A data-subject request comes from a person, not about a document, so name them. <code>erase_signers=true</code>
 erases everybody on the document instead, for a request that covers all of them.</p>
 
-<p>Their name and identity code go from the record, and the source documents with them.</p>
+<p>Their name and identity code go from the record. When they are the only person named on the
+document, the source documents and the signed container go too — the identity code is inside the
+signature itself, so a container left behind would keep it.</p>
 
-<p>The signed container goes too — the identity code is inside the signature itself, so a container
-left behind would keep it — <strong>unless somebody else signed the same document</strong>. Then it stays: it
-is the other signers&#39; only proof that they signed, and deleting it would answer one person&#39;s
-request by destroying other people&#39;s records. Their code survives inside that container, which is
-why the response tells you rather than reporting a clean success.</p>
+<p><strong>When somebody else signed the same document, the documents and the container stay</strong>: the
+container is the other signers&#39; only proof that they signed, and a further round on it needs the
+documents. Deleting them would answer one person&#39;s request by destroying other people&#39;s records.
+Their code survives inside that container, which is why the response tells you rather than
+reporting a clean success. Once every other named signer has been erased too, the last erasure
+removes the documents and the container as well.</p>
 
+<p>A <code>signer_id_code</code> that nobody on the document has answers <code>404</code>.</p>
+
+<blockquote>
+<p>When others signed too</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"signing_uuid"</span><span class="p">:</span><span class="w"> </span><span class="s2">"d51dfc24-3060-4e03-8086-66886022d04f"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"erased"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"erasure"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"complete"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"signatures_erased"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+      </span><span class="p">{</span><span class="w"> </span><span class="nl">"uuid"</span><span class="p">:</span><span class="w"> </span><span class="s2">"7c2e9b14-aaaa-bbbb-cccc-ddddeeeeffff"</span><span class="p">,</span><span class="w"> </span><span class="nl">"sequence"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="p">}</span><span class="w">
+    </span><span class="p">],</span><span class="w">
+    </span><span class="nl">"retained"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nl">"container"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"source_documents"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"other_signatures"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="w">
+      </span><span class="nl">"reason"</span><span class="p">:</span><span class="w"> </span><span class="s2">"The container carries this signature together with 1 other signature(s), and is the only proof those were made. eeID has erased everything that names this person in its own records; their identity code remains inside their signature in the container."</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="nl">"signers_remaining"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
 <p><strong>Read the response rather than assuming.</strong> It reports what was erased and whether anything had
 to be kept. For a document with a single signature nothing does, and <code>erasure.complete</code> is
-<code>true</code>. Where several people signed, the container is the others&#39; only proof that they signed, so
-it stays and <code>retained</code> says so with the reason — eeID tells you when it could not finish,
-because you are the one who has to answer the data subject.</p>
+<code>true</code>. Where several people signed, <code>complete</code> is <code>false</code> and <code>retained</code> says what stayed — the
+container, the source documents, which other signatures it carries — and why. eeID tells you when
+it could not finish, because you are the one who has to answer the data subject.</p>
 
 <p><strong>Collect anything you need first.</strong> None of this can be undone.</p>
 <h2 id='retention'>Retention</h2>
@@ -3326,8 +3443,16 @@ because you are the one who has to answer the data subject.</p>
 <td>Until the container is purged</td>
 </tr>
 <tr>
+<td>…of a signing that never completed</td>
+<td>7 days after it failed or expired, then purged</td>
+</tr>
+<tr>
+<td>A signing nobody finished</td>
+<td><code>pending</code> for a day after it was created, then <code>expired</code></td>
+</tr>
+<tr>
 <td>The signed container</td>
-<td>30 days</td>
+<td>30 days from its latest signature</td>
 </tr>
 <tr>
 <td>The record and the digests</td>
@@ -3338,6 +3463,10 @@ because you are the one who has to answer the data subject.</p>
 <td>30 minutes after its last step, in memory, never on disk</td>
 </tr>
 </tbody></table>
+
+<p>Purging runs once a day, so something due goes within a day of its date. Once a signing&#39;s
+documents are gone, a new round on it with <code>signing_uuid</code> is refused with <code>400</code> — create a new
+signing instead.</p>
 
 <p>The container carries the documents, so eeID does not keep a second copy of them — unless your
 service may collect several signatures, because a further round needs the bytes to show the next
@@ -3357,7 +3486,7 @@ systems.</p>
 </thead><tbody>
 <tr>
 <td><code>400 Bad Request</code></td>
-<td>An unregistered <code>redirect_uri</code>, a <code>signing_method</code> sent on create, a method your service may not use, a filename that is a path, a document over the limit, a signed container sent as a document, a <code>postback_url</code> that is not a public address, a headless call out of order, a signature that does not verify, or a further signature asked for on a signing whose documents eeID no longer holds or that has been erased</td>
+<td>An unregistered <code>redirect_uri</code>, a <code>signing_method</code> sent on create, a method your service may not use, none of the service&#39;s methods being available yet, <code>documents</code> sent together with <code>container</code> or <code>signing_uuid</code>, more than 10 documents, a hash-only document without <code>sha256</code>, <code>sha512</code> or <code>byte_size</code>, a filename that is a path, a document over the limit, a signed container sent as a document, a container that cannot be read, a <code>postback_url</code> that is not a public address, a headless call out of order or without its <code>certificate</code>, <code>signing_method</code> or <code>signature_value</code>, a signature that does not verify, or a further signature asked for on a signing whose documents eeID no longer holds or that has been erased</td>
 </tr>
 <tr>
 <td><code>401 Unauthorized</code></td>
@@ -3365,11 +3494,11 @@ systems.</p>
 </tr>
 <tr>
 <td><code>403 Forbidden</code></td>
-<td>The credentials are not a signing service&#39;s, or <code>container</code> was sent by a service not permitted <a href="#setting-up-a-signing-service">several signatures on one document</a></td>
+<td>On create: the credentials are not a signing service&#39;s, or the service has no signing method, or <code>container</code> — or <code>signing_uuid</code> on a document already signed — was sent by a service not permitted <a href="#setting-up-a-signing-service">several signatures on one document</a></td>
 </tr>
 <tr>
 <td><code>404 Not Found</code></td>
-<td>No such signing, or it belongs to another service. The two are one answer on purpose</td>
+<td>No such signing, or it belongs to another service — including any call other than create made with credentials that are not a signing service&#39;s. The two are one answer on purpose. Also a <code>signer_id_code</code> on <code>DELETE</code> that names nobody on the document, or a container asked for while there is none</td>
 </tr>
 <tr>
 <td><code>409 Conflict</code></td>
@@ -3377,11 +3506,11 @@ systems.</p>
 </tr>
 <tr>
 <td><code>422 Unprocessable Entity</code></td>
-<td>A document eeID will not accept — a file type that is not allowed, say; <code>details</code> names it. Or, from <code>sign</code>, the signature was accepted but the container did not validate as a qualified signature, and the signing is recorded as failed</td>
+<td>A document eeID will not accept — a file type that is not allowed, two documents with the same name, an empty file; <code>details</code> names it. A required parameter missing. Or, from <code>sign</code>, the signature was accepted but the container did not validate as a qualified signature, and the signing is recorded as failed</td>
 </tr>
 <tr>
 <td><code>429 Too Many Requests</code></td>
-<td>Rate limited. <code>Retry-After</code> gives the seconds to wait</td>
+<td>Rate limited — see below. <code>Retry-After</code> gives the seconds to wait</td>
 </tr>
 <tr>
 <td><code>502 Bad Gateway</code></td>
@@ -3391,13 +3520,42 @@ systems.</p>
 
 <p>A container that does not validate is never returned. It would look like a signed document and not
 be one, which is worse than returning nothing at all.</p>
+
+<p><strong>Rate limits.</strong> 600 requests a minute per client ID, and separately per IP address. Ten failed
+authentications within 15 minutes from one client ID and address lock that pair out for the rest
+of the window, so a wrong secret in a retry loop locks itself out quickly.</p>
+<h2 id='billing'>Billing</h2>
+<p>Each signature is charged once it is in a container that validated: a document with three
+signatures is three charges. The price is per method, set separately from authentication, and is
+the one in force when the signature was made. Charges come from the prepaid balance of the
+service&#39;s owner — the personal account or the organization — the same balance authentication
+uses, and an owner whose balance runs out has its services suspended. They appear on the monthly
+invoice as <em>Signings</em>, or <em>Authentications and signings</em>, with a line per service and method.</p>
+
+<p>A signing in the <code>Test</code> environment is free, and stays free: its environment is fixed when it is
+created, so moving the service to <code>Production</code> later does not bill earlier test signings.</p>
+<h2 id='signings-in-eeid-manager'>Signings in eeID manager</h2>
+<p><strong>Signings</strong> in the main menu lists the signings of every service you own, on your personal
+account and in each organization you belong to: date, signing id, service and method, signer,
+number of signatures, environment and status, with your balance above. Search by service name,
+signing id, signer name or identity code.</p>
+
+<p>A signing&#39;s page shows what eeID holds for it: method, ingest mode, environment, when it was
+signed, its status or error code, the container&#39;s name, size and hash, whether the content has
+been purged and the signers erased, every signature with its signer and outcome, each document
+with its size, SHA-256 and whether eeID still has the file, the validation verdict, and the
+charges.</p>
+
+<p>The page is for looking, not for changing anything: the container cannot be downloaded there,
+and purging or erasing is done through the <a href="#purging-and-erasing">API</a>.</p>
 <h2 id='test-environment-2'>Test environment</h2>
 <p>A signing service in the <code>Test</code> environment uses <code>https://test-auth.eeid.ee</code>. Test signings are
 free and produce real containers signed with <strong>demo</strong> certificates — they validate as test
 signatures and have no legal effect.</p>
 
 <p>Smart-ID and Mobile-ID are directed to SK&#39;s demo environments, as they are for
-<a href="#testing">authentication</a>. Smart-ID&#39;s demo accounts are documented at
+<a href="#testing">authentication</a>. For Smart-ID, the Estonian demo identity <code>40504040001</code>
+(<code>PNOEE-40504040001-DEM2-Q</code>) signs without a phone. Smart-ID&#39;s demo accounts are documented at
 <a href="https://sk-eid.github.io/smart-id-documentation/test_accounts.html">sk-eid.github.io/smart-id-documentation/test_accounts.html</a>,
 and Mobile-ID&#39;s test numbers
 <a href="https://github.com/SK-EID/MID/wiki/Test-number-for-automated-testing-in-DEMO">here</a>. The
