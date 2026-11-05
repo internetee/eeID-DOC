@@ -752,12 +752,21 @@ been approved or rejected.</p>
 <span class="s2">"phone_number_verified"</span>: <span class="nb">true</span>
 </code></pre></div>
 <ul>
-<li><code>email</code> - can be used to request the user’s e-mail address in the identity token. This option is targeted for the client applications that require verification of an e-mail address in authentication of a user. The claims <code>email</code> and <code>email_verified</code> are issued in the identity token. For example:</li>
+<li><code>email</code> - can be used to request the user’s e-mail address in the identity token. eeID does not look up or generate an e-mail address: the claims <code>email</code> and <code>email_verified</code> are issued only when the authentication method itself provides an address. For example:</li>
 </ul>
 <div class="highlight"><pre class="highlight shell tab-shell"><code><span class="s2">"sub"</span>: <span class="s2">"EE60001019906"</span>,
 <span class="s2">"email"</span>: <span class="s2">"60001019906@eesti.ee"</span>,
 <span class="s2">"email_verified"</span>: <span class="nb">false</span>
 </code></pre></div>
+<aside class="warning">
+The <code>email</code> claim is not always present, even when the <code>email</code> scope is granted:
+<ul>
+<li><b>ID-card</b> - the address is read from the authentication certificate, if the certificate contains one. Many current Estonian ID-card certificates do not, so the claim is often missing. When present, <code>email_verified</code> is <code>false</code>.</li>
+<li><b>Smart-ID and Mobile-ID</b> - these services do not provide an e-mail address, so the claim is never issued.</li>
+</ul>
+There is no service setting or request parameter that makes eeID always issue the claim. Do not use <code>email</code> to match users to accounts - use the <code>sub</code> claim, which is always present and unique to the person.
+</aside>
+
 <ul>
 <li><code>webauthn</code> - authentication scope leverages passkeys, a cutting-edge technology that replaces traditional passwords with a more secure and user-friendly approach. Passkeys, as described in <a href="https://fidoalliance.org/passkeys-101/">FIDO Alliance&#39;s Passkeys 101</a>, utilize public key cryptography to enable users to authenticate using local authenticators such as biometrics, security keys, or other trusted devices. This method simplifies the authentication process while significantly enhancing security, providing a seamless and secure experience for users across the web.</li>
 </ul>
@@ -1111,7 +1120,7 @@ The following claims are presented in the identity token:</p>
 </tr>
 <tr>
 <td><code>email</code></td>
-<td>The user&#39;s e-mail address (if present)</td>
+<td>The user&#39;s e-mail address, issued only if the <code>email</code> scope was requested and the authentication method provided an address (never for Smart-ID or Mobile-ID). See <a href="#authentication-scope">Authentication scope</a></td>
 </tr>
 <tr>
 <td><code>email_verified</code></td>
