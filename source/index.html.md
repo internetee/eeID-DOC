@@ -249,13 +249,22 @@ By default, the eeID services facilitate the following authentication scope:
 "phone_number_verified": true
 ```
 
-* `email` - can be used to request the user’s e-mail address in the identity token. This option is targeted for the client applications that require verification of an e-mail address in authentication of a user. The claims `email` and `email_verified` are issued in the identity token. For example:
+* `email` - can be used to request the user’s e-mail address in the identity token. eeID does not look up or generate an e-mail address: the claims `email` and `email_verified` are issued only when the authentication method itself provides an address. For example:
 
 ```shell
 "sub": "EE60001019906",
 "email": "60001019906@eesti.ee",
 "email_verified": false
 ```
+
+<aside class="warning">
+The <code>email</code> claim is not always present, even when the <code>email</code> scope is granted:
+<ul>
+<li><b>ID-card</b> - the address is read from the authentication certificate, if the certificate contains one. Many current Estonian ID-card certificates do not, so the claim is often missing. When present, <code>email_verified</code> is <code>false</code>.</li>
+<li><b>Smart-ID and Mobile-ID</b> - these services do not provide an e-mail address, so the claim is never issued.</li>
+</ul>
+There is no service setting or request parameter that makes eeID always issue the claim. Do not use <code>email</code> to match users to accounts - use the <code>sub</code> claim, which is always present and unique to the person.
+</aside>
 
 * `webauthn` - authentication scope leverages passkeys, a cutting-edge technology that replaces traditional passwords with a more secure and user-friendly approach. Passkeys, as described in [FIDO Alliance's Passkeys 101](https://fidoalliance.org/passkeys-101/), utilize public key cryptography to enable users to authenticate using local authenticators such as biometrics, security keys, or other trusted devices. This method simplifies the authentication process while significantly enhancing security, providing a seamless and secure experience for users across the web.
 
@@ -534,7 +543,7 @@ The following claims are presented in the identity token:
 | `state` | The authentication request's `state` parameter value
 | `nonce` | The authentication request's `nonce` parameter value. Value is present only in case the `nonce` parameter was sent in the authentication request
 | `at_hash` | The access token hash (not used)
-| `email` | The user's e-mail address (if present)
+| `email` | The user's e-mail address, issued only if the `email` scope was requested and the authentication method provided an address (never for Smart-ID or Mobile-ID). See [Authentication scope](#authentication-scope)
 | `email_verified` | `false` - the e-mail address of the user has not been verified
 | `phone_number` | `+37200000766` - the phone number is presented in E.164 format and prefixed by a country code (if present)
 | `phone_number_verified` | `true` - the ownership of the phone number to the authenticating user has been confirmed
