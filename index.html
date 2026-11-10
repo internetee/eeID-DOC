@@ -2264,26 +2264,550 @@ try to resume a session that is already spent.</p>
   </span><span class="nl">"preset"</span><span class="p">:</span><span class="w"> </span><span class="s2">"light"</span><span class="p">,</span><span class="w">
   </span><span class="nl">"colorScheme"</span><span class="p">:</span><span class="w"> </span><span class="s2">"system"</span><span class="p">,</span><span class="w">
   </span><span class="nl">"color"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nl">"primary"</span><span class="p">:</span><span class="w"> </span><span class="s2">"#0B5FFF"</span><span class="p">,</span><span class="w"> </span><span class="nl">"onPrimary"</span><span class="p">:</span><span class="w"> </span><span class="s2">"#FFFFFF"</span><span class="w"> </span><span class="p">},</span><span class="w">
+  </span><span class="nl">"colorDark"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nl">"primary"</span><span class="p">:</span><span class="w"> </span><span class="s2">"#4D8DFF"</span><span class="w"> </span><span class="p">},</span><span class="w">
   </span><span class="nl">"typography"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nl">"fontFamily"</span><span class="p">:</span><span class="w"> </span><span class="s2">"</span><span class="se">\"</span><span class="s2">Inter</span><span class="se">\"</span><span class="s2">, system-ui, sans-serif"</span><span class="w"> </span><span class="p">},</span><span class="w">
-  </span><span class="nl">"shape"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nl">"radiusButton"</span><span class="p">:</span><span class="w"> </span><span class="s2">"8px"</span><span class="w"> </span><span class="p">},</span><span class="w">
-  </span><span class="nl">"branding"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nl">"showFooter"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w"> </span><span class="p">}</span><span class="w">
+  </span><span class="nl">"shape"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nl">"radiusButton"</span><span class="p">:</span><span class="w"> </span><span class="mi">8</span><span class="w"> </span><span class="p">},</span><span class="w">
+  </span><span class="nl">"components"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"methodList"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nl">"rowBackground"</span><span class="p">:</span><span class="w"> </span><span class="s2">"#EEF4FF"</span><span class="p">,</span><span class="w"> </span><span class="nl">"rowHoverBackground"</span><span class="p">:</span><span class="w"> </span><span class="s2">"#DCE8FF"</span><span class="w"> </span><span class="p">}</span><span class="w">
+  </span><span class="p">}</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <p>The widget is styled with a JSON theme, supplied either as the <code>theme</code> parameter when creating the
 session, as the <code>theme</code> attribute on the element, or at runtime with <code>setTheme()</code> — for example
-when your page switches to dark mode.</p>
+when your page switches to dark mode. Every key is optional: an empty theme gives eeID&#39;s own look,
+which matches the classic redirect flow.</p>
 
-<p>The main groups are <code>preset</code>, <code>colorScheme</code> (<code>light</code>, <code>dark</code>, <code>system</code>), <code>density</code>
-(<code>comfortable</code>, <code>compact</code>), <code>color</code>, <code>typography</code>, <code>shape</code>, <code>spacing</code>, <code>components</code>, <code>layout</code>,
-<code>branding</code> and <code>messages</code>. Unknown keys are rejected rather than ignored, so a typo is reported
-when the session is created instead of silently doing nothing.</p>
+<p>Themes are layered, later layers winning key by key: the <code>preset</code>, then the theme of the session,
+then whatever you set at runtime. You only send what you want to change.</p>
 
 <p>Note that the first screen the user sees — the list of authentication methods — takes its colours
 from <code>components.methodList</code>, not from <code>color.primary</code>, which paints buttons. Changing only the
 primary colour therefore looks like nothing happened until a method is selected.</p>
+<h3 id='theme-keys'>Theme keys</h3>
+<table><thead>
+<tr>
+<th>Key</th>
+<th>Values</th>
+<th>Purpose</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>preset</code></td>
+<td><code>light</code>, <code>dark</code>, <code>system</code>, <code>minimal</code>, <code>high-contrast</code></td>
+<td>A starting point that the rest of the theme is layered over</td>
+</tr>
+<tr>
+<td><code>colorScheme</code></td>
+<td><code>light</code> (default), <code>dark</code>, <code>system</code></td>
+<td>Light or dark form; <code>system</code> follows the user&#39;s operating system</td>
+</tr>
+<tr>
+<td><code>density</code></td>
+<td><code>comfortable</code> (default), <code>compact</code></td>
+<td>Overall spacing and control heights</td>
+</tr>
+<tr>
+<td><code>color</code></td>
+<td>object</td>
+<td>Colours, see <a href="#colours">Colours</a></td>
+</tr>
+<tr>
+<td><code>colorDark</code></td>
+<td>object</td>
+<td>The same keys as <code>color</code>, used when the form is dark</td>
+</tr>
+<tr>
+<td><code>typography</code></td>
+<td>object</td>
+<td>Fonts, see <a href="#typography-shape-and-spacing">Typography, shape and spacing</a></td>
+</tr>
+<tr>
+<td><code>shape</code></td>
+<td>object</td>
+<td>Corner radii, borders and shadows</td>
+</tr>
+<tr>
+<td><code>spacing</code></td>
+<td>object</td>
+<td>Gaps and padding</td>
+</tr>
+<tr>
+<td><code>components</code></td>
+<td>object</td>
+<td>Buttons, inputs, the method list, QR code and spinner, see <a href="#components">Components</a></td>
+</tr>
+<tr>
+<td><code>layout</code></td>
+<td>object</td>
+<td>Size and resizing of the form, see <a href="#layout-and-own-stylesheet">Layout and own stylesheet</a></td>
+</tr>
+<tr>
+<td><code>advanced</code></td>
+<td>object</td>
+<td><code>themeCssUrl</code>, see <a href="#layout-and-own-stylesheet">Layout and own stylesheet</a></td>
+</tr>
+</tbody></table>
 
-<p>For a stylesheet of your own, <code>advanced.themeCssUrl</code> loads one extra CSS file inside the widget.
-It must be served from an origin that is already on the service&#39;s allowlist.</p>
+<p>Presets:</p>
+
+<ul>
+<li><code>light</code> and <code>system</code> - eeID&#39;s default look, with the matching <code>colorScheme</code></li>
+<li><code>dark</code> - forces the dark form</li>
+<li><code>minimal</code> - square corners, no shadows, outlined buttons</li>
+<li><code>high-contrast</code> - black on white with thicker borders, for accessibility-focused services</li>
+</ul>
+
+<p>Rules for values:</p>
+
+<ul>
+<li>A size given as a bare number is in pixels: <code>&quot;radiusButton&quot;: 8</code> is <code>8px</code>. A string is used as
+CSS as it is, so <code>&quot;1rem&quot;</code>, <code>&quot;50%&quot;</code> or <code>&quot;calc(…)&quot;</code> also work</li>
+<li>Colours are any CSS colour: <code>#0B5FFF</code>, <code>rgb(…)</code>, <code>rgba(…)</code>, <code>transparent</code></li>
+<li>A theme cannot inject CSS of its own: a value containing <code>url(…)</code>, <code>expression(…)</code>,
+<code>javascript:</code> or <code>&lt;script</code> is rejected with <code>422</code>, and a value containing <code>;</code>, <code>{</code>, <code>}</code>, <code>&lt;</code>, <code>&gt;</code>
+or a comment is left out</li>
+<li>An unknown top-level key, or an invalid <code>preset</code>, <code>colorScheme</code> or <code>density</code>, is rejected with
+<code>422</code> when the session is created. An unknown key <strong>inside</strong> a group, for example a misspelt
+<code>color.primry</code>, is ignored without an error — check the result in the browser</li>
+</ul>
+
+<aside class="notice">
+The keys <code>branding</code>, <code>methods</code>, <code>consent</code>, <code>prefill</code>,
+<code>locale</code>, <code>messages</code> and <code>version</code> are reserved: a theme containing
+them is accepted, but they have no effect yet. Choose the language with the <code>locale</code>
+parameter of the create call, not in the theme.
+</aside>
+<h3 id='colours'>Colours</h3>
+<table><thead>
+<tr>
+<th><code>color</code> key</th>
+<th>Default (light)</th>
+<th>Default (dark)</th>
+<th>Used for</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>primary</code></td>
+<td><code>#118bcd</code></td>
+<td>same</td>
+<td>Main buttons, selected states</td>
+</tr>
+<tr>
+<td><code>primaryHover</code></td>
+<td><code>#1175cd</code></td>
+<td>same</td>
+<td>Main button on hover</td>
+</tr>
+<tr>
+<td><code>primaryActive</code></td>
+<td><code>#1175cd</code></td>
+<td>same</td>
+<td>Main button when pressed</td>
+</tr>
+<tr>
+<td><code>onPrimary</code></td>
+<td><code>#ffffff</code></td>
+<td>same</td>
+<td>Text on main buttons</td>
+</tr>
+<tr>
+<td><code>secondary</code></td>
+<td><code>#ffffff</code></td>
+<td><code>#262626</code></td>
+<td>Secondary buttons, for example Cancel</td>
+</tr>
+<tr>
+<td><code>onSecondary</code></td>
+<td><code>#6b7280</code></td>
+<td><code>#d1d5db</code></td>
+<td>Text on secondary buttons and method rows</td>
+</tr>
+<tr>
+<td><code>background</code></td>
+<td><code>transparent</code></td>
+<td><code>#171717</code></td>
+<td>Background of the whole form</td>
+</tr>
+<tr>
+<td><code>surface</code></td>
+<td><code>#ffffff</code></td>
+<td><code>#171717</code></td>
+<td>Cards and panels inside the form</td>
+</tr>
+<tr>
+<td><code>surfaceHover</code></td>
+<td><code>#f3f4f6</code></td>
+<td><code>#404040</code></td>
+<td>Cards and panels on hover</td>
+</tr>
+<tr>
+<td><code>border</code></td>
+<td><code>#d1d5db</code></td>
+<td><code>#404040</code></td>
+<td>Borders and dividers</td>
+</tr>
+<tr>
+<td><code>text</code></td>
+<td><code>#111827</code></td>
+<td><code>#d1d5db</code></td>
+<td>Body text</td>
+</tr>
+<tr>
+<td><code>textMuted</code></td>
+<td><code>#6b7280</code></td>
+<td><code>#9ca3af</code></td>
+<td>Hints and secondary text</td>
+</tr>
+<tr>
+<td><code>link</code></td>
+<td><code>#118bcd</code></td>
+<td>same</td>
+<td>Links</td>
+</tr>
+<tr>
+<td><code>linkHover</code></td>
+<td><code>#1198cd</code></td>
+<td>same</td>
+<td>Links on hover</td>
+</tr>
+<tr>
+<td><code>error</code></td>
+<td><code>#dc2626</code></td>
+<td>same</td>
+<td>Error messages</td>
+</tr>
+<tr>
+<td><code>onError</code></td>
+<td><code>#ffffff</code></td>
+<td>same</td>
+<td>Text on error backgrounds</td>
+</tr>
+<tr>
+<td><code>success</code></td>
+<td><code>#16a34a</code></td>
+<td>same</td>
+<td>Success messages</td>
+</tr>
+<tr>
+<td><code>warning</code></td>
+<td><code>#d97706</code></td>
+<td>same</td>
+<td>Warnings</td>
+</tr>
+<tr>
+<td><code>info</code></td>
+<td><code>#2563eb</code></td>
+<td>same</td>
+<td>Informational messages</td>
+</tr>
+<tr>
+<td><code>focusRing</code></td>
+<td><code>#1198cd</code></td>
+<td>same</td>
+<td>Keyboard focus outline</td>
+</tr>
+<tr>
+<td><code>spinner</code></td>
+<td><code>#1198cd</code></td>
+<td>same</td>
+<td>Loading spinner</td>
+</tr>
+<tr>
+<td><code>overlay</code></td>
+<td><code>rgba(17, 24, 39, 0.5)</code></td>
+<td><code>rgba(0, 0, 0, 0.6)</code></td>
+<td>Backdrop behind dialogs</td>
+</tr>
+</tbody></table>
+
+<p><code>color</code> applies to the light form. When the form is dark — <code>colorScheme: &quot;dark&quot;</code>, or <code>system</code> on a
+device in dark mode — eeID&#39;s dark defaults apply instead, and <code>colorDark</code> overrides those. So a
+theme that sets only <code>color.primary</code> keeps eeID&#39;s dark palette in dark mode; set
+<code>colorDark.primary</code> too if your brand colour needs a lighter shade there.</p>
+<h3 id='typography-shape-and-spacing'>Typography, shape and spacing</h3>
+<table><thead>
+<tr>
+<th>Key</th>
+<th>Default</th>
+<th>Used for</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>typography.fontFamily</code></td>
+<td>system font stack</td>
+<td>All text. The font must already be available on the page inside the widget, for example through <code>advanced.themeCssUrl</code></td>
+</tr>
+<tr>
+<td><code>typography.fontSizeBase</code></td>
+<td><code>1rem</code></td>
+<td>Base text size</td>
+</tr>
+<tr>
+<td><code>typography.fontWeightNormal</code></td>
+<td><code>400</code></td>
+<td>Body text weight</td>
+</tr>
+<tr>
+<td><code>typography.fontWeightMedium</code></td>
+<td><code>500</code></td>
+<td>Medium weight, used by buttons</td>
+</tr>
+<tr>
+<td><code>typography.fontWeightBold</code></td>
+<td><code>700</code></td>
+<td>Bold text</td>
+</tr>
+<tr>
+<td><code>typography.lineHeight</code></td>
+<td><code>1.5</code></td>
+<td>Line height</td>
+</tr>
+<tr>
+<td><code>typography.letterSpacing</code></td>
+<td><code>normal</code></td>
+<td>Letter spacing</td>
+</tr>
+<tr>
+<td><code>typography.headingFontFamily</code></td>
+<td>same as <code>fontFamily</code></td>
+<td>Headings</td>
+</tr>
+<tr>
+<td><code>typography.headingFontWeight</code></td>
+<td><code>500</code></td>
+<td>Heading weight</td>
+</tr>
+<tr>
+<td><code>typography.headingSize</code></td>
+<td><code>1.125rem</code></td>
+<td>Heading size</td>
+</tr>
+<tr>
+<td><code>shape.radius</code></td>
+<td><code>6px</code></td>
+<td>General corner radius</td>
+</tr>
+<tr>
+<td><code>shape.radiusButton</code></td>
+<td><code>6px</code></td>
+<td>Button corners</td>
+</tr>
+<tr>
+<td><code>shape.radiusInput</code></td>
+<td><code>6px</code></td>
+<td>Input corners</td>
+</tr>
+<tr>
+<td><code>shape.radiusCard</code></td>
+<td><code>12px</code></td>
+<td>Card corners</td>
+</tr>
+<tr>
+<td><code>shape.borderWidth</code></td>
+<td><code>1px</code></td>
+<td>Border width</td>
+</tr>
+<tr>
+<td><code>shape.shadow</code></td>
+<td>subtle</td>
+<td>Shadow of cards and controls; <code>none</code> removes it</td>
+</tr>
+<tr>
+<td><code>shape.shadowFocus</code></td>
+<td>blue glow</td>
+<td>Shadow around a focused control</td>
+</tr>
+<tr>
+<td><code>spacing.unit</code></td>
+<td><code>4px</code></td>
+<td>Base unit the other spacings derive from</td>
+</tr>
+<tr>
+<td><code>spacing.sectionGap</code></td>
+<td>4 units</td>
+<td>Space between sections</td>
+</tr>
+<tr>
+<td><code>spacing.controlGap</code></td>
+<td>2 units</td>
+<td>Space between controls</td>
+</tr>
+<tr>
+<td><code>spacing.contentPadding</code></td>
+<td>4 units</td>
+<td>Padding around the whole form</td>
+</tr>
+</tbody></table>
+
+<p><code>density: &quot;compact&quot;</code> sets <code>spacing.unit</code> to <code>3px</code>, button and input heights to <code>38px</code> and method
+rows to <code>40px</code>. Values you set yourself take precedence over the density.</p>
+<h3 id='components'>Components</h3>
+<table><thead>
+<tr>
+<th>Key</th>
+<th>Default</th>
+<th>Used for</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>components.button.variant</code></td>
+<td><code>fill</code></td>
+<td>Main button style: <code>fill</code>, <code>outline</code> or <code>ghost</code></td>
+</tr>
+<tr>
+<td><code>components.button.height</code></td>
+<td><code>40px</code></td>
+<td>Button height</td>
+</tr>
+<tr>
+<td><code>components.button.paddingX</code></td>
+<td><code>16px</code></td>
+<td>Horizontal button padding</td>
+</tr>
+<tr>
+<td><code>components.button.fontWeight</code></td>
+<td><code>500</code></td>
+<td>Button text weight</td>
+</tr>
+<tr>
+<td><code>components.button.textTransform</code></td>
+<td><code>none</code></td>
+<td>For example <code>uppercase</code></td>
+</tr>
+<tr>
+<td><code>components.input.height</code></td>
+<td><code>40px</code></td>
+<td>Input height</td>
+</tr>
+<tr>
+<td><code>components.input.paddingX</code></td>
+<td><code>12px</code></td>
+<td>Horizontal input padding</td>
+</tr>
+<tr>
+<td><code>components.input.borderWidth</code></td>
+<td><code>1px</code></td>
+<td>Input border width</td>
+</tr>
+<tr>
+<td><code>components.input.background</code></td>
+<td>white (dark: <code>#262626</code>)</td>
+<td>Input background</td>
+</tr>
+<tr>
+<td><code>components.methodList.layout</code></td>
+<td><code>list</code></td>
+<td><code>list</code>, or <code>grid</code> to show methods as tiles</td>
+</tr>
+<tr>
+<td><code>components.methodList.columns</code></td>
+<td><code>1</code></td>
+<td>Number of columns in the <code>grid</code> layout</td>
+</tr>
+<tr>
+<td><code>components.methodList.showIcons</code></td>
+<td><code>true</code></td>
+<td><code>false</code> hides the method logos</td>
+</tr>
+<tr>
+<td><code>components.methodList.rowHeight</code></td>
+<td><code>44px</code></td>
+<td>Height of a method row</td>
+</tr>
+<tr>
+<td><code>components.methodList.rowRadius</code></td>
+<td><code>6px</code></td>
+<td>Corners of a method row</td>
+</tr>
+<tr>
+<td><code>components.methodList.rowBackground</code></td>
+<td><code>#f9fafb</code> (dark: <code>#262626</code>)</td>
+<td>Method row background</td>
+</tr>
+<tr>
+<td><code>components.methodList.rowHoverBackground</code></td>
+<td><code>#f3f4f6</code> (dark: <code>#404040</code>)</td>
+<td>Method row on hover</td>
+</tr>
+<tr>
+<td><code>components.methodList.iconSize</code></td>
+<td><code>28px</code></td>
+<td>Size of the method logos</td>
+</tr>
+<tr>
+<td><code>components.qr.size</code></td>
+<td><code>200px</code></td>
+<td>QR code size</td>
+</tr>
+<tr>
+<td><code>components.qr.background</code></td>
+<td><code>#ffffff</code></td>
+<td>QR code background</td>
+</tr>
+<tr>
+<td><code>components.qr.foreground</code></td>
+<td><code>#000000</code></td>
+<td>QR code modules</td>
+</tr>
+<tr>
+<td><code>components.spinner.size</code></td>
+<td><code>24px</code></td>
+<td>Loading spinner size</td>
+</tr>
+<tr>
+<td><code>components.spinner.color</code></td>
+<td>same as <code>color.spinner</code></td>
+<td>Spinner colour</td>
+</tr>
+<tr>
+<td><code>components.spinner.trackColor</code></td>
+<td>same as <code>color.border</code></td>
+<td>Spinner track</td>
+</tr>
+</tbody></table>
+
+<p>Keep enough contrast between <code>components.qr.foreground</code> and <code>components.qr.background</code>: a
+low-contrast QR code may not scan.</p>
+<h3 id='layout-and-own-stylesheet'>Layout and own stylesheet</h3>
+<table><thead>
+<tr>
+<th>Key</th>
+<th>Default</th>
+<th>Used for</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>layout.width</code></td>
+<td><code>100%</code></td>
+<td>Width of the form inside the iframe</td>
+</tr>
+<tr>
+<td><code>layout.maxWidth</code></td>
+<td><code>420px</code></td>
+<td>Maximum width of the form</td>
+</tr>
+<tr>
+<td><code>layout.minHeight</code></td>
+<td><code>0px</code></td>
+<td>Minimum height of the form</td>
+</tr>
+<tr>
+<td><code>layout.autoResize</code></td>
+<td><code>true</code></td>
+<td><code>false</code> stops the widget from resizing the iframe to its content; set the height yourself</td>
+</tr>
+<tr>
+<td><code>advanced.themeCssUrl</code></td>
+<td>none</td>
+<td>URL of one extra stylesheet loaded inside the widget</td>
+</tr>
+</tbody></table>
+
+<p><code>advanced.themeCssUrl</code> is for what the keys above cannot express, such as loading a web font. It
+must be served from an origin that is already on the service&#39;s allowlist; otherwise it is left out
+without an error. Treat it as a last resort: the widget&#39;s internal markup is not a stable interface,
+and rules written against it may break when the form changes. The keys above are the stable
+contract.</p>
 <h3 id='light-and-dark-mode'>Light and dark mode</h3>
 <blockquote>
 <p>Follow your page&#39;s own theme toggle</p>
