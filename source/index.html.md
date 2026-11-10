@@ -1647,13 +1647,14 @@ Attributes of `<eeid-widget>`:
   the `Test` environment
 - `session-token` (required) - the token from the create call
 - `height` - initial height, for example `420px`. The widget resizes itself afterwards
-- `theme` - a JSON theme, applied without creating a new session
+- `theme` - a JSON theme, applied without creating a new session. Changes to it after the widget
+  is mounted are applied too, see [Light and dark mode](#light-and-dark-mode)
 - `title` - accessible title of the iframe
 
 Method:
 
 - `setTheme(partial)` - merges and applies a theme at runtime, for example when your page switches
-  to dark mode
+  to dark mode, see [Light and dark mode](#light-and-dark-mode)
 
 Events, dispatched on the element with their data in `detail`:
 
@@ -1765,6 +1766,49 @@ primary colour therefore looks like nothing happened until a method is selected.
 
 For a stylesheet of your own, `advanced.themeCssUrl` loads one extra CSS file inside the widget.
 It must be served from an origin that is already on the service's allowlist.
+
+### Light and dark mode
+
+> Follow your page's own theme toggle
+
+```javascript
+const widget = document.querySelector("eeid-widget")
+
+function onSiteThemeChange(scheme) {      // "light", "dark" or "system"
+  widget.setTheme({ colorScheme: scheme })
+}
+```
+
+> The same through the attribute
+
+```javascript
+widget.setAttribute("theme", JSON.stringify({ colorScheme: "dark" }))
+```
+
+If your page has its own light/dark toggle, switch the widget along with it at runtime. Do not
+create a new session for it: a theme sent with the create call is fixed for that session, so
+changing it means starting the sign-in again, while a runtime change restyles the form in place —
+even halfway through, for example while a Smart-ID verification code is on screen.
+
+There are two equivalent ways to do it:
+
+- `setTheme({ colorScheme })` - merges into the runtime theme, so other values you set at runtime
+  are kept
+- the `theme` attribute - replaces the runtime theme with the JSON you set. Removing the attribute
+  clears it; a value that is not valid JSON is ignored and the current theme stays
+
+Either one is layered over the theme the session was created with, so a session theme that sets
+your brand colours keeps them when only `colorScheme` changes at runtime.
+
+`colorScheme: "system"` follows the user's operating system setting, including when they switch it
+while the widget is open. Choose it when your page has no toggle of its own, or when its toggle
+offers a "system" option.
+
+A change made before the widget has finished loading is not lost: the SDK sends it as soon as the
+form reports `eeid:ready`.
+
+The [PHP example](https://github.com/internetee/eeid_php_embedded_demo) has a Light / Dark / System
+toggle that does exactly this.
 
 ## Errors
 
