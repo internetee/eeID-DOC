@@ -1745,27 +1745,176 @@ If you omit `return_url`, those methods fall back to a plain top-level redirect 
   "preset": "light",
   "colorScheme": "system",
   "color": { "primary": "#0B5FFF", "onPrimary": "#FFFFFF" },
+  "colorDark": { "primary": "#4D8DFF" },
   "typography": { "fontFamily": "\"Inter\", system-ui, sans-serif" },
-  "shape": { "radiusButton": "8px" },
-  "branding": { "showFooter": false }
+  "shape": { "radiusButton": 8 },
+  "components": {
+    "methodList": { "rowBackground": "#EEF4FF", "rowHoverBackground": "#DCE8FF" }
+  }
 }
 ```
 
 The widget is styled with a JSON theme, supplied either as the `theme` parameter when creating the
 session, as the `theme` attribute on the element, or at runtime with `setTheme()` — for example
-when your page switches to dark mode.
+when your page switches to dark mode. Every key is optional: an empty theme gives eeID's own look,
+which matches the classic redirect flow.
 
-The main groups are `preset`, `colorScheme` (`light`, `dark`, `system`), `density`
-(`comfortable`, `compact`), `color`, `typography`, `shape`, `spacing`, `components`, `layout`,
-`branding` and `messages`. Unknown keys are rejected rather than ignored, so a typo is reported
-when the session is created instead of silently doing nothing.
+Themes are layered, later layers winning key by key: the `preset`, then the theme of the session,
+then whatever you set at runtime. You only send what you want to change.
 
 Note that the first screen the user sees — the list of authentication methods — takes its colours
 from `components.methodList`, not from `color.primary`, which paints buttons. Changing only the
 primary colour therefore looks like nothing happened until a method is selected.
 
-For a stylesheet of your own, `advanced.themeCssUrl` loads one extra CSS file inside the widget.
-It must be served from an origin that is already on the service's allowlist.
+### Theme keys
+
+| Key | Values | Purpose |
+| --- | ------ | ------- |
+| `preset` | `light`, `dark`, `system`, `minimal`, `high-contrast` | A starting point that the rest of the theme is layered over |
+| `colorScheme` | `light` (default), `dark`, `system` | Light or dark form; `system` follows the user's operating system |
+| `density` | `comfortable` (default), `compact` | Overall spacing and control heights |
+| `color` | object | Colours, see [Colours](#colours) |
+| `colorDark` | object | The same keys as `color`, used when the form is dark |
+| `typography` | object | Fonts, see [Typography, shape and spacing](#typography-shape-and-spacing) |
+| `shape` | object | Corner radii, borders and shadows |
+| `spacing` | object | Gaps and padding |
+| `components` | object | Buttons, inputs, the method list, QR code and spinner, see [Components](#components) |
+| `layout` | object | Size and resizing of the form, see [Layout and own stylesheet](#layout-and-own-stylesheet) |
+| `advanced` | object | `themeCssUrl`, see [Layout and own stylesheet](#layout-and-own-stylesheet) |
+
+Presets:
+
+- `light` and `system` - eeID's default look, with the matching `colorScheme`
+- `dark` - forces the dark form
+- `minimal` - square corners, no shadows, outlined buttons
+- `high-contrast` - black on white with thicker borders, for accessibility-focused services
+
+Rules for values:
+
+- A size given as a bare number is in pixels: `"radiusButton": 8` is `8px`. A string is used as
+  CSS as it is, so `"1rem"`, `"50%"` or `"calc(…)"` also work
+- Colours are any CSS colour: `#0B5FFF`, `rgb(…)`, `rgba(…)`, `transparent`
+- A theme cannot inject CSS of its own: a value containing `url(…)`, `expression(…)`,
+  `javascript:` or `<script` is rejected with `422`, and a value containing `;`, `{`, `}`, `<`, `>`
+  or a comment is left out
+- An unknown top-level key, or an invalid `preset`, `colorScheme` or `density`, is rejected with
+  `422` when the session is created. An unknown key **inside** a group, for example a misspelt
+  `color.primry`, is ignored without an error — check the result in the browser
+
+<aside class="notice">
+The keys <code>branding</code>, <code>methods</code>, <code>consent</code>, <code>prefill</code>,
+<code>locale</code>, <code>messages</code> and <code>version</code> are reserved: a theme containing
+them is accepted, but they have no effect yet. Choose the language with the <code>locale</code>
+parameter of the create call, not in the theme.
+</aside>
+
+### Colours
+
+| `color` key | Default (light) | Default (dark) | Used for |
+| ----------- | --------------- | -------------- | -------- |
+| `primary` | `#118bcd` | same | Main buttons, selected states |
+| `primaryHover` | `#1175cd` | same | Main button on hover |
+| `primaryActive` | `#1175cd` | same | Main button when pressed |
+| `onPrimary` | `#ffffff` | same | Text on main buttons |
+| `secondary` | `#ffffff` | `#262626` | Secondary buttons, for example Cancel |
+| `onSecondary` | `#6b7280` | `#d1d5db` | Text on secondary buttons and method rows |
+| `background` | `transparent` | `#171717` | Background of the whole form |
+| `surface` | `#ffffff` | `#171717` | Cards and panels inside the form |
+| `surfaceHover` | `#f3f4f6` | `#404040` | Cards and panels on hover |
+| `border` | `#d1d5db` | `#404040` | Borders and dividers |
+| `text` | `#111827` | `#d1d5db` | Body text |
+| `textMuted` | `#6b7280` | `#9ca3af` | Hints and secondary text |
+| `link` | `#118bcd` | same | Links |
+| `linkHover` | `#1198cd` | same | Links on hover |
+| `error` | `#dc2626` | same | Error messages |
+| `onError` | `#ffffff` | same | Text on error backgrounds |
+| `success` | `#16a34a` | same | Success messages |
+| `warning` | `#d97706` | same | Warnings |
+| `info` | `#2563eb` | same | Informational messages |
+| `focusRing` | `#1198cd` | same | Keyboard focus outline |
+| `spinner` | `#1198cd` | same | Loading spinner |
+| `overlay` | `rgba(17, 24, 39, 0.5)` | `rgba(0, 0, 0, 0.6)` | Backdrop behind dialogs |
+
+`color` applies to the light form. When the form is dark — `colorScheme: "dark"`, or `system` on a
+device in dark mode — eeID's dark defaults apply instead, and `colorDark` overrides those. So a
+theme that sets only `color.primary` keeps eeID's dark palette in dark mode; set
+`colorDark.primary` too if your brand colour needs a lighter shade there.
+
+### Typography, shape and spacing
+
+| Key | Default | Used for |
+| --- | ------- | -------- |
+| `typography.fontFamily` | system font stack | All text. The font must already be available on the page inside the widget, for example through `advanced.themeCssUrl` |
+| `typography.fontSizeBase` | `1rem` | Base text size |
+| `typography.fontWeightNormal` | `400` | Body text weight |
+| `typography.fontWeightMedium` | `500` | Medium weight, used by buttons |
+| `typography.fontWeightBold` | `700` | Bold text |
+| `typography.lineHeight` | `1.5` | Line height |
+| `typography.letterSpacing` | `normal` | Letter spacing |
+| `typography.headingFontFamily` | same as `fontFamily` | Headings |
+| `typography.headingFontWeight` | `500` | Heading weight |
+| `typography.headingSize` | `1.125rem` | Heading size |
+| `shape.radius` | `6px` | General corner radius |
+| `shape.radiusButton` | `6px` | Button corners |
+| `shape.radiusInput` | `6px` | Input corners |
+| `shape.radiusCard` | `12px` | Card corners |
+| `shape.borderWidth` | `1px` | Border width |
+| `shape.shadow` | subtle | Shadow of cards and controls; `none` removes it |
+| `shape.shadowFocus` | blue glow | Shadow around a focused control |
+| `spacing.unit` | `4px` | Base unit the other spacings derive from |
+| `spacing.sectionGap` | 4 units | Space between sections |
+| `spacing.controlGap` | 2 units | Space between controls |
+| `spacing.contentPadding` | 4 units | Padding around the whole form |
+
+`density: "compact"` sets `spacing.unit` to `3px`, button and input heights to `38px` and method
+rows to `40px`. Values you set yourself take precedence over the density.
+
+### Components
+
+| Key | Default | Used for |
+| --- | ------- | -------- |
+| `components.button.variant` | `fill` | Main button style: `fill`, `outline` or `ghost` |
+| `components.button.height` | `40px` | Button height |
+| `components.button.paddingX` | `16px` | Horizontal button padding |
+| `components.button.fontWeight` | `500` | Button text weight |
+| `components.button.textTransform` | `none` | For example `uppercase` |
+| `components.input.height` | `40px` | Input height |
+| `components.input.paddingX` | `12px` | Horizontal input padding |
+| `components.input.borderWidth` | `1px` | Input border width |
+| `components.input.background` | white (dark: `#262626`) | Input background |
+| `components.methodList.layout` | `list` | `list`, or `grid` to show methods as tiles |
+| `components.methodList.columns` | `1` | Number of columns in the `grid` layout |
+| `components.methodList.showIcons` | `true` | `false` hides the method logos |
+| `components.methodList.rowHeight` | `44px` | Height of a method row |
+| `components.methodList.rowRadius` | `6px` | Corners of a method row |
+| `components.methodList.rowBackground` | `#f9fafb` (dark: `#262626`) | Method row background |
+| `components.methodList.rowHoverBackground` | `#f3f4f6` (dark: `#404040`) | Method row on hover |
+| `components.methodList.iconSize` | `28px` | Size of the method logos |
+| `components.qr.size` | `200px` | QR code size |
+| `components.qr.background` | `#ffffff` | QR code background |
+| `components.qr.foreground` | `#000000` | QR code modules |
+| `components.spinner.size` | `24px` | Loading spinner size |
+| `components.spinner.color` | same as `color.spinner` | Spinner colour |
+| `components.spinner.trackColor` | same as `color.border` | Spinner track |
+
+Keep enough contrast between `components.qr.foreground` and `components.qr.background`: a
+low-contrast QR code may not scan.
+
+### Layout and own stylesheet
+
+| Key | Default | Used for |
+| --- | ------- | -------- |
+| `layout.width` | `100%` | Width of the form inside the iframe |
+| `layout.maxWidth` | `420px` | Maximum width of the form |
+| `layout.minHeight` | `0px` | Minimum height of the form |
+| `layout.autoResize` | `true` | `false` stops the widget from resizing the iframe to its content; set the height yourself |
+| `advanced.themeCssUrl` | none | URL of one extra stylesheet loaded inside the widget |
+
+`advanced.themeCssUrl` is for what the keys above cannot express, such as loading a web font. It
+must be served from an origin that is already on the service's allowlist; otherwise it is left out
+without an error. Treat it as a last resort: the widget's internal markup is not a stable interface,
+and rules written against it may break when the form changes. The keys above are the stable
+contract.
 
 ### Light and dark mode
 
