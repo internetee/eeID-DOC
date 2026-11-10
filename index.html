@@ -2170,7 +2170,8 @@ need, tracks the iframe height, and re-emits the widget&#39;s messages as ordina
 the <code>Test</code> environment</li>
 <li><code>session-token</code> (required) - the token from the create call</li>
 <li><code>height</code> - initial height, for example <code>420px</code>. The widget resizes itself afterwards</li>
-<li><code>theme</code> - a JSON theme, applied without creating a new session</li>
+<li><code>theme</code> - a JSON theme, applied without creating a new session. Changes to it after the widget
+is mounted are applied too, see <a href="#light-and-dark-mode">Light and dark mode</a></li>
 <li><code>title</code> - accessible title of the iframe</li>
 </ul>
 
@@ -2178,7 +2179,7 @@ the <code>Test</code> environment</li>
 
 <ul>
 <li><code>setTheme(partial)</code> - merges and applies a theme at runtime, for example when your page switches
-to dark mode</li>
+to dark mode, see <a href="#light-and-dark-mode">Light and dark mode</a></li>
 </ul>
 
 <p>Events, dispatched on the element with their data in <code>detail</code>:</p>
@@ -2283,6 +2284,47 @@ primary colour therefore looks like nothing happened until a method is selected.
 
 <p>For a stylesheet of your own, <code>advanced.themeCssUrl</code> loads one extra CSS file inside the widget.
 It must be served from an origin that is already on the service&#39;s allowlist.</p>
+<h3 id='light-and-dark-mode'>Light and dark mode</h3>
+<blockquote>
+<p>Follow your page&#39;s own theme toggle</p>
+</blockquote>
+<div class="highlight"><pre class="highlight javascript tab-javascript"><code><span class="kd">const</span> <span class="nx">widget</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="dl">"</span><span class="s2">eeid-widget</span><span class="dl">"</span><span class="p">)</span>
+
+<span class="kd">function</span> <span class="nx">onSiteThemeChange</span><span class="p">(</span><span class="nx">scheme</span><span class="p">)</span> <span class="p">{</span>      <span class="c1">// "light", "dark" or "system"</span>
+  <span class="nx">widget</span><span class="p">.</span><span class="nx">setTheme</span><span class="p">({</span> <span class="na">colorScheme</span><span class="p">:</span> <span class="nx">scheme</span> <span class="p">})</span>
+<span class="p">}</span>
+</code></pre></div>
+<blockquote>
+<p>The same through the attribute</p>
+</blockquote>
+<div class="highlight"><pre class="highlight javascript tab-javascript"><code><span class="nx">widget</span><span class="p">.</span><span class="nx">setAttribute</span><span class="p">(</span><span class="dl">"</span><span class="s2">theme</span><span class="dl">"</span><span class="p">,</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">({</span> <span class="na">colorScheme</span><span class="p">:</span> <span class="dl">"</span><span class="s2">dark</span><span class="dl">"</span> <span class="p">}))</span>
+</code></pre></div>
+<p>If your page has its own light/dark toggle, switch the widget along with it at runtime. Do not
+create a new session for it: a theme sent with the create call is fixed for that session, so
+changing it means starting the sign-in again, while a runtime change restyles the form in place —
+even halfway through, for example while a Smart-ID verification code is on screen.</p>
+
+<p>There are two equivalent ways to do it:</p>
+
+<ul>
+<li><code>setTheme({ colorScheme })</code> - merges into the runtime theme, so other values you set at runtime
+are kept</li>
+<li>the <code>theme</code> attribute - replaces the runtime theme with the JSON you set. Removing the attribute
+clears it; a value that is not valid JSON is ignored and the current theme stays</li>
+</ul>
+
+<p>Either one is layered over the theme the session was created with, so a session theme that sets
+your brand colours keeps them when only <code>colorScheme</code> changes at runtime.</p>
+
+<p><code>colorScheme: &quot;system&quot;</code> follows the user&#39;s operating system setting, including when they switch it
+while the widget is open. Choose it when your page has no toggle of its own, or when its toggle
+offers a &quot;system&quot; option.</p>
+
+<p>A change made before the widget has finished loading is not lost: the SDK sends it as soon as the
+form reports <code>eeid:ready</code>.</p>
+
+<p>The <a href="https://github.com/internetee/eeid_php_embedded_demo">PHP example</a> has a Light / Dark / System
+toggle that does exactly this.</p>
 <h2 id='errors'>Errors</h2>
 <table><thead>
 <tr>
