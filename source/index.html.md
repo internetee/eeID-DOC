@@ -2032,7 +2032,7 @@ signature per document drops its copy of the documents as soon as the container 
 switching the setting on afterwards does not make an already signed document countersignable:
 eeID no longer holds the bytes to build the next container from, and a further round on it is
 refused with <code>400</code>. Switching it off again does not drop documents already kept for
-signed documents; they go when their container is purged.
+signed documents; they go with the container, a day after the last signature.
 </aside>
 
 ## How it works
@@ -2223,6 +2223,11 @@ countersigned later, and is refused with `400`.
 `signing_uuid` instead of `container` and eeID starts the next round from the container it
 already has. `container` is for a container eeID is not holding — one signed elsewhere, or a
 hash-only one whose documents only you have.
+
+**Each next signer has a day.** eeID holds a signing's content for one day from its latest
+signature, and every signature starts that day again ([Retention](#retention)). Send the next
+signer within a day of the previous one; after that a round started with `signing_uuid` is
+refused with `400`.
 
 The documents are not sent again — eeID takes them out of the container, along with the media
 type each one is declared as in `META-INF/manifest.xml`. The signatures already on it travel
@@ -2488,11 +2493,13 @@ waiting for its signer, not a contradiction.
 
 The rest says what eeID still holds. `container_available` is whether the container can be
 [collected](#collecting-the-signed-document) right now, and `documents` lists each document with
-its digests and whether eeID still has its bytes (`stored`). `purged_at` is set once the content
-has been [purged](#purging), and `erased_at` once every signer has been
-[erased](#erasing-a-signer) — a signing can have either without the other. Erasing one person
-while others remain sets `erased_at` on their entry in `signatures` only. The response also
-carries `ingest_mode`, `signing_method` and `signed_at`.
+its digests and whether eeID still has its bytes (`stored`). A document's name goes with its
+content, so once the content is gone `filename` is `null`; match documents on `uuid` or the
+digests, not on the name. `purged_at` is set once the content has been [purged](#purging),
+whether you asked for it or [retention](#retention) did, and `erased_at` once every signer has
+been [erased](#erasing-a-signer) — a signing can have either without the other. Erasing one
+person while others remain sets `erased_at` on their entry in `signatures` only. The response
+also carries `ingest_mode`, `signing_method` and `signed_at`.
 
 ## Collecting the signed document
 
@@ -2516,8 +2523,11 @@ document, and [finishing it](#finishing-a-hash-only-container) is the last step.
 `container_hash` in the status response is the SHA-256 of that file, so you can prove which one
 you received.
 
-**Keep your own copy.** eeID stores the container for 30 days from its latest signature and then
-purges it; the record that the signing happened, and the digests of what was signed, remain.
+**Collect it promptly and keep your own copy.** eeID stores the container for **one day** from its
+latest signature and then purges it — the hash-only container as well, since it carries every
+signer's certificate. Collect it when the [postback](#learning-the-outcome) arrives rather
+than on a later batch run. The record that the signing happened, and the digests of what was
+signed, remain.
 
 ## Signing without the hosted page
 
@@ -2612,7 +2622,7 @@ Two different requests, from two different people, and `DELETE` asks which one y
 
 | Call | What it does |
 | ---- | ------------ |
-| `DELETE /api/signing/sessions/{uuid}` | **Purge.** The source documents and the signed container go. Who signed stays |
+| `DELETE /api/signing/sessions/{uuid}` | **Purge.** The source documents, the signed container and their names go. Who signed stays |
 | `…?signer_id_code=<code>` | **Erase one person.** Their name and identity code go from the record |
 | `…?erase_signers=true` | **Erase everybody** named on the document |
 
@@ -2646,8 +2656,9 @@ curl -X DELETE https://auth.eeid.ee/api/signing/sessions/$UUID \
 }
 ```
 
-For you finishing with a document — a contract you no longer need to hold. The content goes and
-the signing goes on saying who signed it. A round still waiting for its signer is expired with
+For you finishing with a document before [retention](#retention) would remove it anyway. The
+content goes — the files, the container, and the file names, which can say as much as the file
+(`application_Mari_Maasikas.pdf`) — and the signing goes on saying who signed it. A round still waiting for its signer is expired with
 it, so a `sign_url` you have handed out stops working, and no further round can be started on a
 purged signing.
 
@@ -2686,7 +2697,8 @@ create; eeID is the processor, and this is eeID acting on your instruction.
 A data-subject request comes from a person, not about a document, so name them. `erase_signers=true`
 erases everybody on the document instead, for a request that covers all of them.
 
-Their name and identity code go from the record. When they are the only person named on the
+Their name, identity code and certificate data go from the record, including from the stored
+result of the signature's validation. When they are the only person named on the
 document, the source documents and the signed container go too — the identity code is inside the
 signature itself, so a container left behind would keep it.
 
@@ -2731,25 +2743,47 @@ it could not finish, because you are the one who has to answer the data subject.
 
 ## Retention
 
+Two deadlines: the **content** of a signing goes after a day, and the **people** named in it after
+three years.
+
 | What | How long |
 | ---- | -------- |
 | The documents you sent | Until the container exists, then purged immediately |
-| …on a service permitted several signatures | Until the container is purged |
-| …of a signing that never completed | 7 days after it failed or expired, then purged |
+| …on a service permitted several signatures | 1 day from the latest signature |
+| The signed container — full-file and hash-only alike | 1 day from the latest signature |
+| The names of the documents and the container | Go with the content they name |
+| The content of a signing that never got a signature | 1 day from when it was created |
 | A signing nobody finished | `pending` for a day after it was created, then `expired` |
-| The signed container | 30 days from its latest signature |
-| The record and the digests | Kept |
+| The signer — name, identity code, certificate data | 3 years from the latest signature, then erased |
+| The record and the digests | Kept, naming nobody once the signers are erased |
 | The signer's flow state | 30 minutes after its last step, in memory, never on disk |
 
-Purging runs once a day, so something due goes within a day of its date. Once a signing's
-documents are gone, a new round on it with `signing_uuid` is refused with `400` — create a new
-signing instead.
+**The content** is the documents, the signed container and the names they went by — a file name
+such as `application_Mari_Maasikas.pdf` can be personal data in itself. The hash-only container
+goes too: eeID cannot read the documents in it, but it carries every signer's certificate.
+
+**Every signature starts the day again.** On a document that collects several signatures, each
+next signer has a day from the signature before theirs; the content goes a day after the last one.
+A signing that is never signed keeps its content for a day from its creation, so a signer whose
+attempt failed can still try again within that day — after it, start a new signing.
+
+**The signer** is erased three years after the latest signature, the limitation period for a
+claim. What remains is that a signature was made, when, by which method, for which service and
+over which digests — no longer anyone's personal data. Billing is built from that record alone.
+
+Purging runs once a day, so something due goes **within a day of its date** — a one-day deadline
+can take up to two. `purged_at` and `erased_at` on the [status response](#asking) say when it
+happened. Once a signing's content is gone, a new round on it with `signing_uuid` is refused with
+`400` — create a new signing instead.
+
+[Purging](#purging) and [erasing](#erasing-a-signer) on request work at any time before these
+deadlines.
 
 The container carries the documents, so eeID does not keep a second copy of them — unless your
 service may collect several signatures, because a further round needs the bytes to show the next
 signer what they are signing and to merge the container again. That is the cost of the
-capability: on such a service a document stays with eeID until its container is purged, rather
-than for minutes.
+capability: on such a service a document stays with eeID until a day after its last signature,
+rather than for minutes.
 
 The identity code appears inside every qualified signature by design — that is what makes it
 attributable — so a signed container is personal data wherever it is stored, including in your
@@ -2798,7 +2832,8 @@ A signing's page shows what eeID holds for it: method, ingest mode, environment,
 signed, its status or error code, the container's name, size and hash, whether the content has
 been purged and the signers erased, every signature with its signer and outcome, each document
 with its size, SHA-256 and whether eeID still has the file, the validation verdict, and the
-charges.
+charges. Once the content has been purged the names of the container and the documents are no
+longer shown, and an erased signer is shown only as erased.
 
 The page is for looking, not for changing anything: the container cannot be downloaded there,
 and purging or erasing is done through the [API](#purging-and-erasing).
