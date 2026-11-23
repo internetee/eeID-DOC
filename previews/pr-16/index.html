@@ -3772,9 +3772,9 @@ waiting for its signer, not a contradiction.</p>
 
 <p>The rest says what eeID still holds. <code>container_available</code> is whether the container can be
 <a href="#collecting-the-signed-document">collected</a> right now, and <code>documents</code> lists each document with
-its digests and whether eeID still has its bytes (<code>stored</code>). A document&#39;s name goes with its
-content, so once the content is gone <code>filename</code> is <code>null</code>; match documents on <code>uuid</code> or the
-digests, not on the name. <code>purged_at</code> is set once the content has been <a href="#purging">purged</a>,
+its digests and whether eeID still has its bytes (<code>stored</code>). A document&#39;s name outlives its
+content and goes when the signers are <a href="#erasing-a-signer">erased</a>, so <code>filename</code> can be <code>null</code>;
+match documents on <code>uuid</code> or the digests, not on the name. <code>purged_at</code> is set once the content has been <a href="#purging">purged</a>,
 whether you asked for it or <a href="#retention">retention</a> did, and <code>erased_at</code> once every signer has
 been <a href="#erasing-a-signer">erased</a> — a signing can have either without the other. Erasing one
 person while others remain sets <code>erased_at</code> on their entry in <code>signatures</code> only. The response
@@ -3897,7 +3897,7 @@ guarantees that the bytes you are adding are the bytes that were signed.</li>
 </thead><tbody>
 <tr>
 <td><code>DELETE /api/signing/sessions/{uuid}</code></td>
-<td><strong>Purge.</strong> The source documents, the signed container and their names go. Who signed stays</td>
+<td><strong>Purge.</strong> The source documents and the signed container go. Who signed, the file names and the validation result stay</td>
 </tr>
 <tr>
 <td><code>…?signer_id_code=&lt;code&gt;</code></td>
@@ -3905,12 +3905,12 @@ guarantees that the bytes you are adding are the bytes that were signed.</li>
 </tr>
 <tr>
 <td><code>…?erase_signers=true</code></td>
-<td><strong>Erase everybody</strong> named on the document</td>
+<td><strong>Erase everybody</strong> named on the document, and the file names</td>
 </tr>
 </tbody></table>
 
-<p>Neither destroys the record that a signing happened: the uuid, the status, the timestamps, the
-method and the document digests remain in every case. That record names nobody, and deleting it
+<p>None of them destroys the record that a signing happened: the uuid, the status, the timestamps,
+the method, the result and the document digests remain in every case. That record names nobody, and deleting it
 would erase the evidence eeID behaved correctly rather than anybody&#39;s personal data.</p>
 <h3 id='purging'>Purging</h3>
 <blockquote>
@@ -3936,8 +3936,9 @@ would erase the evidence eeID behaved correctly rather than anybody&#39;s person
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
 <p>For you finishing with a document before <a href="#retention">retention</a> would remove it anyway. The
-content goes — the files, the container, and the file names, which can say as much as the file
-(<code>application_Mari_Maasikas.pdf</code>) — and the signing goes on saying who signed it. A round still waiting for its signer is expired with
+content goes — the files and the container — and the signing goes on saying who signed it, what
+the files were called and what validation found, as it does once retention has removed the
+content. A round still waiting for its signer is expired with
 it, so a <code>sign_url</code> you have handed out stops working, and no further round can be started on a
 purged signing.</p>
 
@@ -3974,7 +3975,8 @@ erases everybody on the document instead, for a request that covers all of them.
 
 <p>Their name, identity code and certificate data go from the record, including from the stored
 result of the signature&#39;s validation. When they are the only person named on the
-document, the source documents and the signed container go too — the identity code is inside the
+document, the file names go as well — a name such as <code>application_Mari_Maasikas.pdf</code> can be
+personal data in itself — and so do the source documents and the signed container — the identity code is inside the
 signature itself, so a container left behind would keep it.</p>
 
 <p><strong>When somebody else signed the same document, the documents and the container stay</strong>: the
@@ -4015,8 +4017,8 @@ it could not finish, because you are the one who has to answer the data subject.
 
 <p><strong>Collect anything you need first.</strong> None of this can be undone.</p>
 <h2 id='retention'>Retention</h2>
-<p>Two deadlines: the <strong>content</strong> of a signing goes after a day, and the <strong>people</strong> named in it after
-three years.</p>
+<p>Two deadlines: the <strong>content</strong> of a signing goes after a day, and the <strong>log</strong> of it — who signed,
+what, when and with what result — after three years.</p>
 
 <table><thead>
 <tr>
@@ -4038,7 +4040,11 @@ three years.</p>
 </tr>
 <tr>
 <td>The names of the documents and the container</td>
-<td>Go with the content they name</td>
+<td>3 years from the latest signature, with the signer</td>
+</tr>
+<tr>
+<td>The validation result</td>
+<td>Kept; the signer and the file names in it go after 3 years</td>
 </tr>
 <tr>
 <td>The content of a signing that never got a signature</td>
@@ -4062,8 +4068,7 @@ three years.</p>
 </tr>
 </tbody></table>
 
-<p><strong>The content</strong> is the documents, the signed container and the names they went by — a file name
-such as <code>application_Mari_Maasikas.pdf</code> can be personal data in itself. The hash-only container
+<p><strong>The content</strong> is the files: the documents and the signed container. The hash-only container
 goes too: eeID cannot read the documents in it, but it carries every signer&#39;s certificate.</p>
 
 <p><strong>Every signature starts the day again.</strong> On a document that collects several signatures, each
@@ -4071,9 +4076,14 @@ next signer has a day from the signature before theirs; the content goes a day a
 A signing that is never signed keeps its content for a day from its creation, so a signer whose
 attempt failed can still try again within that day — after it, start a new signing.</p>
 
-<p><strong>The signer</strong> is erased three years after the latest signature, the limitation period for a
-claim. What remains is that a signature was made, when, by which method, for which service and
-over which digests — no longer anyone&#39;s personal data. Billing is built from that record alone.</p>
+<p><strong>The log</strong> is everything about the fact of signing: who signed (name, identity code, certificate
+data), when, by which method, the names of the files, their digests, the outcome and the result
+of validation. It is kept for three years after the latest signature, the limitation period for
+a claim, so a signature can be shown to have been made long after the file itself is gone. Then
+the signer and the file names are erased, from the record and from the validation result — a
+file name such as <code>application_Mari_Maasikas.pdf</code> can be personal data in itself. What remains is
+that a signature was made, when, by which method, for which service, over which digests and with
+what result — no longer anyone&#39;s personal data. Billing is built from that record alone.</p>
 
 <p>Purging runs once a day, so something due goes <strong>within a day of its date</strong> — a one-day deadline
 can take up to two. <code>purged_at</code> and <code>erased_at</code> on the <a href="#asking">status response</a> say when it
