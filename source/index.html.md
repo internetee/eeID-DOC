@@ -2493,9 +2493,9 @@ waiting for its signer, not a contradiction.
 
 The rest says what eeID still holds. `container_available` is whether the container can be
 [collected](#collecting-the-signed-document) right now, and `documents` lists each document with
-its digests and whether eeID still has its bytes (`stored`). A document's name goes with its
-content, so once the content is gone `filename` is `null`; match documents on `uuid` or the
-digests, not on the name. `purged_at` is set once the content has been [purged](#purging),
+its digests and whether eeID still has its bytes (`stored`). A document's name outlives its
+content and goes when the signers are [erased](#erasing-a-signer), so `filename` can be `null`;
+match documents on `uuid` or the digests, not on the name. `purged_at` is set once the content has been [purged](#purging),
 whether you asked for it or [retention](#retention) did, and `erased_at` once every signer has
 been [erased](#erasing-a-signer) — a signing can have either without the other. Erasing one
 person while others remain sets `erased_at` on their entry in `signatures` only. The response
@@ -2622,12 +2622,12 @@ Two different requests, from two different people, and `DELETE` asks which one y
 
 | Call | What it does |
 | ---- | ------------ |
-| `DELETE /api/signing/sessions/{uuid}` | **Purge.** The source documents, the signed container and their names go. Who signed stays |
+| `DELETE /api/signing/sessions/{uuid}` | **Purge.** The source documents and the signed container go. Who signed, the file names and the validation result stay |
 | `…?signer_id_code=<code>` | **Erase one person.** Their name and identity code go from the record |
-| `…?erase_signers=true` | **Erase everybody** named on the document |
+| `…?erase_signers=true` | **Erase everybody** named on the document, and the file names |
 
-Neither destroys the record that a signing happened: the uuid, the status, the timestamps, the
-method and the document digests remain in every case. That record names nobody, and deleting it
+None of them destroys the record that a signing happened: the uuid, the status, the timestamps,
+the method, the result and the document digests remain in every case. That record names nobody, and deleting it
 would erase the evidence eeID behaved correctly rather than anybody's personal data.
 
 ### Purging
@@ -2657,8 +2657,9 @@ curl -X DELETE https://auth.eeid.ee/api/signing/sessions/$UUID \
 ```
 
 For you finishing with a document before [retention](#retention) would remove it anyway. The
-content goes — the files, the container, and the file names, which can say as much as the file
-(`application_Mari_Maasikas.pdf`) — and the signing goes on saying who signed it. A round still waiting for its signer is expired with
+content goes — the files and the container — and the signing goes on saying who signed it, what
+the files were called and what validation found, as it does once retention has removed the
+content. A round still waiting for its signer is expired with
 it, so a `sign_url` you have handed out stops working, and no further round can be started on a
 purged signing.
 
@@ -2699,7 +2700,8 @@ erases everybody on the document instead, for a request that covers all of them.
 
 Their name, identity code and certificate data go from the record, including from the stored
 result of the signature's validation. When they are the only person named on the
-document, the source documents and the signed container go too — the identity code is inside the
+document, the file names go as well — a name such as `application_Mari_Maasikas.pdf` can be
+personal data in itself — and so do the source documents and the signed container — the identity code is inside the
 signature itself, so a container left behind would keep it.
 
 **When somebody else signed the same document, the documents and the container stay**: the
@@ -2743,23 +2745,23 @@ it could not finish, because you are the one who has to answer the data subject.
 
 ## Retention
 
-Two deadlines: the **content** of a signing goes after a day, and the **people** named in it after
-three years.
+Two deadlines: the **content** of a signing goes after a day, and the **log** of it — who signed,
+what, when and with what result — after three years.
 
 | What | How long |
 | ---- | -------- |
 | The documents you sent | Until the container exists, then purged immediately |
 | …on a service permitted several signatures | 1 day from the latest signature |
 | The signed container — full-file and hash-only alike | 1 day from the latest signature |
-| The names of the documents and the container | Go with the content they name |
+| The names of the documents and the container | 3 years from the latest signature, with the signer |
+| The validation result | Kept; the signer and the file names in it go after 3 years |
 | The content of a signing that never got a signature | 1 day from when it was created |
 | A signing nobody finished | `pending` for a day after it was created, then `expired` |
 | The signer — name, identity code, certificate data | 3 years from the latest signature, then erased |
 | The record and the digests | Kept, naming nobody once the signers are erased |
 | The signer's flow state | 30 minutes after its last step, in memory, never on disk |
 
-**The content** is the documents, the signed container and the names they went by — a file name
-such as `application_Mari_Maasikas.pdf` can be personal data in itself. The hash-only container
+**The content** is the files: the documents and the signed container. The hash-only container
 goes too: eeID cannot read the documents in it, but it carries every signer's certificate.
 
 **Every signature starts the day again.** On a document that collects several signatures, each
@@ -2767,9 +2769,14 @@ next signer has a day from the signature before theirs; the content goes a day a
 A signing that is never signed keeps its content for a day from its creation, so a signer whose
 attempt failed can still try again within that day — after it, start a new signing.
 
-**The signer** is erased three years after the latest signature, the limitation period for a
-claim. What remains is that a signature was made, when, by which method, for which service and
-over which digests — no longer anyone's personal data. Billing is built from that record alone.
+**The log** is everything about the fact of signing: who signed (name, identity code, certificate
+data), when, by which method, the names of the files, their digests, the outcome and the result
+of validation. It is kept for three years after the latest signature, the limitation period for
+a claim, so a signature can be shown to have been made long after the file itself is gone. Then
+the signer and the file names are erased, from the record and from the validation result — a
+file name such as `application_Mari_Maasikas.pdf` can be personal data in itself. What remains is
+that a signature was made, when, by which method, for which service, over which digests and with
+what result — no longer anyone's personal data. Billing is built from that record alone.
 
 Purging runs once a day, so something due goes **within a day of its date** — a one-day deadline
 can take up to two. `purged_at` and `erased_at` on the [status response](#asking) say when it
